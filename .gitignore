@@ -1,0 +1,3 @@
+# Python cache
+/backend/app/__pycache__/
+/backend/app/core/__pycache__/

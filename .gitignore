@@ -1,3 +1,7 @@
 # Python cache
 /backend/app/__pycache__/
 /backend/app/core/__pycache__/
+/backend/app/services/ai_service/__pycache__/
+
+#env file
+.env

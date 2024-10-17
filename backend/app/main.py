@@ -5,6 +5,8 @@ from fastapi import FastAPI, Depends
 
 from core.config import settings, Settings
 
+from services.ai_service.litellm_service import use_litellm
+
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
 
 # Routing
@@ -29,3 +31,7 @@ async def info(info_settings: Annotated[Settings, Depends(get_settings)]):
         "version": info_settings.API_VERSION,
 
     }
+
+@app.get("/use-litellm")
+def use_litellm_key():
+    return {"LiteLLM Response": use_litellm()}

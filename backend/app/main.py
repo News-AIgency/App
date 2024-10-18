@@ -1,10 +1,8 @@
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import FastAPI, Depends
-
-from core.config import settings, Settings
-
+from core.config import Settings, settings
+from fastapi import Depends, FastAPI
 from services.ai_service.litellm_service import use_litellm
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
@@ -15,23 +13,26 @@ app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
 # app.include_router(frontend.router, prefix="/api/v1/frontend", tags=["frontend"])
 # app.include_router(qdrant.router, prefix="/api/v1/qdrant", tags=["qdrant"])
 
+
 @lru_cache
-def get_settings():
+def get_settings() -> Settings:
     return Settings()
+
 
 # Health check endpoint
 @app.get("/health")
-def health_check():
+def health_check() -> dict:
     return {"status": "OK"}
 
+
 @app.get("/info")
-async def info(info_settings: Annotated[Settings, Depends(get_settings)]):
+async def info(info_settings: Annotated[Settings, Depends(get_settings)]) -> dict:
     return {
         "app_name": info_settings.PROJECT_NAME,
         "version": info_settings.API_VERSION,
-
     }
 
+
 @app.get("/use-litellm")
-def use_litellm_key():
+def use_litellm_key() -> dict:
     return {"LiteLLM Response": use_litellm()}

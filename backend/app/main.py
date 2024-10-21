@@ -1,17 +1,16 @@
 from functools import lru_cache
 from typing import Annotated
 
+import uvicorn
+from App.backend.app.api.v1.endpoints import url_to_topic
 from core.config import Settings, settings
 from fastapi import Depends, FastAPI
-from services.ai_service.litellm_service import use_litellm
+from services.ai_service.litellm_service import LiteLLMService
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
 
 # Routing
-# app.include_router(scrape.router, prefix="/api/v1/scrape", tags=["scrape"])
-# app.include_router(ai.router, prefix="/api/v1/ai", tags=["ai"])
-# app.include_router(frontend.router, prefix="/api/v1/frontend", tags=["frontend"])
-# app.include_router(qdrant.router, prefix="/api/v1/qdrant", tags=["qdrant"])
+app.include_router(url_to_topic.router)
 
 
 @lru_cache
@@ -35,4 +34,9 @@ async def info(info_settings: Annotated[Settings, Depends(get_settings)]) -> dic
 
 @app.get("/use-litellm")
 def use_litellm_key() -> dict:
-    return {"LiteLLM Response": use_litellm()}
+    ai_service = LiteLLMService()
+    return {"LiteLLM Response": ai_service.test_litellm()}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)

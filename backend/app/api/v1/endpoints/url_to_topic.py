@@ -5,6 +5,9 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
+# Global cache for the scraped article
+# Cache as dict will probably be necessary once, similar articles will be looked up in vector db.
+articles_cache = {}
 
 class TopicsResponse(BaseModel):
     topics: list[str]
@@ -24,7 +27,11 @@ async def extract_topics(
     ),
 ) -> TopicsResponse:
     try:
-        scraped_content = await jina_scrape(url)
+        if url not in articles_cache:
+            scraped_content = await jina_scrape(url)
+            articles_cache[url] = scraped_content
+        else:
+            scraped_content = articles_cache[url]
 
         ai_service = LiteLLMService()
         generated_topics = ai_service.generate_topics(scraped_content)

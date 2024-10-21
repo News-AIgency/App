@@ -9,6 +9,7 @@ router = APIRouter()
 # Cache as dict will probably be necessary once, similar articles will be looked up in vector db.
 articles_cache = {}
 
+
 class TopicsResponse(BaseModel):
     topics: list[str]
 

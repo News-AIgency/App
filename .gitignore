@@ -4,7 +4,14 @@
 /backend/app/services/ai_service/__pycache__/
 
 #env file
-.env
+backend/app/core/.env
 
 #scraper venv
 /backend/app/services/scraping_service/scraper_env
+
+/venv
+/backend/app/services/scraping_service/__pycache__
+/backend/app/services/__pycache__
+/backend/app/api/v1/endpoints/__pycache__
+/backend/app/api/v1/__pycache__
+/backend/app/api/__pycache__

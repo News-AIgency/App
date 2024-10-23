@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import Annotated
 
 import uvicorn
-from App.backend.app.api.v1.endpoints import url_to_topic
+from App.backend.app.api.v1.endpoints import topic_to_article, url_to_topic
 from core.config import Settings, settings
 from fastapi import Depends, FastAPI
 from services.ai_service.litellm_service import LiteLLMService
@@ -11,6 +11,7 @@ app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
 
 # Routing
 app.include_router(url_to_topic.router)
+app.include_router(topic_to_article.router)
 
 
 @lru_cache

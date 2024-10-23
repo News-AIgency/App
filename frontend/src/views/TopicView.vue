@@ -1,0 +1,3 @@
+<template>
+  Topic View
+</template>

@@ -2,12 +2,10 @@ from functools import lru_cache
 from typing import Annotated
 
 import uvicorn
-
-from backend.app.api.main import api_router
-
 from fastapi import Depends, FastAPI
 
-from backend.app.core.config import settings, Settings
+from backend.app.api.main import api_router
+from backend.app.core.config import Settings, settings
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)

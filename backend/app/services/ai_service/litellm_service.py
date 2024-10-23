@@ -1,5 +1,6 @@
-from backend.app.core.config import settings
 from litellm import completion
+
+from backend.app.core.config import settings
 
 
 class LiteLLMService:

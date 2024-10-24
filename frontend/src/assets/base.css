@@ -19,8 +19,8 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
 
-  --gradient-background-dark: linear-gradient(180deg, #000000, #363139);
-  --color--accent: #9F00FF;
+  --gradient-background-dark: linear-gradient(180deg, #141718, #363139);
+  --color-accent: #9F00FF;
 }
 
 /* semantic color variables for this project */
@@ -49,6 +49,7 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-1);
+    --color-accent: var(var(--color-accent));
   }
 }
 

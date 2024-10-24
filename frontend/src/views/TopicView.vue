@@ -3,23 +3,34 @@
     <h2 class="title">Topic Suggestions</h2>
 
     <form class="topics">
-      <button class="topic-button">
-        <span class="topic-num">1</span>Topic name #1
+      <button @click.prevent="goToArticle" class="topic-button">
+        <span class="topic-num">1</span><p class="topic-label">Topic name #1</p>
         <span class="material-icons forward-arrow">arrow_forward</span>
       </button>
 
-      <button class="topic-button">
-        <span class="topic-num">2</span>Topic name #2
+      <button @click.prevent="goToArticle" class="topic-button">
+        <span class="topic-num">2</span><p class="topic-label">Topic name #2</p>
         <span class="material-icons forward-arrow">arrow_forward</span>
       </button>
-      
-      <button class="topic-button">
-        <span class="topic-num">3</span>Topic name #3
+
+      <button @click.prevent="goToArticle" class="topic-button">
+        <span class="topic-num">3</span><p class="topic-label">Topic name #3</p>
         <span class="material-icons forward-arrow">arrow_forward</span>
       </button>
     </form>
   </div>
 </template>
+
+<script lang="ts">
+export default {
+  methods: {
+  goToArticle() {
+    this.$router.push('/article');
+  }
+},
+}
+
+</script>
 
 <style scoped>
 .topic-selection {
@@ -32,6 +43,7 @@
 }
 
 .title {
+  color: var(--color-text);
   font-size: 2em;
   font-weight: bold;
   margin-top: 1%;
@@ -55,7 +67,7 @@
   border-radius: 5px;
   border: 0px transparent;
   background-color: #38383E;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,1);
 }
 
 .topic-button:hover {
@@ -66,7 +78,7 @@
 }
 
 .forward-arrow {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 1);
   font-size: 24px;
   opacity: 0;
   position: absolute;
@@ -79,12 +91,11 @@
 }
 
 .topic-num {
-  width: 5%;
-  height: 50%;
-  text-align: center;
-  margin-right: 10%;
-  margin-left: 2%;
+  width: auto;
+  height: auto;
+  padding: 10px 20px;
   color: #fff;
+  text-align: center;
   font-weight: bold;
 }
 </style>

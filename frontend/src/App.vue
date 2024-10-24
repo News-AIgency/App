@@ -11,4 +11,7 @@ import { RouterView } from 'vue-router'
 </template>
 
 <style scoped>
+.navbar {
+  color: var(--color-text);
+}
 </style>

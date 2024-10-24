@@ -1,7 +1,8 @@
-from backend.app.services.ai_service.litellm_service import LiteLLMService
-from backend.app.services.scraping_service.jina_scraper import jina_scrape
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
+
+from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.scraping_service.jina_scraper import jina_scrape
 
 router = APIRouter()
 

@@ -1,3 +1,9 @@
+# Add the 'App' directory (parent of 'backend') to sys.path
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 from functools import lru_cache
 from typing import Annotated
 

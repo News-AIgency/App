@@ -32,4 +32,4 @@ async def jina_scrape(scrape_url: str) -> str | None:
             response.raise_for_status()
             return await response.text()
     except requests.RequestException as e:
-        raise Exception('An error has occured during request', e)
+        raise Exception("An error has occured during request", e)

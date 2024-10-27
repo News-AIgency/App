@@ -34,6 +34,7 @@ import { RouterView } from 'vue-router'
   display: flex;
   margin: auto;
   margin-top: 20px;
+  padding-top: 20px;
   margin-bottom: 20px;
   flex-direction: column;
   justify-content: center;

@@ -7,8 +7,7 @@
           <h3>Title</h3>
           <p class="word-counter">Word count: 000</p>
         </div>
-        <textarea id="title-textarea">
-Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
+        <textarea id="title-textarea" v-model="title"></textarea
         >
       </div>
 
@@ -42,14 +41,31 @@ Občania, firmy aj obce čoraz viac využívajú možnosti dotácií na inštal�
 
     </div>
 
-    <div class="suggestion-wrapper">
-      <h3>Title suggestions</h3>
-      <button>Title #1</button>
-      <button>Title #2</button>
-      <button>Title #3</button>
+    <div class="title-suggestion-wrapper">
+      <h2 class="filler"></h2>
+      <h3 class="header-container">Title suggestions</h3>
+      <button class="title-btn" @click="copyTitle($event)">Priemerné ceny pohonných látok v SR vzrástli o 2 centy za liter</button>
+      <button class="title-btn" @click="copyTitle($event)">Ceny benzínov a nafty zaznamenali najvyššiu hodnotu od septembra</button>
+      <button class="title-btn" @click="copyTitle($event)">Spotrebitelia platili za motorovú naftu v priemere 1,420 eura za liter</button>
     </div>
   </div>
 </template>
+
+<script lang="ts">
+export default {
+  data() {
+    return {
+      title: "",
+    };
+  },
+  methods: {
+    copyTitle(event: MouseEvent) {
+      const target = event.target as HTMLButtonElement;
+      this.title = target.textContent || "";
+    }
+  },
+}
+</script>
 
 <style scoped>
 html {
@@ -58,32 +74,54 @@ html {
 .page-wrapper {
   margin: auto;
   display: flex;
-  width: 90%;
+  width: 95%;
+  gap: 0 px;
   justify-content: flex-end;
   flex-direction: row;
   color: var(--color-text);
 }
 
+.filler {
+  padding: 25.5px;
+}
+
+.title-btn {
+  background-color: rgba(56, 56, 62, 0.75);
+  color: rgba(255, 255 ,255, 0.5);
+  border: 0px;
+  border-radius: 5px;
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.title-btn:hover {
+  background-color: rgba(76, 76, 83, 0.75);
+  color: white;
+}
+
 .action-bar {
   display: flex;
   justify-content: flex-end;
+  margin-top: 8px;
 }
 
 .textarea-container textarea {
   width: 100%;
 }
 
-.suggestion-wrapper {
+.title-suggestion-wrapper {
   display: flex;
-  width: 20%;
+  width: 30%;
   flex-direction: column;
 }
 
 .textarea-wrapper {
   display: flex;
-  width: 60%;
+  width: 50%;
   flex-direction: column;
-  margin-right: 5%;
+  margin-right: 2%;
 }
 
 .header-container {
@@ -108,9 +146,13 @@ html {
   font-weight: 600;
   font-size: 12px;
   padding: 10px;
-  margin-top: 10px;
   cursor: pointer;
 
+  transition: box-shadow 0.4s ease;
+
+}
+.export-button:hover {
+  box-shadow: 0 0 8px #9F00FF;
 }
 
 .title {
@@ -130,7 +172,7 @@ textarea {
   border: 2px solid rgb(84, 84, 84);
 }
 
-.header-container h3 {
+h3 {
   font-weight: 600;
 }
 

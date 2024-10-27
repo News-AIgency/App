@@ -16,7 +16,7 @@ class TopicsResponse(BaseModel):
 
 
 # Temporary default url for testing purposes
-@router.get("/article_topics", response_model=TopicsResponse)
+@router.get("/article/topics", response_model=TopicsResponse)
 async def extract_topics(
     url: str = Query(
         "https://slovak.statistics.sk/wps/portal/ext/products/informationmessages/inf_sprava_detail/7516cc54-0681-4ae1"

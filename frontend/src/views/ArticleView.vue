@@ -5,7 +5,7 @@
       <div class="textarea-container">
         <div class="header-container">
           <h3>Title</h3>
-          <p class="word-counter">Word count: 000</p>
+          <p class="word-counter">Word count: {{ titleWordCount }}</p>
         </div>
         <textarea id="title-textarea" v-model="title"></textarea
         >
@@ -14,29 +14,22 @@
       <div class="textarea-container">
         <div class="header-container">
           <h3>Perex</h3>
-          <p class="word-counter">Word count: 000</p>
+          <p class="word-counter">Word count: {{ perexWordCount }}</p>
         </div>
-        <textarea id="perex-textarea" v-model="perex">
-V roku 2023 Slovensko dosiahlo rekordný nárast využívania obnoviteľných zdrojov energie, čo predstavuje významný krok smerom k ekologickejšej budúcnosti krajiny.</textarea
+        <textarea id="perex-textarea" v-model="perex"></textarea
         >
       </div>
 
       <div class="textarea-container">
         <div class="header-container">
           <h3>Body</h3>
-          <p class="word-counter">Word count: 000</p>
+          <p class="word-counter">Word count: {{ bodyWordCount }}</p>
         </div>
-        <textarea id="body-textarea" v-model="body">
-Slovenská republika v roku 2023 zaznamenala historicky najvyšší rast v oblasti obnoviteľných zdrojov energie, vrátane solárnej a veternej energie. Podľa údajov Ministerstva životného prostredia sa podiel energie z obnoviteľných zdrojov zvýšil o 15 % oproti predchádzajúcemu roku, čo predstavuje najväčší nárast v novodobej histórii krajiny.
-
-Minister životného prostredia Ján Novák v tejto súvislosti uviedol, že Slovensko sa rýchlo približuje k svojmu cieľu dosiahnuť 30 % energie z obnoviteľných zdrojov do roku 2030. „Tieto výsledky sú dôkazom, že opatrenia a investície do zelenej energie prinášajú ovocie. Sme na správnej ceste k splneniu našich ekologických záväzkov,“ dodal Novák.
-
-Okrem rastu solárnych elektrární sa rozšírila aj infraštruktúra veternej energie, najmä na západe krajiny, kde vzniklo niekoľko nových veterných fariem. Slovensko tiež pokračuje v budovaní projektov pre zvyšovanie energetickej efektívnosti a znižovanie závislosti od fosílnych palív.
-Občania, firmy aj obce čoraz viac využívajú možnosti dotácií na inštaláciu solárnych panelov a iných zariadení na výrobu obnoviteľnej energie. Tento trend prispieva nielen k čistejšiemu životnému prostrediu, ale aj k vytváraniu nových pracovných miest v sektore zelenej energie.</textarea
+        <textarea id="body-textarea" v-model="body"></textarea
         >
       </div>
       <div class="action-bar">
-        <button class="export-button">Export</button>
+        <button class="export-button" @click="exportText">Export</button>
       </div>
 
     </div>
@@ -62,6 +55,16 @@ export default {
   },
   mounted () {
     this.loadFromLocalStorage();
+  },computed: {
+    titleWordCount(): number {
+      return this.countWords(this.title);
+    },
+    perexWordCount(): number {
+      return this.countWords(this.perex);
+    },
+    bodyWordCount(): number {
+      return this.countWords(this.body);
+    },
   },
   methods: {
     copyTitle(event: MouseEvent) {
@@ -72,7 +75,22 @@ export default {
       this.title = localStorage.getItem('title') || '';
       this.perex = localStorage.getItem('perex') || '';
       this.body = localStorage.getItem('body') || '';
-    }
+    },
+    exportText() {
+      const content = `Title:\n${this.title}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`;
+      const blob = new Blob([content], { type: "text/plain" });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "article.txt";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    },
+    countWords(text: string): number {
+      return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    },
   },
   watch: {
   title(newValue) {

@@ -16,7 +16,7 @@
           <h3>Perex</h3>
           <p class="word-counter">Word count: 000</p>
         </div>
-        <textarea id="perex-textarea">
+        <textarea id="perex-textarea" v-model="perex">
 V roku 2023 Slovensko dosiahlo rekordný nárast využívania obnoviteľných zdrojov energie, čo predstavuje významný krok smerom k ekologickejšej budúcnosti krajiny.</textarea
         >
       </div>
@@ -26,7 +26,7 @@ V roku 2023 Slovensko dosiahlo rekordný nárast využívania obnoviteľných zd
           <h3>Body</h3>
           <p class="word-counter">Word count: 000</p>
         </div>
-        <textarea id="body-textarea">
+        <textarea id="body-textarea" v-model="body">
 Slovenská republika v roku 2023 zaznamenala historicky najvyšší rast v oblasti obnoviteľných zdrojov energie, vrátane solárnej a veternej energie. Podľa údajov Ministerstva životného prostredia sa podiel energie z obnoviteľných zdrojov zvýšil o 15 % oproti predchádzajúcemu roku, čo predstavuje najväčší nárast v novodobej histórii krajiny.
 
 Minister životného prostredia Ján Novák v tejto súvislosti uviedol, že Slovensko sa rýchlo približuje k svojmu cieľu dosiahnuť 30 % energie z obnoviteľných zdrojov do roku 2030. „Tieto výsledky sú dôkazom, že opatrenia a investície do zelenej energie prinášajú ovocie. Sme na správnej ceste k splneniu našich ekologických záväzkov,“ dodal Novák.
@@ -56,14 +56,35 @@ export default {
   data() {
     return {
       title: "",
+      perex: "",
+      body: ""
     };
+  },
+  mounted () {
+    this.loadFromLocalStorage();
   },
   methods: {
     copyTitle(event: MouseEvent) {
       const target = event.target as HTMLButtonElement;
       this.title = target.textContent || "";
+    },
+    loadFromLocalStorage() {
+      this.title = localStorage.getItem('title') || '';
+      this.perex = localStorage.getItem('perex') || '';
+      this.body = localStorage.getItem('body') || '';
     }
   },
+  watch: {
+  title(newValue) {
+    localStorage.setItem('title', newValue);
+  },
+  perex(newValue) {
+    localStorage.setItem('perex', newValue);
+  },
+  body(newValue) {
+    localStorage.setItem('body', newValue);
+  }
+}
 }
 </script>
 

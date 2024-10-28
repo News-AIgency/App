@@ -21,3 +21,4 @@ Pipfile.lock
 /backend/__pycache__
 /backend/app/api/routes/__pycache__
 /backend/app/.idea
+/backend/app/utils

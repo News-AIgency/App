@@ -1,6 +1,10 @@
+import json
+
 from litellm import completion
 
 from backend.app.core.config import settings
+from backend.app.services.ai_service.response_models import TopicsResponse
+from backend.app.utils.language_enum import Language
 
 
 class LiteLLMService:
@@ -25,26 +29,36 @@ class LiteLLMService:
 
         return response["choices"][0]["message"]["content"]
 
-    def generate_topics(self, scraped_content: str | None) -> list[str]:
+    def generate_topics(
+        self,
+        scraped_content: str | None,
+        topics_count: int = 5,
+        language: Language = Language.SLOVAK,
+    ) -> TopicsResponse:
         response = completion(
             model=self.model,
             messages=[
                 {
                     "role": "user",
-                    "content": f"Generate list of 5 topics based on this scraped news article: {scraped_content}. "
-                    f"No numbering, no introductory text, just topics. The result should not have any "
-                    f"characters representing bullet points. The topics should be in the same language "
-                    f"as the news article.",
+                    "content": f"Generate list of {topics_count} topics based on this scraped news article: {scraped_content}. "
+                    f"No numbering, no introductory text, just topics. "
+                    f"The result should not have any characters representing bullet points. "
+                    f"The topics should be in the {language} language as the news article. "
+                    f"The news report should be factual as well as neutral.",
                 }
             ],
+            response_format=TopicsResponse,
             api_key=self.api_key,
             base_url=self.litellm_url,
         )
 
-        topics_text = response.choices[0].message.content.strip()
-        topics = [topic.strip() for topic in topics_text.split("\n") if topic.strip()]
+        message_content = response.choices[0].message.content
+        parsed_content = json.loads(message_content)
 
-        return topics
+        chain_of_thought = parsed_content.get("chain_of_thought", "")
+        topics = parsed_content.get("topics", [])
+
+        return TopicsResponse(chain_of_thought=chain_of_thought, topics=topics)
 
     def generate_article(self, scraped_content: str | None) -> list[list[str]]:
         response = completion(

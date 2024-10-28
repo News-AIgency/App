@@ -46,8 +46,8 @@
       },
 
       async pasteUrl() {
-        const text = await navigator.clipboard.readText()
-        this.input += text
+        const text = await navigator.clipboard.readText();
+        this.input += text;
       },
     },
   }

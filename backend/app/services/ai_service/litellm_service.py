@@ -1,5 +1,5 @@
 import instructor
-from litellm import completion
+from litellm import acompletion
 
 from backend.app.core.config import settings
 from backend.app.services.ai_service.response_models import (
@@ -17,11 +17,10 @@ class LiteLLMService:
         self.litellm_url = "http://147.175.151.44/"
         self.model = "gpt-4o-mini"
 
-        # Set up the Instructor client with the Router
-        self.client = instructor.from_litellm(completion)
+        self.client = instructor.from_litellm(acompletion)
 
-    def test_litellm(self) -> TestLiteLLMPoem:
-        response = self.client.chat.completions.create(
+    async def test_litellm(self) -> TestLiteLLMPoem:
+        response = await self.client.chat.completions.create(
             model=self.model,
             response_model=TestLiteLLMPoem,
             messages=[
@@ -36,13 +35,13 @@ class LiteLLMService:
 
         return response
 
-    def generate_topics(
+    async def generate_topics(
         self,
         scraped_content: str | None,
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             response_model=TopicsResponse,
             messages=[
@@ -61,8 +60,8 @@ class LiteLLMService:
 
         return response
 
-    def generate_article(self, scraped_content: str | None) -> ArticleResponse:
-        response = self.client.completions.create(
+    async def generate_article(self, scraped_content: str | None) -> ArticleResponse:
+        response = await self.client.completions.create(
             model=self.model,
             response_model=ArticleResponse,
             messages=[

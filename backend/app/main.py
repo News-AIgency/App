@@ -42,9 +42,9 @@ async def info(info_settings: Annotated[Settings, Depends(get_settings)]) -> dic
 
 
 @app.get("/use-litellm")
-def use_litellm_key() -> TestLiteLLMPoem:
+async def use_litellm_key() -> TestLiteLLMPoem:
     ai_service = LiteLLMService()
-    return ai_service.test_litellm()
+    return await ai_service.test_litellm()
 
 
 if __name__ == "__main__":

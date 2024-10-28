@@ -21,7 +21,7 @@ async def extract_article(
             scraped_article = default_article
 
         ai_service = LiteLLMService()
-        article = ai_service.generate_article(scraped_article)
+        article = await ai_service.generate_article(scraped_article)
 
         return article
     except Exception as e:

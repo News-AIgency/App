@@ -30,7 +30,7 @@ async def extract_topics(
             scraped_content = articles_cache[url]
 
         ai_service = LiteLLMService()
-        generated_topics = ai_service.generate_topics(scraped_content)
+        generated_topics = await ai_service.generate_topics(scraped_content)
 
         return generated_topics
     except Exception as e:

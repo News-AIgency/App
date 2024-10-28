@@ -1,12 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from backend.app.api.routes.url_to_topic import articles_cache
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
 
 router = APIRouter()
-
-articles_cache = {}
 
 
 class ArticleResponse(BaseModel):
@@ -15,7 +14,7 @@ class ArticleResponse(BaseModel):
     article: str
 
 
-@router.get("/article_article", response_model=ArticleResponse)
+@router.get("/article/generate", response_model=ArticleResponse)
 async def extract_article(
     url: str = Query(
         "https://slovak.statistics.sk/wps/portal/ext/products/informationmessages/inf_sprava_detail/7516cc54-0681-4ae1"

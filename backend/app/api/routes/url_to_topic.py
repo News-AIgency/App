@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
+from litellm import CustomStreamWrapper
+from litellm.types.utils import ModelResponse
 
 from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.response_models import TopicsResponse
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
 
 router = APIRouter()
@@ -9,10 +11,6 @@ router = APIRouter()
 # Global cache for the scraped article
 # Cache as dict will probably be necessary once, similar articles will be looked up in vector db.
 articles_cache = {}
-
-
-class TopicsResponse(BaseModel):
-    topics: list[str]
 
 
 # Temporary default url for testing purposes
@@ -27,7 +25,7 @@ async def extract_topics(
         "pmXW7zcA5FAMMcS8UENB1YI9VMq2DkTYY7GQhbKOForIi92VxRtOqr59Lzj-ZR9cwJMhdOTbVD6_vgomAaqrtvjX4vlfECT30XY3zs2TPEHWrv"
         "rQNZ6fZN1uks-xsfV3tI6uIvf_KEB8Zjfs7OwDaThnGA!!/dz/d5/L2dBISEvZ0FBIS9nQSEh/"
     ),
-) -> TopicsResponse:
+) -> ModelResponse | CustomStreamWrapper:
     try:
         if url not in articles_cache:
             scraped_content = await jina_scrape(url)
@@ -38,6 +36,6 @@ async def extract_topics(
         ai_service = LiteLLMService()
         generated_topics = ai_service.generate_topics(scraped_content)
 
-        return TopicsResponse(topics=generated_topics)
+        return generated_topics
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

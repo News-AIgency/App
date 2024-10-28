@@ -41,10 +41,10 @@ class LiteLLMService:
                 {
                     "role": "user",
                     "content": f"Generate list of {topics_count} topics based on this scraped news article: {scraped_content}. "
-                               f"No numbering, no introductory text, just topics. "
-                               f"The result should not have any characters representing bullet points. "
-                               f"The topics should be in the {language} language as the news article. "
-                               f"The news report should be factual as well as neutral.",
+                    f"No numbering, no introductory text, just topics. "
+                    f"The result should not have any characters representing bullet points. "
+                    f"The topics should be in the {language} language as the news article. "
+                    f"The news report should be factual as well as neutral.",
                 }
             ],
             response_format=TopicsResponse,

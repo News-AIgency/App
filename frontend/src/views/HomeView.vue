@@ -7,7 +7,8 @@
       <input
       type="url"
       placeholder="Enter URL to an article"
-      class="url-input">
+      class="url-input"
+      v-model="input">
       <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
       </div>
       <button @click.prevent="goToTopics" class="generate-btn">Generate</button>
@@ -16,11 +17,38 @@
 </template>
 
 <script lang="ts">
+  //import axios from 'axios';
+
   export default {
+    data() {
+      return {
+        input: "",
+      };
+    },
+
     methods: {
+      isValidUrl(string: string) {
+        try {
+          new URL(string);
+          return true;
+        } catch (err) {
+          return false;
+        }
+      },
+
+      /*
+      test() {
+        axios.get();
+      },*/
+
       goToTopics() {
         this.$router.push('/topics');
-      }
+      },
+
+      async pasteUrl() {
+        const text = await navigator.clipboard.readText()
+        this.input += text
+      },
     },
   }
 </script>

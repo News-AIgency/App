@@ -12,8 +12,9 @@ router = APIRouter()
 articles_cache = {}
 
 
-# Temporary default url for testing purposes
-@router.get("/article/topics", response_model=TopicsResponse)
+# Temporary default url for testing purposes, temporary get and post method at the same time
+@router.post("/article/topics", response_model=TopicsResponse)
+@router.get("/article/topics", response_model=TopicsResponse)  # Also allow GET requests
 async def extract_topics(
     url: str = default_article,
 ) -> TopicsResponse:

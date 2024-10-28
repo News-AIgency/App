@@ -8,6 +8,8 @@ from backend.app.utils.default_article import default_article
 router = APIRouter()
 
 
+# Temporary get and post method at the same time
+@router.post("/article/generate", response_model=ArticleResponse)
 @router.get("/article/generate", response_model=ArticleResponse)
 async def extract_article(
     url: str = default_article,

@@ -29,7 +29,6 @@ default_article = "Priemerné ceny pohonných látok v SR – 41. týždeň 2024
 "Uvedený dynamický graf si možno stiahnuť aj v statických formátoch za dlhší časový rad vo vysokom rozlíšení vo formáte PDF (87 kB), alebo ako súbor PNG (175 kB)."
 
 
-
 "1) od 7. októbra 2024 do 13. októbra 2024"
 "2) porovnanie aktuálneho týždňa oproti rovnakému týždňu minulého roka"
 "Zdroj údajov databáza DATAcube:"

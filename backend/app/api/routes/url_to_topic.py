@@ -18,6 +18,7 @@ async def extract_topics(
     url: str = default_article,
 ) -> TopicsResponse:
     try:
+        # Temporary solution until scraper works again
         if url not in articles_cache:
             if url == default_article:
                 scraped_content = url

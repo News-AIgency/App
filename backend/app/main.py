@@ -2,6 +2,8 @@
 import os
 import sys
 
+from backend.app.services.ai_service.response_models import TestLiteLLMPoem
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from functools import lru_cache
@@ -40,9 +42,9 @@ async def info(info_settings: Annotated[Settings, Depends(get_settings)]) -> dic
 
 
 @app.get("/use-litellm")
-def use_litellm_key() -> dict:
+def use_litellm_key() -> TestLiteLLMPoem:
     ai_service = LiteLLMService()
-    return {"LiteLLM Response": ai_service.test_litellm()}
+    return ai_service.test_litellm()
 
 
 if __name__ == "__main__":

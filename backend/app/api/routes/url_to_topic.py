@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi_cache import FastAPICache
 
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 from backend.app.services.ai_service.response_models import TopicsResponse
@@ -7,28 +8,32 @@ from backend.app.utils.default_article import default_article, default_article_u
 
 router = APIRouter()
 
-# Global cache for the scraped article
-# Cache as dict will probably be necessary once, similar articles will be looked up in vector db.
-articles_cache = {}
-
 
 # Temporary default url for testing purposes, temporary get and post method at the same time
 @router.post("/article/topics", response_model=TopicsResponse)
-@router.get("/article/topics", response_model=TopicsResponse)  # Also allow GET requests
+@router.get("/article/topics", response_model=TopicsResponse)
 async def extract_topics(
     url: str = default_article,
 ) -> TopicsResponse:
     try:
+        cache_key = f"article:{url}"
+        default_cache_key = f"article:{default_article_url}"
+        cached_content = await FastAPICache.get_backend().get(cache_key)
+
         # Temporary solution until scraper works again
-        if url not in articles_cache:
+        if not cached_content:
             if url == default_article:
                 scraped_content = url
-                articles_cache[default_article_url] = scraped_content
+                await FastAPICache.get_backend().set(
+                    default_cache_key, scraped_content, expire=3600
+                )
             else:
                 scraped_content = await jina_scrape(url)
-                articles_cache[url] = scraped_content
+                await FastAPICache.get_backend().set(
+                    cache_key, scraped_content, expire=3600
+                )
         else:
-            scraped_content = articles_cache[url]
+            scraped_content = cached_content
 
         ai_service = LiteLLMService()
         generated_topics = await ai_service.generate_topics(scraped_content)

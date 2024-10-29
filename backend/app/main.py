@@ -1,22 +1,35 @@
 # Add the 'App' directory (parent of 'backend') to sys.path
 import os
 import sys
+from contextlib import asynccontextmanager
 
 from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
+from collections.abc import AsyncIterator
 from functools import lru_cache
 from typing import Annotated
 
 import uvicorn
 from fastapi import Depends, FastAPI
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 
-app = FastAPI(title=settings.PROJECT_NAME, version=settings.API_VERSION)
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    FastAPICache.init(InMemoryBackend())
+    yield
+
+
+app = FastAPI(
+    title=settings.PROJECT_NAME, version=settings.API_VERSION, lifespan=lifespan
+)
 
 # Routing
 app.include_router(api_router)

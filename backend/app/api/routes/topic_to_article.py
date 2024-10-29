@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
+from fastapi_cache import FastAPICache
 
-from backend.app.api.routes.url_to_topic import articles_cache
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 from backend.app.services.ai_service.response_models import ArticleResponse
 from backend.app.utils.default_article import default_article
@@ -15,10 +15,13 @@ async def extract_article(
     url: str = default_article,
 ) -> ArticleResponse:
     try:
+        cache_key = f"fastapi-cache:extract_topics:{url}"
+        cached_content = await FastAPICache.get_backend().get(cache_key)
+
         # Temporary solution until scraper works again, change logic once it works
         scraped_article = "Article is missing"
-        if url in articles_cache:
-            scraped_article = articles_cache[url]
+        if cached_content:
+            scraped_article = cached_content
         elif url == default_article:
             scraped_article = default_article
 

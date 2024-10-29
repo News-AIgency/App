@@ -1,9 +1,12 @@
-import json
-
-from litellm import completion
+import instructor
+from litellm import acompletion
 
 from backend.app.core.config import settings
-from backend.app.services.ai_service.response_models import TopicsResponse
+from backend.app.services.ai_service.response_models import (
+    ArticleResponse,
+    TestLiteLLMPoem,
+    TopicsResponse,
+)
 from backend.app.utils.language_enum import Language
 
 
@@ -14,9 +17,12 @@ class LiteLLMService:
         self.litellm_url = "http://147.175.151.44/"
         self.model = "gpt-4o-mini"
 
-    def test_litellm(self) -> str:
-        response = completion(
+        self.client = instructor.from_litellm(acompletion)
+
+    async def test_litellm(self) -> TestLiteLLMPoem:
+        response = await self.client.chat.completions.create(
             model=self.model,
+            response_model=TestLiteLLMPoem,
             messages=[
                 {
                     "role": "user",
@@ -27,16 +33,17 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response["choices"][0]["message"]["content"]
+        return response
 
-    def generate_topics(
+    async def generate_topics(
         self,
         scraped_content: str | None,
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        response = completion(
+        response = await self.client.chat.completions.create(
             model=self.model,
+            response_model=TopicsResponse,
             messages=[
                 {
                     "role": "user",
@@ -47,22 +54,16 @@ class LiteLLMService:
                     f"The news report should be factual as well as neutral.",
                 }
             ],
-            response_format=TopicsResponse,
             api_key=self.api_key,
             base_url=self.litellm_url,
         )
 
-        message_content = response.choices[0].message.content
-        parsed_content = json.loads(message_content)
+        return response
 
-        chain_of_thought = parsed_content.get("chain_of_thought", "")
-        topics = parsed_content.get("topics", [])
-
-        return TopicsResponse(chain_of_thought=chain_of_thought, topics=topics)
-
-    def generate_article(self, scraped_content: str | None) -> list[list[str]]:
-        response = completion(
+    async def generate_article(self, scraped_content: str | None) -> ArticleResponse:
+        response = await self.client.completions.create(
             model=self.model,
+            response_model=ArticleResponse,
             messages=[
                 {
                     "role": "user",
@@ -88,11 +89,4 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        response_text = response.choices[0].message.content.strip()
-        print(response_text)
-        sections = [
-            section.strip() for section in response_text.split(";") if section.strip()
-        ]
-        split_sections = [section.split("\n") for section in sections]
-
-        return split_sections
+        return response

@@ -12,12 +12,14 @@ router = APIRouter()
 articles_cache = {}
 
 
-# Temporary default url for testing purposes
-@router.get("/article/topics", response_model=TopicsResponse)
+# Temporary default url for testing purposes, temporary get and post method at the same time
+@router.post("/article/topics", response_model=TopicsResponse)
+@router.get("/article/topics", response_model=TopicsResponse)  # Also allow GET requests
 async def extract_topics(
     url: str = default_article,
 ) -> TopicsResponse:
     try:
+        # Temporary solution until scraper works again
         if url not in articles_cache:
             if url == default_article:
                 scraped_content = url
@@ -29,7 +31,7 @@ async def extract_topics(
             scraped_content = articles_cache[url]
 
         ai_service = LiteLLMService()
-        generated_topics = ai_service.generate_topics(scraped_content)
+        generated_topics = await ai_service.generate_topics(scraped_content)
 
         return generated_topics
     except Exception as e:

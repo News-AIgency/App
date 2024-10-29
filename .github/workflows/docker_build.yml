@@ -31,7 +31,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker Image
-        run: docker build -f ./Dockerfile.backend -t ghcr.io/NEWS_AIGENCY/backend:latest .
+        run: docker build -f ./Dockerfile.backend -t ghcr.io/news_aigency/backend:latest .
 
       - name: Push Docker Image
-        run: docker push ghcr.io/NEWS_AIGENCY/backend:latest
+        run: docker push ghcr.io/news_aigency/backend:latest

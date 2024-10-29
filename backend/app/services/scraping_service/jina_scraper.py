@@ -20,7 +20,7 @@ async def jina_scrape(scrape_url: str) -> str | None:
 
     url = f"https://r.jina.ai/{scrape_url}"
     headers = {
-        "Authorization": "Bearer jina_4bf764a7ecb14279909a0de3932925edzjw867nnXuzflFhXYoikwLJGL7eH",
+        "Authorization": "Bearer jina_0105e860f85f4b36b4f3404db5f478baBzooCc42HxqCJcuKYZ4Y4Gb5iApR",
         "X-Timeout": "5",
     }
 

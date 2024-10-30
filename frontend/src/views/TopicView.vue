@@ -6,7 +6,7 @@
       <button
         v-for="(topic, index) in topics"
         :key="index"
-        @click.prevent="goToArticle()"
+        @click.prevent="selectTopic(topic)"
         class="topic-button"
       >
         <span class="topic-num">{{ index + 1 }}</span>
@@ -18,21 +18,36 @@
 </template>
 
 <script lang="ts">
+import { useArticleStore } from '@/stores/articleStore';
 import { useTopicsStore } from '../stores/topicsStore'
 
 export default {
   setup() {
+    const articleStore = useArticleStore();
     const topicsStore = useTopicsStore();
-    return {topicsStore}
+    return {topicsStore, articleStore}
+  },
+  data() {
+      return {
+        selectedTopic: ''
+      }
   },
   computed: {
     topics() {
-      return this.topicsStore.getTopics
+      return this.topicsStore.getTopics;
     }
   },
   methods: {
-  goToArticle() {
+  selectTopic(topic: string) {
+    this.selectedTopic = topic;
+    const articleStore = useArticleStore();
+    articleStore.selectedTopic = topic;
     this.$router.push('/article');
+  }
+},
+watch: {
+  selectedTopic(newValue) {
+    localStorage.setItem("selectedTopic", newValue);
   }
 },
 }

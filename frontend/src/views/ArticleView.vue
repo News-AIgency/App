@@ -1,14 +1,13 @@
 <template>
   <div class="page-wrapper">
     <div class="textarea-wrapper">
-      <h2 class="title">ARTICLE TOPIC</h2>
+      <h2 class="title">{{ selectedTopic }}</h2>
       <div class="textarea-container">
         <div class="header-container">
           <h3>Title</h3>
           <p class="word-counter">Word count: {{ titleWordCount }}</p>
         </div>
-        <textarea id="title-textarea" v-model="title"></textarea
-        >
+        <textarea id="title-textarea" v-model="title"></textarea>
       </div>
 
       <div class="textarea-container">
@@ -16,8 +15,7 @@
           <h3>Perex</h3>
           <p class="word-counter">Word count: {{ perexWordCount }}</p>
         </div>
-        <textarea id="perex-textarea" v-model="perex"></textarea
-        >
+        <textarea id="perex-textarea" v-model="perex"></textarea>
       </div>
 
       <div class="textarea-container">
@@ -25,84 +23,103 @@
           <h3>Body</h3>
           <p class="word-counter">Word count: {{ bodyWordCount }}</p>
         </div>
-        <textarea id="body-textarea" v-model="body"></textarea
-        >
+        <textarea id="body-textarea" v-model="body"></textarea>
       </div>
       <div class="action-bar">
         <button class="export-button" @click="exportText">Export</button>
       </div>
-
     </div>
 
     <div class="title-suggestion-wrapper">
       <h2 class="filler"></h2>
       <h3 class="header-container">Title suggestions</h3>
-      <button class="title-btn" @click="copyTitle($event)">Priemerné ceny pohonných látok v SR vzrástli o 2 centy za liter</button>
-      <button class="title-btn" @click="copyTitle($event)">Ceny benzínov a nafty zaznamenali najvyššiu hodnotu od septembra</button>
-      <button class="title-btn" @click="copyTitle($event)">Spotrebitelia platili za motorovú naftu v priemere 1,420 eura za liter</button>
+      <button
+        v-for="(suggestion, index) in titleSuggestions"
+        :key="index"
+        class="title-btn"
+        @click="copyTitle(suggestion)"
+      >
+        {{ suggestion }}
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { useArticleStore } from '@/stores/articleStore'
+
 export default {
+  setup() {
+    const articleStore = useArticleStore();
+    return {articleStore}
+  },
   data() {
     return {
-      title: "",
-      perex: "",
-      body: ""
-    };
+      title: '',
+      perex: '',
+      body: '',
+    }
   },
-  mounted () {
-    this.loadFromLocalStorage();
-  },computed: {
+  mounted() {
+    this.loadFromLocalStorage()
+  },
+  computed: {
     titleWordCount(): number {
-      return this.countWords(this.title);
+      return this.countWords(this.title)
     },
     perexWordCount(): number {
-      return this.countWords(this.perex);
+      return this.countWords(this.perex)
     },
     bodyWordCount(): number {
-      return this.countWords(this.body);
+      return this.countWords(this.body)
     },
+    selectedTopic(): string {
+      return this.articleStore.selectedTopic;
+    },
+    titleSuggestions(): string[] {
+      return this.articleStore.titleSuggestions;
+    }
   },
   methods: {
-    copyTitle(event: MouseEvent) {
-      const target = event.target as HTMLButtonElement;
-      this.title = target.textContent || "";
+    copyTitle(title: string) {
+      this.title = title || ''
     },
     loadFromLocalStorage() {
       this.title = localStorage.getItem('title') || '';
       this.perex = localStorage.getItem('perex') || '';
       this.body = localStorage.getItem('body') || '';
+      this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
     },
     exportText() {
-      const content = `Title:\n${this.title}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`;
-      const blob = new Blob([content], { type: "text/plain" });
+      const content = `Title:\n${this.title}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`
+      const blob = new Blob([content], { type: 'text/plain' })
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "article.txt";
-      a.click();
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'article.txt'
+      a.click()
 
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url)
     },
     countWords(text: string): number {
-      return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+      return text
+        .trim()
+        .split(/\s+/)
+        .filter(word => word.length > 0).length
     },
   },
   watch: {
-  title(newValue) {
-    localStorage.setItem('title', newValue);
+    title(newValue) {
+      localStorage.setItem('title', newValue)
+    },
+    perex(newValue) {
+      localStorage.setItem('perex', newValue)
+    },
+    body(newValue) {
+      localStorage.setItem('body', newValue)
+    },
   },
-  perex(newValue) {
-    localStorage.setItem('perex', newValue);
-  },
-  body(newValue) {
-    localStorage.setItem('body', newValue);
-  }
-}
 }
 </script>
 
@@ -126,7 +143,7 @@ html {
 
 .title-btn {
   background-color: rgba(56, 56, 62, 0.75);
-  color: rgba(255, 255 ,255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
   border: 0px;
   border-radius: 5px;
   padding: 8px;
@@ -188,10 +205,9 @@ html {
   cursor: pointer;
 
   transition: box-shadow 0.4s ease;
-
 }
 .export-button:hover {
-  box-shadow: 0 0 8px #9F00FF;
+  box-shadow: 0 0 8px #9f00ff;
 }
 
 .title {

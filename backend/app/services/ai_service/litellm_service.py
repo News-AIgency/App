@@ -63,7 +63,7 @@ class LiteLLMService:
     async def generate_article(
         self,
         scraped_content: str | None,
-        headlines_count: int = 5,
+        headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
         response = await self.client.completions.create(

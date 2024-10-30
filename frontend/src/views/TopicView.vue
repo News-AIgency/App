@@ -3,18 +3,14 @@
     <h2 class="title">Topic Suggestions</h2>
 
     <form class="topics">
-      <button @click.prevent="goToArticle" class="topic-button">
-        <span class="topic-num">1</span><p class="topic-label">Topic name #1</p>
-        <span class="material-icons forward-arrow">arrow_forward</span>
-      </button>
-
-      <button @click.prevent="goToArticle" class="topic-button">
-        <span class="topic-num">2</span><p class="topic-label">Topic name #2</p>
-        <span class="material-icons forward-arrow">arrow_forward</span>
-      </button>
-
-      <button @click.prevent="goToArticle" class="topic-button">
-        <span class="topic-num">3</span><p class="topic-label">Topic name #3</p>
+      <button
+        v-for="(topic, index) in topics"
+        :key="index"
+        @click.prevent="goToArticle()"
+        class="topic-button"
+      >
+        <span class="topic-num">{{ index + 1 }}</span>
+        <p class="topic-label">{{ topic }}</p>
         <span class="material-icons forward-arrow">arrow_forward</span>
       </button>
     </form>
@@ -22,7 +18,18 @@
 </template>
 
 <script lang="ts">
+import { useTopicsStore } from '../stores/topicsStore'
+
 export default {
+  setup() {
+    const topicsStore = useTopicsStore();
+    return {topicsStore}
+  },
+  computed: {
+    topics() {
+      return this.topicsStore.getTopics
+    }
+  },
   methods: {
   goToArticle() {
     this.$router.push('/article');

@@ -1,10 +1,8 @@
-# Add the 'App' directory (parent of 'backend') to sys.path
 import os
 import sys
 from contextlib import asynccontextmanager
 
-from backend.app.services.ai_service.response_models import TestLiteLLMPoem
-
+# Add the 'App' directory (parent of 'backend') to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from collections.abc import AsyncIterator
@@ -19,6 +17,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
 from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 
 
 @asynccontextmanager

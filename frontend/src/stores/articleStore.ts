@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia';
+import axios from 'axios';
 
 export const useArticleStore = defineStore ('article', {
   state: () => ({
@@ -9,4 +10,19 @@ export const useArticleStore = defineStore ('article', {
     body: "" as string,
     url: "" as string
   }),
+  actions: {
+    async fetchArticle(url: string, topic: string) {
+      try {
+        const response = await axios.post('Link na article generate endpoint', {url: url, topic: topic});
+
+        this.title = response.data.title;
+        this.perex = response.data.perex;
+        this.body = response.data.body;
+        this.url = url;
+
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
 });

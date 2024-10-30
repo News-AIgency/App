@@ -8,21 +8,20 @@
       type="url"
       placeholder="Enter URL to an article"
       class="url-input"
-      v-model="input">
+      v-model="inputURL">
       <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
       </div>
-      <button @click.prevent="goToTopics" class="generate-btn">Generate</button>
+      <button @click.prevent="sendURL" class="generate-btn">Generate</button>
     </form>
   </main>
 </template>
 
 <script lang="ts">
-  //import axios from 'axios';
 
   export default {
     data() {
       return {
-        input: "",
+        inputURL: "",
       };
     },
 
@@ -31,15 +30,23 @@
         try {
           new URL(string);
           return true;
-        } catch (err) {
+        } catch (error) {
+          console.error('Invalid URL: ', error);
           return false;
         }
       },
 
-      /*
-      test() {
-        axios.get();
-      },*/
+      async sendURL() {
+        try {
+          if (!this.isValidUrl(this.inputURL)) {
+            console.error("Invalid URL");
+            return
+          }
+          this.goToTopics();
+        } catch(error) {
+          console.error('Error at sendURL: ', error);
+        }
+      },
 
       goToTopics() {
         this.$router.push('/topics');
@@ -47,7 +54,7 @@
 
       async pasteUrl() {
         const text = await navigator.clipboard.readText();
-        this.input += text;
+        this.inputURL += text;
       },
     },
   }

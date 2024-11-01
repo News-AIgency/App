@@ -13,6 +13,7 @@ import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
@@ -33,6 +34,18 @@ app = FastAPI(
 # Routing
 app.include_router(api_router)
 
+# CORS 
+origins = [
+    "http://localhost:5173/",
+    "http://team04-24.studenti.fiit.stuba.sk/"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @lru_cache
 def get_settings() -> Settings:

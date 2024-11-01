@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts">
+  import { useTopicsStore } from '@/stores/topicsStore'
 
   export default {
     data() {
@@ -49,6 +50,8 @@
       },
 
       goToTopics() {
+        const topicsStore = useTopicsStore();
+        topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
       },
 

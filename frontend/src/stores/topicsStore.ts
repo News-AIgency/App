@@ -14,7 +14,7 @@ export const useTopicsStore = defineStore('topics', {
     async fetchTopics(url: string) {
       try {
 
-        const response = await axios.post('Link na topic endpoint', {url: url});
+        const response = await axios.post('http://localhost:8000/article/topics', {url: url});
         this.topics = response.data.topics;
 
       } catch (error) {

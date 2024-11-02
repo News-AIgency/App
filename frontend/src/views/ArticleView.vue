@@ -9,7 +9,7 @@
         </div>
         <div class="textarea-copy-wrapper">
           <span class="material-icons copy-icon" @click="copyText('title-textarea')">content_copy</span>
-          <textarea id="title-textarea" v-model="title"  @input="autoResize"></textarea>
+          <textarea id="title-textarea" v-model="title" @input="autoResize"></textarea>
         </div>
       </div>
 
@@ -52,12 +52,13 @@
       <div class="tags-container">
         <h3>Tags</h3>
         <div class="tags">
-          <div v-for="(tag, index) in tags"
-          :key="index">
+          <div v-for="(tag, index) in tags" :key="index">
             {{ tag }}
             <span class="material-icons close-icon" @click="delTag(index)">close</span>
-        </div>
-        <div class="material-icons add-icon" @click="addTag">add</div>
+          </div>
+          <input v-if="isAddingTag" v-model="newTag" id="tag-input" class="tag-input" @keyup.enter="confirmTag"
+            @blur="confirmTag" placeholder="Type tag and press Enter" />
+          <div class="material-icons add-icon" @click="addTag">add</div>
         </div>
       </div>
 
@@ -69,12 +70,8 @@
     <div class="title-suggestion-wrapper">
       <h2 class="filler"></h2>
       <h3 class="header-container">Title suggestions</h3>
-      <button
-        v-for="(suggestion, index) in titleSuggestions"
-        :key="index"
-        class="title-btn"
-        @click="copyTitle(suggestion)"
-      >
+      <button v-for="(suggestion, index) in titleSuggestions" :key="index" class="title-btn"
+        @click="copyTitle(suggestion)">
         {{ suggestion }}
       </button>
     </div>
@@ -87,7 +84,7 @@ import { useArticleStore } from '@/stores/articleStore'
 export default {
   setup() {
     const articleStore = useArticleStore();
-    return {articleStore}
+    return { articleStore }
   },
   data() {
     return {
@@ -95,9 +92,13 @@ export default {
       perex: '',
       body: '',
       engagingText: '',
+      isAddingTag: false,
+      newTag: '',
+      tags: [] as string[] ,
     }
   },
   mounted() {
+    this.tags = [...this.articleStore.tags];
     this.loadFromLocalStorage()
   },
   computed: {
@@ -119,9 +120,6 @@ export default {
     titleSuggestions(): string[] {
       return this.articleStore.titleSuggestions;
     },
-    tags(): string[] {
-      return this.articleStore.tags;
-    },
     timeToRead(): string {
       return this.calcTimeToRead(this.bodyWordCount);
     },
@@ -131,13 +129,13 @@ export default {
       this.title = title || ''
     },
     copyText(textarea_id: string) {
-        const text = document.getElementById(textarea_id) as HTMLTextAreaElement | null;
-        if (text) {
-          text.select();
-          navigator.clipboard.writeText(text.value);
-        } else {
-            console.error("Element with ID ", textarea_id, " not found");
-        }
+      const text = document.getElementById(textarea_id) as HTMLTextAreaElement | null;
+      if (text) {
+        text.select();
+        navigator.clipboard.writeText(text.value);
+      } else {
+        console.error("Element with ID ", textarea_id, " not found");
+      }
     },
     autoResize(event: Event) {
       const target = event.target as HTMLTextAreaElement;
@@ -149,6 +147,10 @@ export default {
       this.engagingText = localStorage.getItem('engagingText') || '';
       this.perex = localStorage.getItem('perex') || '';
       this.body = localStorage.getItem('body') || '';
+      if (localStorage.getItem('tags') != null) {
+        const savedTags = localStorage.getItem('tags');
+        this.tags = savedTags ? JSON.parse(savedTags) : [];
+      }
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
     },
     exportText() {
@@ -179,11 +181,26 @@ export default {
       return `${minutes} min ${seconds} sec`;
     },
     delTag(index: number) {
-      this.tags.splice(index, 1);
+      this.articleStore.tags.splice(index, 1);
+      this.tags.splice(index, 1)
+      this.tags = [...this.tags];
     },
     addTag() {
-      
-    }
+      this.isAddingTag = true;
+      this.$nextTick(() => {
+        const input = document.getElementById("tag-input");
+        input && input.focus();
+      });
+    },
+    confirmTag() {
+      if (this.newTag.trim()) {
+        this.articleStore.tags.push(this.newTag.trim());
+        this.tags.push(this.newTag.trim())
+        this.tags = [...this.tags]
+      }
+      this.newTag = '';
+      this.isAddingTag = false;
+    },
   },
   watch: {
     title(newValue) {
@@ -198,6 +215,10 @@ export default {
     body(newValue) {
       localStorage.setItem('body', newValue)
     },
+    tags(newValue) {
+      console.log(newValue)
+      localStorage.setItem('tags', JSON.stringify(newValue))
+    },
   },
 }
 </script>
@@ -206,6 +227,7 @@ export default {
 html {
   scroll-behavior: smooth;
 }
+
 .page-wrapper {
   margin: auto;
   display: flex;
@@ -300,11 +322,24 @@ html {
   opacity: 0.5;
 }
 
+.tag-input {
+  border: none;
+  border-radius: 5px;
+  padding-left: 1%;
+  background-color: rgba(76, 76, 83, 0.75);
+  color: white;
+  outline: none;
+}
+
 .tags {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  gap: 2%;
+  white-space: nowrap;
+  flex-wrap: wrap;
+  gap: 10px 10px;
+  margin-top: 1%;
+  margin-bottom: 1%;
 }
 
 .close-icon {
@@ -329,15 +364,14 @@ html {
 
 .tags div {
   background-color: rgba(76, 76, 83, 0.75);
-  color: var(--color-text); 
+  color: var(--color-text);
   border: 0px;
   border-radius: 5px;
   padding: 4px 8px;
-  margin-top: 1%;
   text-align: left;
   display: inline-flex;
   align-items: center;
-  gap: 4px; 
+  gap: 4px;
 }
 
 .word-count-time-to-read-wrapper {
@@ -360,6 +394,7 @@ html {
 
   transition: box-shadow 0.4s ease;
 }
+
 .export-button:hover {
   box-shadow: 0 0 8px #9f00ff;
 }
@@ -389,10 +424,12 @@ h3 {
   height: 6em;
   min-height: 6em;
 }
+
 #engaging-textarea {
   height: 6em;
   min-height: 6em;
 }
+
 #body-textarea {
   height: 25em;
   min-height: 25em;

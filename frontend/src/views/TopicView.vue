@@ -13,19 +13,28 @@
         <p class="topic-label">{{ topic }}</p>
         <span class="material-icons forward-arrow">arrow_forward</span>
       </button>
+      <div class="loading-container" v-show="topicsStore.loading">
+        <LoadingSpinner></LoadingSpinner>
+        Generating topics...
+      </div>
     </form>
   </div>
 </template>
 
 <script lang="ts">
 import { useArticleStore } from '@/stores/articleStore';
-import { useTopicsStore } from '../stores/topicsStore'
+import { useTopicsStore } from '../stores/topicsStore';
+import LoadingSpinner from '../components/LoadingSpinner.vue';
 
 export default {
+
   setup() {
     const articleStore = useArticleStore();
     const topicsStore = useTopicsStore();
     return {topicsStore, articleStore}
+  },
+  components: {
+    LoadingSpinner
   },
   data() {
       return {
@@ -62,6 +71,17 @@ watch: {
   justify-content: space-between;
   height: 100%;
   padding: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  gap: 6px;
+  color:rgba(255, 255, 255, 0.5);
+  margin-top: 20px;
 }
 
 .title {

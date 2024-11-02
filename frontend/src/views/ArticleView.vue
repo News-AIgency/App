@@ -7,7 +7,10 @@
           <h3>Title</h3>
           <p class="word-counter">Word count: {{ titleWordCount }}</p>
         </div>
-        <textarea id="title-textarea" v-model="title"></textarea>
+        <div class="textarea-copy-wrapper">
+          <span class="material-icons copy-icon" @click="copyText('title-textarea')">content_copy</span>
+          <textarea id="title-textarea" v-model="title"  @input="autoResize"></textarea>
+        </div>
       </div>
 
       <div class="textarea-container">
@@ -15,7 +18,10 @@
           <h3>Perex</h3>
           <p class="word-counter">Word count: {{ perexWordCount }}</p>
         </div>
-        <textarea id="perex-textarea" v-model="perex"></textarea>
+        <div class="textarea-copy-wrapper">
+          <span class="material-icons copy-icon" @click="copyText('perex-textarea')">content_copy</span>
+          <textarea id="perex-textarea" v-model="perex" @input="autoResize"></textarea>
+        </div>
       </div>
 
       <div class="textarea-container">
@@ -23,7 +29,10 @@
           <h3>Body</h3>
           <p class="word-counter">Word count: {{ bodyWordCount }}</p>
         </div>
-        <textarea id="body-textarea" v-model="body"></textarea>
+        <div class="textarea-copy-wrapper">
+          <span class="material-icons copy-icon" @click="copyText('body-textarea')">content_copy</span>
+          <textarea id="body-textarea" v-model="body" @input="autoResize"></textarea>
+        </div>
       </div>
       <div class="action-bar">
         <button class="export-button" @click="exportText">Export</button>
@@ -84,6 +93,20 @@ export default {
     copyTitle(title: string) {
       this.title = title || ''
     },
+    copyText(textarea_id: string) {
+        const text = document.getElementById(textarea_id) as HTMLTextAreaElement | null;
+        if (text) {
+          text.select();
+          navigator.clipboard.writeText(text.value);
+        } else {
+            console.error("Element with ID ", textarea_id, " not found");
+        }
+    },
+    autoResize(event: Event) {
+      const target = event.target as HTMLTextAreaElement;
+      target.style.height = 'auto';
+      target.style.height = `${target.scrollHeight}px`;
+    },
     loadFromLocalStorage() {
       this.title = localStorage.getItem('title') || '';
       this.perex = localStorage.getItem('perex') || '';
@@ -131,7 +154,7 @@ html {
   margin: auto;
   display: flex;
   width: 95%;
-  gap: 0 px;
+  gap: 0px;
   justify-content: flex-end;
   flex-direction: row;
   color: var(--color-text);
@@ -139,6 +162,25 @@ html {
 
 .filler {
   padding: 25.5px;
+}
+
+.textarea-copy-wrapper {
+  position: relative;
+}
+
+.textarea {
+  padding-right: 10%;
+}
+
+.copy-icon {
+  position: absolute;
+  top: 9px;
+  right: 5px;
+  padding: 1%;
+  opacity: 50%;
+  cursor: pointer;
+  user-select: none;
+  font-size: 20px;
 }
 
 .title-btn {
@@ -165,6 +207,10 @@ html {
 
 .textarea-container textarea {
   width: 100%;
+  padding-right: 40px;
+  box-sizing: border-box;
+  overflow: hidden;
+  resize: none;
 }
 
 .title-suggestion-wrapper {

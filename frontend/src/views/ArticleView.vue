@@ -53,7 +53,7 @@
         <h3>Tags</h3>
         <div class="tags">
           <div v-for="(tag, index) in tags" :key="index">
-            {{ tag }}
+            #{{ tag }}
             <span class="material-icons close-icon" @click="delTag(index)">close</span>
           </div>
           <input v-if="isAddingTag" v-model="newTag" id="tag-input" class="tag-input" @keyup.enter="confirmTag"
@@ -154,7 +154,8 @@ export default {
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
     },
     exportText() {
-      const content = `Title:\n${this.title}\n\nEngaging text:\n${this.engagingText}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`
+      const tagsText = this.tags.length > 0 ? this.tags.map(tag => `#${tag}`).join(', ') : 'No tags';
+      const content = `Title:\n${this.title}\n\nEngaging text:\n${this.engagingText}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}\n\nTags:\n${tagsText}`
       const blob = new Blob([content], { type: 'text/plain' })
 
       const url = URL.createObjectURL(blob)

@@ -48,6 +48,19 @@
           <textarea id="body-textarea" v-model="body" @input="autoResize"></textarea>
         </div>
       </div>
+
+      <div class="tags-container">
+        <h3>Tags</h3>
+        <div class="tags">
+          <div v-for="(tag, index) in tags"
+          :key="index">
+            {{ tag }}
+            <span class="material-icons close-icon" @click="delTag(index)">close</span>
+        </div>
+        <div class="material-icons add-icon" @click="addTag">add</div>
+        </div>
+      </div>
+
       <div class="action-bar">
         <button class="export-button" @click="exportText">Export</button>
       </div>
@@ -106,6 +119,9 @@ export default {
     titleSuggestions(): string[] {
       return this.articleStore.titleSuggestions;
     },
+    tags(): string[] {
+      return this.articleStore.tags;
+    },
     timeToRead(): string {
       return this.calcTimeToRead(this.bodyWordCount);
     },
@@ -162,6 +178,12 @@ export default {
 
       return `${minutes} min ${seconds} sec`;
     },
+    delTag(index: number) {
+      this.tags.splice(index, 1);
+    },
+    addTag() {
+      
+    }
   },
   watch: {
     title(newValue) {
@@ -276,6 +298,46 @@ html {
 .time-to-read {
   font-size: 12px;
   opacity: 0.5;
+}
+
+.tags {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 2%;
+}
+
+.close-icon {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-icon:hover {
+  color: var(--color-accent);
+}
+
+.add-icon {
+  cursor: pointer;
+}
+
+.add-icon:hover {
+  color: var(--color-accent);
+}
+
+.tags div {
+  background-color: rgba(76, 76, 83, 0.75);
+  color: var(--color-text); 
+  border: 0px;
+  border-radius: 5px;
+  padding: 4px 8px;
+  margin-top: 1%;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; 
 }
 
 .word-count-time-to-read-wrapper {

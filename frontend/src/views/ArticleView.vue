@@ -38,7 +38,10 @@
       <div class="textarea-container">
         <div class="header-container">
           <h3>Body</h3>
-          <p class="word-counter">Word count: {{ bodyWordCount }}</p>
+          <div class="word-count-time-to-read-wrapper">
+            <p class="time-to-read">Time to read: {{ timeToRead }}</p>
+            <p class="word-counter">Word count: {{ bodyWordCount }}</p>
+          </div>
         </div>
         <div class="textarea-copy-wrapper">
           <span class="material-icons copy-icon" @click="copyText('body-textarea')">content_copy</span>
@@ -86,23 +89,26 @@ export default {
   },
   computed: {
     titleWordCount(): number {
-      return this.countWords(this.title)
+      return this.countWords(this.title);
     },
     perexWordCount(): number {
-      return this.countWords(this.perex)
+      return this.countWords(this.perex);
     },
     engagingTextWordCount(): number {
-      return this.countWords(this.engagingText)
+      return this.countWords(this.engagingText);
     },
     bodyWordCount(): number {
-      return this.countWords(this.body)
+      return this.countWords(this.body);
     },
     selectedTopic(): string {
       return this.articleStore.selectedTopic;
     },
     titleSuggestions(): string[] {
       return this.articleStore.titleSuggestions;
-    }
+    },
+    timeToRead(): string {
+      return this.calcTimeToRead(this.bodyWordCount);
+    },
   },
   methods: {
     copyTitle(title: string) {
@@ -146,6 +152,15 @@ export default {
         .trim()
         .split(/\s+/)
         .filter(word => word.length > 0).length
+    },
+    calcTimeToRead(wordNum: number) {
+      const wordsPerMinute = 200;
+      const totalSeconds = Math.ceil((wordNum / wordsPerMinute) * 60);
+
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+
+      return `${minutes} min ${seconds} sec`;
     },
   },
   watch: {
@@ -256,6 +271,18 @@ html {
 .word-counter {
   font-size: 12px;
   opacity: 0.5;
+}
+
+.time-to-read {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.word-count-time-to-read-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .export-button {

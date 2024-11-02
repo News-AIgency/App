@@ -51,7 +51,7 @@
 
       goToTopics() {
         const topicsStore = useTopicsStore();
-        topicsStore.fetchTopics(this.inputURL);
+        topicsStore.fetchTopics();
         this.$router.push('/topics');
       },
 

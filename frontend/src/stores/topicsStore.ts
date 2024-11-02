@@ -1,5 +1,7 @@
 import {defineStore} from 'pinia';
-import axios from 'axios';
+// import axios from 'axios';
+
+import TopicsService from '@/services/TopicsService'
 
 export const useTopicsStore = defineStore('topics', {
   state: () => ({
@@ -11,11 +13,11 @@ export const useTopicsStore = defineStore('topics', {
     }
   },
   actions: {
-    async fetchTopics(url: string) {
+    async fetchTopics() {
       try {
 
-        const response = await axios.post('http://localhost:8000/article/topics', {url: url});
-        this.topics = response.data.topics;
+        // const response = await axios.post('http://localhost:8000/article/topics', {url: url});
+        this.topics = (await TopicsService.topics()).data.topics
 
       } catch (error) {
         console.error(error)

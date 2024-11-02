@@ -15,6 +15,17 @@
 
       <div class="textarea-container">
         <div class="header-container">
+          <h3>Engaging text</h3>
+          <p class="word-counter">Word count: {{ engagingTextWordCount }}</p>
+        </div>
+        <div class="textarea-copy-wrapper">
+          <span class="material-icons copy-icon" @click="copyText('engaging-textarea')">content_copy</span>
+          <textarea id="engaging-textarea" v-model="engagingText" @input="autoResize"></textarea>
+        </div>
+      </div>
+
+      <div class="textarea-container">
+        <div class="header-container">
           <h3>Perex</h3>
           <p class="word-counter">Word count: {{ perexWordCount }}</p>
         </div>
@@ -67,6 +78,7 @@ export default {
       title: '',
       perex: '',
       body: '',
+      engagingText: '',
     }
   },
   mounted() {
@@ -78,6 +90,9 @@ export default {
     },
     perexWordCount(): number {
       return this.countWords(this.perex)
+    },
+    engagingTextWordCount(): number {
+      return this.countWords(this.engagingText)
     },
     bodyWordCount(): number {
       return this.countWords(this.body)
@@ -109,12 +124,13 @@ export default {
     },
     loadFromLocalStorage() {
       this.title = localStorage.getItem('title') || '';
+      this.engagingText = localStorage.getItem('engagingText') || '';
       this.perex = localStorage.getItem('perex') || '';
       this.body = localStorage.getItem('body') || '';
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
     },
     exportText() {
-      const content = `Title:\n${this.title}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`
+      const content = `Title:\n${this.title}\n\nEngaging text:\n${this.engagingText}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}`
       const blob = new Blob([content], { type: 'text/plain' })
 
       const url = URL.createObjectURL(blob)
@@ -135,6 +151,9 @@ export default {
   watch: {
     title(newValue) {
       localStorage.setItem('title', newValue)
+    },
+    engagingText(newValue) {
+      localStorage.setItem('engagingText', newValue)
     },
     perex(newValue) {
       localStorage.setItem('perex', newValue)
@@ -279,8 +298,14 @@ h3 {
 
 #perex-textarea {
   height: 6em;
+  min-height: 6em;
+}
+#engaging-textarea {
+  height: 6em;
+  min-height: 6em;
 }
 #body-textarea {
   height: 25em;
+  min-height: 25em;
 }
 </style>

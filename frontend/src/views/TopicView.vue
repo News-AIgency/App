@@ -1,5 +1,18 @@
 <template>
   <div class="topic-selection">
+    <h2 class="title">Custom topic</h2>
+    <div class="custom-topic-container">
+      <input
+        type="text"
+        placeholder="Enter custom topic"
+        class="topic-input"
+        v-model="customTopic"
+      />
+      <button class="custom-topic-button" :disabled="!customTopic.trim()" @click.prevent="selectTopic(customTopic)">
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    </div>
+    <div class="or-divider">OR</div>
     <h2 class="title">Topic Suggestions</h2>
 
     <form class="topics">
@@ -22,45 +35,57 @@
 </template>
 
 <script lang="ts">
-import { useArticleStore } from '@/stores/articleStore';
-import { useTopicsStore } from '../stores/topicsStore';
-import LoadingSpinner from '../components/LoadingSpinner.vue';
+import { useArticleStore } from '@/stores/articleStore'
+import { useTopicsStore } from '../stores/topicsStore'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
 export default {
-
   setup() {
-    const articleStore = useArticleStore();
-    const topicsStore = useTopicsStore();
-    return {topicsStore, articleStore}
+    const articleStore = useArticleStore()
+    const topicsStore = useTopicsStore()
+    return { topicsStore, articleStore }
   },
   components: {
-    LoadingSpinner
+    LoadingSpinner,
   },
   data() {
-      return {
-        selectedTopic: ''
-      }
+    return {
+      selectedTopic: '',
+      customTopic: '',
+    }
+  },
+  mounted() {
+    this.loadFromLocalStorage()
   },
   computed: {
     topics() {
-      return this.topicsStore.getTopics;
-    }
+      return this.topicsStore.getTopics
+    },
   },
   methods: {
-  selectTopic(topic: string) {
-    this.selectedTopic = topic;
-    const articleStore = useArticleStore();
-    articleStore.selectedTopic = topic;
-    this.$router.push('/article');
-  }
-},
-watch: {
-  selectedTopic(newValue) {
-    localStorage.setItem("selectedTopic", newValue);
-  }
-},
+    selectTopic(topic: string) {
+      console.log("TOPIC: ", topic);
+      this.selectedTopic = topic;
+      const articleStore = useArticleStore();
+      articleStore.selectedTopic = topic;
+      this.$router.push('/article');
+    },
+    loadFromLocalStorage() {
+      if (localStorage.getItem('generatedTopics') != null) {
+        const topics = localStorage.getItem('generatedTopics');
+        this.topicsStore.topics = topics ? JSON.parse(topics) : [];
+      }
+    }
+  },
+  watch: {
+    selectedTopic(newValue) {
+      localStorage.setItem('selectedTopic', newValue)
+    },
+    topics(newValue) {
+      localStorage.setItem("generatedTopics", JSON.stringify(newValue))
+    }
+  },
 }
-
 </script>
 
 <style scoped>
@@ -72,6 +97,43 @@ watch: {
   height: 100%;
   padding: 20px;
 }
+.custom-topic-container {
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 1%;
+}
+.custom-topic-button {
+  aspect-ratio: 1/1;
+  height: 58px;
+  background-color: rgba(212, 217, 228, 0.16);
+  border: 0px transparent;
+  border-radius: 5px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.custom-topic-button:disabled {
+  background-color: rgba(212, 217, 228, 0.2);
+  cursor: not-allowed;
+}
+.topic-input {
+  width: 100%;
+  background-color: rgba(212, 217, 228, 0.16);
+  border: 0px transparent;
+  border-radius: 5px;
+  padding-left: 16px;
+  outline: none;
+  caret-color: white;
+  color: rgba(255, 255, 255, 0.7);
+  height: 58px;
+  margin-left: 2%;
+}
+
+.or-divider {
+  margin: 20px 0px;
+  opacity: 0.75;
+}
 
 .loading-container {
   display: flex;
@@ -80,7 +142,7 @@ watch: {
   align-items: center;
   height: auto;
   gap: 6px;
-  color:rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 20px;
 }
 
@@ -88,7 +150,6 @@ watch: {
   color: var(--color-text);
   font-size: 2em;
   font-weight: bold;
-  margin-top: 1%;
 }
 
 .topics {
@@ -108,15 +169,21 @@ watch: {
   margin: 2%;
   border-radius: 5px;
   border: 0px transparent;
-  background-color: #38383E;
-  color: rgba(255,255,255,1);
+  background-color: #38383e;
+  color: rgba(255, 255, 255, 1);
+}
+
+.topic-label {
+  text-align: left;
 }
 
 .topic-button:hover {
-  background-color: #9F00FF;
+  background-color: #9f00ff;
   transition: 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+  box-shadow:
+    0 6px 10px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .forward-arrow {

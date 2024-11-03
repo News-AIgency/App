@@ -1,7 +1,6 @@
 <template>
   <main>
     <ProgressBar :active-page="TEST"></ProgressBar>
-    <button @click="TEST++">KOLO</button>
     <form>
       <p class="input-heading">Enter URL below</p>
       <p class="input-subheading">to generate topic ideas</p>

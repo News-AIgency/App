@@ -20,12 +20,12 @@
   import { useTopicsStore } from '@/stores/topicsStore'
 
   export default {
+    name: "HomeView",
     data() {
       return {
         inputURL: "",
       };
     },
-
     methods: {
       isValidUrl(string: string) {
         try {
@@ -49,10 +49,15 @@
         }
       },
 
-      goToTopics() {
+      async goToTopics() {
         const topicsStore = useTopicsStore();
-        topicsStore.fetchTopics(this.inputURL);
+
+        try {
+        topicsStore.fetchTopics();
         this.$router.push('/topics');
+        } catch(error) {
+          console.error("Failed to fetch topics: ", error);
+        }
       },
 
       async pasteUrl() {

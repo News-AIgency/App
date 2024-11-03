@@ -34,10 +34,9 @@ app = FastAPI(
 # Routing
 app.include_router(api_router)
 
-# CORS 
+# CORS - testing only
 origins = [
-    "http://localhost:5173/",
-    "http://team04-24.studenti.fiit.stuba.sk/"
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,

@@ -26,6 +26,9 @@
         inputURL: "",
       };
     },
+    mounted() {
+      localStorage.clear();
+    },
     methods: {
       isValidUrl(string: string) {
         try {

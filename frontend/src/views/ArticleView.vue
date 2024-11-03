@@ -4,53 +4,73 @@
       <h2 class="title">{{ selectedTopic }}</h2>
       <div class="textarea-container">
         <div class="header-container">
-          <h3>Title</h3>
+          <h3 class="header-container">Title</h3>
           <p class="word-counter">Word count: {{ titleWordCount }}</p>
         </div>
         <div class="textarea-copy-wrapper">
-          <span class="material-icons copy-icon" @click="copyText('title-textarea')">content_copy</span>
+          <span class="material-icons copy-icon" @click="copyText('title-textarea')" v-b-tooltip.hover
+            title="Copy text to clipboard">content_copy</span>
           <textarea id="title-textarea" v-model="title" @input="autoResize"></textarea>
         </div>
       </div>
 
       <div class="textarea-container">
         <div class="header-container">
-          <h3>Engaging text</h3>
+          <div class="regenerate-wrapper">
+            <h3 class="header-container">Engaging text</h3>
+            <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
+              @click="regenEngagingText">autorenew</button>
+          </div>
           <p class="word-counter">Word count: {{ engagingTextWordCount }}</p>
         </div>
         <div class="textarea-copy-wrapper">
-          <span class="material-icons copy-icon" @click="copyText('engaging-textarea')">content_copy</span>
+          <span class="material-icons copy-icon" @click="copyText('engaging-textarea')" v-b-tooltip.hover
+            title="Copy text to clipboard">content_copy</span>
           <textarea id="engaging-textarea" v-model="engagingText" @input="autoResize"></textarea>
         </div>
       </div>
 
       <div class="textarea-container">
         <div class="header-container">
-          <h3>Perex</h3>
+          <div class="regenerate-wrapper">
+            <h3 class="header-container">Perex</h3>
+            <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
+              @click="regenPerex">autorenew</button>
+          </div>
           <p class="word-counter">Word count: {{ perexWordCount }}</p>
         </div>
         <div class="textarea-copy-wrapper">
-          <span class="material-icons copy-icon" @click="copyText('perex-textarea')">content_copy</span>
+          <span class="material-icons copy-icon" @click="copyText('perex-textarea')" v-b-tooltip.hover
+            title="Copy text to clipboard">content_copy</span>
           <textarea id="perex-textarea" v-model="perex" @input="autoResize"></textarea>
         </div>
       </div>
 
       <div class="textarea-container">
         <div class="header-container">
-          <h3>Body</h3>
+          <div class="regenerate-wrapper">
+            <h3 class="header-container">Body</h3>
+            <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
+              @click="regenBody">autorenew</button>
+          </div>
           <div class="word-count-time-to-read-wrapper">
             <p class="time-to-read">Time to read: {{ timeToRead }}</p>
             <p class="word-counter">Word count: {{ bodyWordCount }}</p>
           </div>
         </div>
         <div class="textarea-copy-wrapper">
-          <span class="material-icons copy-icon" @click="copyText('body-textarea')">content_copy</span>
+          <span class="material-icons copy-icon" @click="copyText('body-textarea')" v-b-tooltip.hover
+            title="Copy text to clipboard">content_copy</span>
           <textarea id="body-textarea" v-model="body" @input="autoResize"></textarea>
         </div>
       </div>
 
       <div class="tags-container">
-        <h3>Tags</h3>
+        <div class="regenerate-wrapper">
+          <h3 class="header-container">Tags</h3>
+          <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
+            @click="regenTags">autorenew</button>
+        </div>
         <div class="tags">
           <div v-for="(tag, index) in tags" :key="index">
             #{{ tag }}
@@ -58,7 +78,7 @@
           </div>
           <input v-if="isAddingTag" v-model="newTag" id="tag-input" class="tag-input" @keyup.enter="confirmTag"
             @blur="confirmTag" placeholder="Type tag and press Enter" />
-          <div class="material-icons add-icon" @click="addTag">add</div>
+          <div class="material-icons add-icon" @click="addTag" v-b-tooltip.hover title="Add tag">add</div>
         </div>
       </div>
 
@@ -69,7 +89,11 @@
 
     <div class="title-suggestion-wrapper">
       <h2 class="filler"></h2>
-      <h3 class="header-container">Title suggestions</h3>
+      <div class="regenerate-wrapper">
+        <h3 class="header-container">Title suggestions</h3>
+        <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
+          @click="regenTitleSuggestions">autorenew</button>
+      </div>
       <button v-for="(suggestion, index) in titleSuggestions" :key="index" class="title-btn"
         @click="copyTitle(suggestion)">
         {{ suggestion }}
@@ -94,7 +118,7 @@ export default {
       engagingText: '',
       isAddingTag: false,
       newTag: '',
-      tags: [] as string[] ,
+      tags: [] as string[],
     }
   },
   mounted() {
@@ -202,6 +226,24 @@ export default {
       this.newTag = '';
       this.isAddingTag = false;
     },
+    regenTitleSuggestions() {
+
+    },
+    regenTitle() {
+
+    },
+    regenEngagingText() {
+
+    },
+    regenPerex() {
+
+    },
+    regenBody() {
+
+    },
+    regenTags() {
+
+    },
   },
   watch: {
     title(newValue) {
@@ -298,6 +340,23 @@ html {
   flex-direction: column;
 }
 
+.regenerate-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.regenerate-button {
+  background-color: transparent;
+  opacity: 0.75;
+  color: var(--color-text);
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
 .textarea-wrapper {
   display: flex;
   width: 50%;
@@ -309,7 +368,7 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   margin-top: 2px;
 }
 

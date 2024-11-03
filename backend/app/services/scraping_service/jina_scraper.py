@@ -19,9 +19,7 @@ async def jina_scrape(scrape_url: str) -> str | None:
         raise ValueError("The argument is not a valid URL")
 
     url = f"https://r.jina.ai/{scrape_url}"
-    headers = {
-        "Content-Type": "application/json"
-    }
+    headers = {"Content-Type": "application/json"}
 
     try:
         async with (

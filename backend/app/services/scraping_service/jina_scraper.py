@@ -20,7 +20,7 @@ async def jina_scrape(scrape_url: str) -> str | None:
 
     url = f"https://r.jina.ai/{scrape_url}"
     headers = {
-        "application/json"
+        "Content-Type": "application/json"
     }
 
     try:
@@ -28,6 +28,7 @@ async def jina_scrape(scrape_url: str) -> str | None:
             aiohttp.ClientSession() as session,
             session.get(url, headers=headers) as response,
         ):
+
             response.raise_for_status()
             return await response.text()
     except requests.RequestException as e:

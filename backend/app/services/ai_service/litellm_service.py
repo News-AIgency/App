@@ -51,6 +51,7 @@ class LiteLLMService:
                     f"No numbering, no introductory text, just topics. "
                     f"The result should not have any characters representing bullet points. "
                     f"The topics should be in the {language} language as the news article. "
+                    f"Each topic should start with capital letter."
                     f"The news report should be factual as well as neutral.",
                 }
             ],

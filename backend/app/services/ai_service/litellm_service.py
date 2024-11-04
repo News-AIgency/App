@@ -64,7 +64,9 @@ class LiteLLMService:
     async def generate_article(
         self,
         scraped_content: str | None,
+        selected_topic: str | None,
         headlines_count: int = 3,
+        tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
         response = await self.client.completions.create(
@@ -74,17 +76,23 @@ class LiteLLMService:
                 {
                     "role": "user",
                     "content": (
-                        f"Generate three sections based on this scraped news article: {scraped_content}. "
+                        f"Generate 5 sections based on this scraped news article: {scraped_content}, and the selected topic: {selected_topic}. "
                         f"The result should not have any characters representing bullet points. All generated text should be in the {language} "
-                        f"language as the news article. Sections will follow the rules below: "
+                        f"language. Sections will follow the rules below: "
                         f"1. Headlines: Generate {headlines_count} headlines that interpret the news in a human-readable way. Headlines should "
-                        f"not be too long to avoid truncation."
-                        f"2. Perex: A short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence "
-                        f"should be interesting, but not too long to avoid truncation. "
-                        f"3. Article: Write a detailed news story that includes as much information as possible found in the scraped content, "
+                        f"be between 70 and 110 characters, including spaces. All headlines should start with a capital letter."
+                        f"2. Engaging text: Generate an engaging text that will hook the reader. Engaging text should not be longer than 240 "
+                        f"characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the "
+                        f"headline and compliment it."
+                        f"3. Perex: A short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence "
+                        f"should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article"
+                        f"4. Article: Write a detailed news story that includes as much information as possible found in the scraped content, "
                         f"covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? "
                         f"Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. "
-                        f"Stick to factual reporting without adding commentary or opinions. "
+                        f"Stick to factual reporting without adding commentary or opinions. The article should be split into atleast 3 paragraphs "
+                        f"with '\n' symbols."
+                        f"5. Tags: Generate {tag_count} tags, starting with a '#'. Tags should relate to the article so readers can find it easily "
+                        f"and should be all capital letters."
                     ),
                 }
             ],

@@ -125,7 +125,7 @@ Generates 5 (*can be adjusted*) topics from a given article URL using the LiteLL
 - **POST**
 
 #### Description
-Generates an article, perex and 3 (*can be adjusted*) headline based on a given URL and topic using the LiteLLM service.
+Generates an 3 (*can be adjusted*) headlines, engaging text, perex, 4 (*can be adjusted*) tags and the article, based on a given URL and topic using the LiteLLM service.
 
 #### Parameters
 
@@ -134,7 +134,7 @@ Generates an article, perex and 3 (*can be adjusted*) headline based on a given 
 | Parameter | Type   | Required | Description                                                      |
 |-----------|--------|----------|------------------------------------------------------------------|
 | `url`     | string | No       | URL of the article to generate topics from. Default is a sample url. |
-
+| `selected_topic` | string | No | The selected topic for the article. Default is sample topic. |
 
 #### Responses
 
@@ -145,7 +145,9 @@ Generates an article, perex and 3 (*can be adjusted*) headline based on a given 
   ```json
   {
     "headlines": ["Headline 1", "Headline 2", "Headline 3"],
+    "engaging_text": "engaging text to hook the reader",
     "perex": "Indtroductory text to article.",
-    "article": "The article itself in one block of text. newlines are indicated with '\n'."
+    "article": "The article itself in one block of text. newlines are indicated with '\n'.",
+    "tags": ["#TAG1", "#TAG2", "#TAG3", "#TAG4"]
   }
   

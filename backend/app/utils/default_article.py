@@ -58,3 +58,5 @@ default_article = "Priemerné ceny pohonných látok v SR – 41. týždeň 2024
 "+421 2 50 236 335"
 "e-mail: info@statistics.sk"
 "Upozornenie: Pri uverejnení celej informatívnej správy alebo jej časti prosíme uviesť zdroj informácií Štatistický úrad Slovenskej republiky. Štatistický úrad SR tvorí kvalitné štatistiky užitočné pre spoločnosť podľa 16 zásad týkajúcich sa inštitucionálneho prostredia, štatistických procesov a výstupov podľa Kódexu postupov pre európsku štatistiku."
+
+default_topic = "Priemerné ceny pohonných látok v SR"

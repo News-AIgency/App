@@ -30,6 +30,12 @@ class TopicsResponse(BaseModel):
 
 
 class ArticleResponse(BaseModel):
+    chain_of_thought: Union[str, None] = (
+        Field(
+            None,
+            description="A detailed explanation or reasoning process related to the headlines, engaging text, perex and article. Can be None.",
+        ),
+    )
     headlines: list[Union[str, None]] = Field(
         None,
         examples=[
@@ -38,6 +44,13 @@ class ArticleResponse(BaseModel):
                 "Dopyt po pohonných látkach v 41. týždni",
                 "Analýza: Ceny benzínu a nafty v SR",
             ]
+        ],
+    )
+    engaging_text: Union[str, None] = Field(
+        None,
+        examples=[
+            "Priemerné ceny pohonných látok v SR v 41. týždni 2024 vzrástli. Benzín a nafta zdraželi v priemere o 2 centy na liter. "
+            "Cena LPG stúpla, LNG klesla, CNG mierne zlacnel. Detaily zverejnil Štatistický úrad SR."
         ],
     )
     perex: Union[str, None] = (
@@ -68,4 +81,7 @@ class ArticleResponse(BaseModel):
                 "tankovaní, snažiac sa nájsť najlepšie ceny."
             ],
         ),
+    )
+    tags: list[Union[str, None]] = Field(
+        None, examples=["#cenyPohonnýchLátok" "#benzín" "#nafta" "#Slovensko"]
     )

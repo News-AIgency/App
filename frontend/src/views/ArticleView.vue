@@ -75,7 +75,7 @@
           </div>
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
-              #{{ tag }}
+              {{ tag }}
               <span class="material-icons close-icon" @click="delTag(index)">close</span>
             </div>
             <input v-if="isAddingTag" v-model="newTag" id="tag-input" class="tag-input" @keyup.enter="confirmTag"
@@ -120,12 +120,12 @@ export default {
   data() {
     return {
       title: '',
+      engagingText: '',
       perex: '',
       body: '',
-      engagingText: '',
+      tags: [] as string[],
       isAddingTag: false,
       newTag: '',
-      tags: [] as string[],
     }
   },
   mounted() {
@@ -150,6 +150,18 @@ export default {
     },
     titleSuggestions(): string[] {
       return this.articleStore.titleSuggestions;
+    },
+    genEngagingText(): string {
+      return this.articleStore.getEngagingText;
+    },
+    genPerex(): string {
+      return this.articleStore.getPerex;
+    },
+    genBody(): string {
+      return this.articleStore.getBody;
+    },
+    genTags(): string[] {
+      return this.articleStore.getTags;
     },
     timeToRead(): string {
       return this.calcTimeToRead(this.bodyWordCount);
@@ -185,7 +197,7 @@ export default {
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
     },
     exportText() {
-      const tagsText = this.tags.length > 0 ? this.tags.map(tag => `#${tag}`).join(', ') : 'No tags';
+      const tagsText = this.tags.length > 0 ? this.tags.join(', ') : 'No tags';
       const content = `Title:\n${this.title}\n\nEngaging text:\n${this.engagingText}\n\nPerex:\n${this.perex}\n\nBody:\n${this.body}\n\nTags:\n${tagsText}`
       const blob = new Blob([content], { type: 'text/plain' })
 
@@ -226,8 +238,12 @@ export default {
     },
     confirmTag() {
       if (this.newTag.trim()) {
-        this.articleStore.tags.push(this.newTag.trim());
-        this.tags.push(this.newTag.trim())
+        var hash_tag = this.newTag.trim();
+        if (hash_tag[0] != "#") {
+          hash_tag = "#" + hash_tag;
+        }
+        this.articleStore.tags.push(hash_tag);
+        this.tags.push(hash_tag)
         this.tags = [...this.tags]
       }
       this.newTag = '';
@@ -266,9 +282,20 @@ export default {
       localStorage.setItem('body', newValue)
     },
     tags(newValue) {
-      console.log(newValue)
       localStorage.setItem('tags', JSON.stringify(newValue))
     },
+    genEngagingText(newValue) {
+      this.engagingText = newValue;
+    },
+    genPerex(newValue) {
+      this.perex = newValue;
+    },
+    genBody(newValue) {
+      this.body = newValue;
+    },
+    genTags(newValue) {
+      this.tags = newValue;
+    }
   },
 }
 </script>

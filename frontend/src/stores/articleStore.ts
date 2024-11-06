@@ -1,25 +1,43 @@
-import {defineStore} from 'pinia';
-import axios from 'axios';
+import { defineStore } from 'pinia';
+import ArticleService from '@/services/ArticleService';
 
-export const useArticleStore = defineStore ('article', {
+export const useArticleStore = defineStore('article', {
   state: () => ({
     selectedTopic: "" as string,
     title: "" as string,
-    titleSuggestions: ["Priemerné ceny pohonných látok v SR vzrástli o 2 centy za liter", "Ceny benzínov a nafty zaznamenali najvyššiu hodnotu od septembra", "Spotrebitelia platili za motorovú naftu v priemere 1,420 eura za liter"] as string[],
-    tags: ["benzin", "ceny", "hospodarstvo", "pohonné látky"] as string[],
+    titleSuggestions: [] as string[],
+    engagingText: "" as string,
+    tags: [] as string[],
     perex: "" as string,
     body: "" as string,
     url: "" as string
   }),
+  getters: {
+    getTitleSuggestions(): string[] {
+      return this.titleSuggestions;
+    },
+    getEngagingText(): string {
+      return this.engagingText;
+    },
+    getPerex(): string {
+      return this.perex;
+    },
+    getBody(): string {
+      return this.body;
+    },
+    getTags(): string[] {
+      return this.tags;
+    }
+  },
   actions: {
-    async fetchArticle(url: string, topic: string) {
+    async fetchArticle() {
       try {
-        const response = await axios.post('Link na article generate endpoint', {url: url, topic: topic});
-
-        this.title = response.data.title;
+        const response = await ArticleService.article(this.url, this.selectedTopic)
+        this.titleSuggestions = response.data.headlines;
+        this.engagingText = response.data.engaging_text;
         this.perex = response.data.perex;
-        this.body = response.data.body;
-        this.url = url;
+        this.body = response.data.article;
+        this.tags = response.data.tags;
 
       } catch (error) {
         console.error(error)

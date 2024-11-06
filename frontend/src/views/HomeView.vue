@@ -15,6 +15,7 @@
 
 <script lang="ts">
 import { useTopicsStore } from '@/stores/topicsStore'
+import { useArticleStore } from '@/stores/articleStore';
 import ProgressBar from '../components/ProgressBar.vue'
 
 export default {
@@ -48,15 +49,18 @@ export default {
           console.error("Invalid URL");
           return
         }
-        this.goToTopics();
+        this.goToTopics(this.inputURL);
       } catch (error) {
         console.error('Error at sendURL: ', error);
       }
     },
 
-    async goToTopics() {
+    async goToTopics(url: string) {
       const topicsStore = useTopicsStore();
-        try {
+      const articleStore = useArticleStore();
+      articleStore.url = url;
+
+      try {
         topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
       } catch (error) {

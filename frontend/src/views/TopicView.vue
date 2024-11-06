@@ -58,12 +58,18 @@ export default {
     },
   },
   methods: {
-    selectTopic(topic: string) {
+    async selectTopic(topic: string) {
       console.log("TOPIC: ", topic);
       this.selectedTopic = topic;
       const articleStore = useArticleStore();
       articleStore.selectedTopic = topic;
-      this.$router.push('/article');
+
+      try {
+        articleStore.fetchArticle();
+        this.$router.push('/article');
+      } catch (error) {
+        console.error("Failed to fetch article: ", error);
+      }
     },
     loadFromLocalStorage() {
       if (localStorage.getItem('generatedTopics') != null) {

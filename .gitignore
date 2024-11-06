@@ -5,6 +5,7 @@
 
 #env file
 *.env
+*.venv
 
 #scraper venv
 /backend/app/services/scraping_service/scraper_env

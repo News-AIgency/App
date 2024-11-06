@@ -8,6 +8,7 @@
         <input type="url" placeholder="Enter URL to an article" class="url-input" v-model="inputURL">
         <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
       </div>
+      <div class="error-container">{{ error_text }}</div>
       <button @click.prevent="sendURL" class="generate-btn">Generate</button>
     </form>
   </main>
@@ -24,6 +25,7 @@ export default {
     return {
       inputURL: "",
       TEST: 1,
+      error_text: "",
     };
   },
   components: {
@@ -34,11 +36,16 @@ export default {
   },
   methods: {
     isValidUrl(string: string) {
+      if (string.length == 0) {
+        this.error_text = "URL field cannot be empty"
+        return false;
+      }
       try {
         new URL(string);
         return true;
       } catch (error) {
         console.error('Invalid URL: ', error);
+        this.error_text = "Invalid URL format";
         return false;
       }
     },
@@ -80,6 +87,7 @@ export default {
 .url-input-container {
   margin: auto;
   width: 40%;
+  max-width: 700px;
   min-width: 300px;
   height: 3em;
   border: 2px solid;
@@ -101,6 +109,16 @@ export default {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.error-container {
+  margin-top: 12px;
+  display: block;
+  height: 12px;
+  line-height: 10px;
+  overflow: hidden;
+  color: var(--color-error);
+  font-size: 12px;
+}
+
 .paste-icon {
   position: relative;
   padding: 10px 16px;
@@ -113,7 +131,7 @@ form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 5em;
+  margin-top: 2em;
 }
 
 .generate-btn {
@@ -124,7 +142,7 @@ form {
   font-weight: 600;
   font-size: 12px;
   padding: 10px;
-  margin-top: 40px;
+  margin-top: 24px;
   cursor: pointer;
 
   transition: box-shadow 0.4s ease;

@@ -72,13 +72,18 @@ class LiteLLMService:
         response = await self.client.completions.create(
             model=self.model,
             response_model=ArticleResponse,
+            temperature=0.2,
+            presence_penalty=1,
+            frequency_penalty=1,
             messages=[
                 {
                     "role": "user",
                     "content": (
                         f"Generate 5 sections based on this scraped news article: {scraped_content}, and the selected topic: {selected_topic}. "
-                        f"The result should not have any characters representing bullet points. All generated text should be in the {language} "
-                        f"language. Sections will follow the rules below: "
+                        f"The result should not have any characters representing bullet points. Do not create any new information and do not "
+                        f"use any information that is not present in the given news article. Do not exaggerate! The generated fields "
+                        f"should not have any resemblance to a boulevard article. "
+                        f"All generated text should be in the {language} language. Sections will follow the rules below: "
                         f"1. Headlines: Generate {headlines_count} headlines that interpret the news in a human-readable way. Headlines should "
                         f"be between 70 and 110 characters, including spaces. All headlines should start with a capital letter."
                         f"2. Engaging text: Generate an engaging text that will hook the reader. Engaging text should not be longer than 240 "
@@ -86,11 +91,14 @@ class LiteLLMService:
                         f"headline and compliment it."
                         f"3. Perex: A short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence "
                         f"should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article"
-                        f"4. Article: Write a detailed news story that includes as much information as possible found in the scraped content, "
+                        f"4. Article: Write a detailed news story that includes as much information as possible found in the given article, "
                         f"covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? "
                         f"Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. "
-                        f"Stick to factual reporting without adding commentary or opinions. The article should be split into atleast 3 paragraphs "
-                        f"with '\n' symbols."
+                        f"Use numbers that are available in the given article - do not make up numbers. "
+                        f"It is extremely important that you adhere to the facts and numbers given in the article."
+                        f"Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance "
+                        f"to a boulevard article."
+                        f"The article should be split into atleast 3 paragraphs with '\n' symbols."
                         f"5. Tags: Generate {tag_count} tags, starting with a '#'. Tags should relate to the article so readers can find it easily "
                         f"and should be all capital letters."
                     ),

@@ -21,6 +21,7 @@ import { RouterView } from 'vue-router'
   color: var(--color-text);
 }
 
+
 .page-wrapper {
   display: flex;
   flex-direction: column;

@@ -3,6 +3,8 @@
 :root {
   --vt-c-white: #ffffff;
   --color-accent: #9F00FF;
+  --color-accent-box: #9F00FF25;
+  --color-error: #de5e5e;
 
   --color-heading: var(--vt-c-white);
   --color-text: var(--vt-c-white);

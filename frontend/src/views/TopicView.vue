@@ -1,43 +1,37 @@
 <template>
-  <div class="topic-selection">
-    <h2 class="title">Custom topic</h2>
-    <div class="custom-topic-container">
-      <input
-        type="text"
-        placeholder="Enter custom topic"
-        class="topic-input"
-        v-model="customTopic"
-      />
-      <button class="custom-topic-button" :disabled="!customTopic.trim()" @click.prevent="selectTopic(customTopic)">
-        <span class="material-icons">arrow_forward</span>
-      </button>
-    </div>
-    <div class="or-divider">OR</div>
-    <h2 class="title">Topic Suggestions</h2>
-
-    <form class="topics">
-      <button
-        v-for="(topic, index) in topics"
-        :key="index"
-        @click.prevent="selectTopic(topic)"
-        class="topic-button"
-      >
-        <span class="topic-num">{{ index + 1 }}</span>
-        <p class="topic-label">{{ topic }}</p>
-        <span class="material-icons forward-arrow">arrow_forward</span>
-      </button>
-      <div class="loading-container" v-show="topicsStore.loading">
-        <LoadingSpinner></LoadingSpinner>
-        Generating topics...
+  <main>
+    <ProgressBar :active-page="2"></ProgressBar>
+    <div class="topic-selection">
+      <h2 class="title">Custom topic</h2>
+      <div class="custom-topic-container">
+        <input type="text" placeholder="Enter custom topic" class="topic-input" v-model="customTopic" />
+        <button class="custom-topic-button" :disabled="!customTopic.trim()" @click.prevent="selectTopic(customTopic)">
+          <span class="material-icons">arrow_forward</span>
+        </button>
       </div>
-    </form>
-  </div>
+      <div class="or-divider">OR</div>
+      <h2 class="title">Topic Suggestions</h2>
+
+      <form class="topics">
+        <button v-for="(topic, index) in topics" :key="index" @click.prevent="selectTopic(topic)" class="topic-button">
+          <span class="topic-num">{{ index + 1 }}</span>
+          <p class="topic-label">{{ topic }}</p>
+          <span class="material-icons forward-arrow">arrow_forward</span>
+        </button>
+        <div class="loading-container" v-show="topicsStore.loading">
+          <LoadingSpinner></LoadingSpinner>
+          Generating topics...
+        </div>
+      </form>
+    </div>
+  </main>
 </template>
 
 <script lang="ts">
 import { useArticleStore } from '@/stores/articleStore'
 import { useTopicsStore } from '../stores/topicsStore'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
+import ProgressBar from '@/components/ProgressBar.vue';
 
 export default {
   setup() {
@@ -47,6 +41,7 @@ export default {
   },
   components: {
     LoadingSpinner,
+    ProgressBar,
   },
   data() {
     return {
@@ -97,6 +92,7 @@ export default {
   height: 100%;
   padding: 20px;
 }
+
 .custom-topic-container {
   width: 60%;
   display: flex;
@@ -104,6 +100,7 @@ export default {
   gap: 10px;
   margin-top: 1%;
 }
+
 .custom-topic-button {
   aspect-ratio: 1/1;
   height: 58px;
@@ -113,10 +110,12 @@ export default {
   color: var(--color-text);
   cursor: pointer;
 }
+
 .custom-topic-button:disabled {
   background-color: rgba(212, 217, 228, 0.2);
   cursor: not-allowed;
 }
+
 .topic-input {
   width: 100%;
   background-color: rgba(212, 217, 228, 0.16);

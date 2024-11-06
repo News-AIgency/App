@@ -1,5 +1,5 @@
 name: Deployment
-#
+
 on:
   #workflow_run:
   #  workflows: [ "Build Docker Image" ]
@@ -27,4 +27,4 @@ jobs:
     
       - name: Restart service on remote server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER }} "sudo systemctl restart app.service" 
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER }} "sudo systemctl restart app.service > /tmp/restart_service.log 2>&1" 

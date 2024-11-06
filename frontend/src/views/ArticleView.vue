@@ -403,7 +403,7 @@ html {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
-  margin-top: 2px;
+  margin-top: 1%;
 }
 
 .word-counter {
@@ -497,6 +497,7 @@ html {
   font-size: 2em;
   font-weight: bold;
   text-align: center;
+  margin-top: 1%;
 }
 
 textarea {

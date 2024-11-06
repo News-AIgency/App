@@ -101,3 +101,65 @@ class LiteLLMService:
         )
 
         return response
+
+    async def regenerate_headlines(
+        self,
+        scraped_content: str | None,
+        selected_topic: str | None,
+        old_headlines: str | None,
+        headlines_count: int = 3,
+        language: Language = Language.SLOVAK,
+    ) -> ArticleResponse:
+        response = await self.client.completions.create(
+            model=self.model,
+            response_model=ArticleResponse,
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        f"Generate {headlines_count} new headlines that interpret the news in a human-readable way, based on this "
+                        f"scraped news article: {scraped_content}, and the selected topic: {selected_topic}. Headlines should "
+                        f"be between 70 and 110 characters, including spaces. All headlines should start with a capital letter."
+                        f"Here are the old headlines: {old_headlines}. Do not repeat them, and they should not be similiar."
+                        f"The result should not have any characters representing bullet points. All generated text should be in the {language} "
+                        f"language. Fill in only the headlines field, the other fields should remain null. "
+                    ),
+                }
+            ],
+            api_key=self.api_key,
+            base_url=self.litellm_url,
+        )
+
+        return response
+
+    async def regenerate_engaging_text(
+        self,
+        scraped_content: str | None,
+        selected_topic: str | None,
+        old_engaging_text: str | None,
+        current_headline: str | None,
+        language: Language = Language.SLOVAK,
+    ) -> ArticleResponse:
+        response = await self.client.completions.create(
+            model=self.model,
+            response_model=ArticleResponse,
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        f"Generate an engaging text that will hook the reader, based on this "
+                        f"scraped news article: {scraped_content}, the selected topic: {selected_topic} and the current headline: {current_headline}"
+                        f"Engaging text should not be longer than 240 characters including spaces. "
+                        f"Engaging text will not be a part of the actual news article, but still should relate to the "
+                        f"headline and compliment it. Do not repeat them, and they should not be similiar."
+                        f"Here is the old engaging text: {old_engaging_text}. Do not repeat it, and it should not be similiar."
+                        f"The result should not have any characters representing bullet points. All generated text should be in the {language} "
+                        f"language. Fill in only the engaging text field, the other fields should remain null. "
+                    ),
+                }
+            ],
+            api_key=self.api_key,
+            base_url=self.litellm_url,
+        )
+
+        return response

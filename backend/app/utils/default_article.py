@@ -59,4 +59,30 @@ default_article = "Priemerné ceny pohonných látok v SR – 41. týždeň 2024
 "e-mail: info@statistics.sk"
 "Upozornenie: Pri uverejnení celej informatívnej správy alebo jej časti prosíme uviesť zdroj informácií Štatistický úrad Slovenskej republiky. Štatistický úrad SR tvorí kvalitné štatistiky užitočné pre spoločnosť podľa 16 zásad týkajúcich sa inštitucionálneho prostredia, štatistických procesov a výstupov podľa Kódexu postupov pre európsku štatistiku."
 
+default_topics = """
+    Priemerné ceny pohonných látok v SR|
+    Porovnanie cien s predchádzajúcimi týždňami|
+    Vplyv cien pohonných látok na ekonomiku|
+    Regulácie vlády v oblasti pohonných látok|
+    Správanie spotrebiteľov pri nákupe pohonných látok
+    """
+
 default_topic = "Priemerné ceny pohonných látok v SR"
+
+default_headlines = """Ceny nafty a benzínu v SR v 41. týždni rástli, motoristi platili o 2 centy viac za liter|
+    Priemerné ceny pohonných látok v októbri 2024 nižšie oproti minulému roku|
+    Alternatívne palivá v SR: Cena bioLNG stúpla o 8,3 centa, LPG a vodík tiež drahšie"""
+
+default_headline = "Ceny nafty a benzínu v SR v 41. týždni rástli, motoristi platili o 2 centy viac za liter"
+
+default_engaging_text = """
+    Motoristi si musia pripraviť peňaženky - ceny benzínu a nafty v októbri vzrástli!
+    Zistite, ktoré pohonné látky sú na vrchole cenového rebríčka a prečo sa niektoré alternatívy tešia vyšším cenám.
+    """
+
+default_tags = """"
+    #CENYPOHONNYCHLATOK|
+    #BENZIN|
+    #NAFTA|
+    #SLOVENSKO
+    """

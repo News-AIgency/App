@@ -22,7 +22,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
     
       - name: Add SSH server to known hosts
-      run: |
+        run: |
         ssh-keyscan -H ${{ secrets.SSH_SERVER }} >> ~/.ssh/known_hosts
     
       - name: Restart service on remote server

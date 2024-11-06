@@ -56,7 +56,7 @@
         const topicsStore = useTopicsStore();
 
         try {
-        topicsStore.fetchTopics();
+        topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
         } catch(error) {
           console.error("Failed to fetch topics: ", error);

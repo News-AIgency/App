@@ -14,12 +14,12 @@ export const useTopicsStore = defineStore('topics', {
     }
   },
   actions: {
-    async fetchTopics() {
+    async fetchTopics(url: string) {
       try {
 
         // const response = await axios.post('http://localhost:8000/article/topics', {url: url});
         this.loading = true;
-        this.topics = (await TopicsService.topics()).data.topics
+        this.topics = (await TopicsService.topics(url)).data.topics
 
       } catch (error) {
         console.error(error)

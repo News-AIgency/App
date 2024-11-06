@@ -56,9 +56,8 @@ export default {
 
     async goToTopics() {
       const topicsStore = useTopicsStore();
-
-      try {
-        topicsStore.fetchTopics();
+        try {
+        topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
       } catch (error) {
         console.error("Failed to fetch topics: ", error);

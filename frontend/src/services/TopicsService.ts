@@ -1,7 +1,8 @@
 import Api from '@/services/Api'
 
 export default{
-  topics() {
-    return Api().get("article/topics")
+  topics(url: string) {
+    const params = url ? { url } : {};
+    return Api().get("article/topics", {params});
   }
 }

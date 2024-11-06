@@ -1,15 +1,12 @@
 <template>
   <main>
+    <ProgressBar :active-page="TEST"></ProgressBar>
     <form>
       <p class="input-heading">Enter URL below</p>
       <p class="input-subheading">to generate topic ideas</p>
       <div class="url-input-container">
-      <input
-      type="url"
-      placeholder="Enter URL to an article"
-      class="url-input"
-      v-model="inputURL">
-      <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
+        <input type="url" placeholder="Enter URL to an article" class="url-input" v-model="inputURL">
+        <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
       </div>
       <button @click.prevent="sendURL" class="generate-btn">Generate</button>
     </form>
@@ -17,58 +14,63 @@
 </template>
 
 <script lang="ts">
-  import { useTopicsStore } from '@/stores/topicsStore'
+import { useTopicsStore } from '@/stores/topicsStore'
+import ProgressBar from '../components/ProgressBar.vue'
 
-  export default {
-    name: "HomeView",
-    data() {
-      return {
-        inputURL: "",
-      };
+export default {
+  name: "HomeView",
+  data() {
+    return {
+      inputURL: "",
+      TEST: 1,
+    };
+  },
+  components: {
+    ProgressBar,
+  },
+  mounted() {
+    localStorage.clear();
+  },
+  methods: {
+    isValidUrl(string: string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (error) {
+        console.error('Invalid URL: ', error);
+        return false;
+      }
     },
-    mounted() {
-      localStorage.clear();
+
+    async sendURL() {
+      try {
+        if (!this.isValidUrl(this.inputURL)) {
+          console.error("Invalid URL");
+          return
+        }
+        this.goToTopics();
+      } catch (error) {
+        console.error('Error at sendURL: ', error);
+      }
     },
-    methods: {
-      isValidUrl(string: string) {
-        try {
-          new URL(string);
-          return true;
-        } catch (error) {
-          console.error('Invalid URL: ', error);
-          return false;
-        }
-      },
 
-      async sendURL() {
-        try {
-          if (!this.isValidUrl(this.inputURL)) {
-            console.error("Invalid URL");
-            return
-          }
-          this.goToTopics();
-        } catch(error) {
-          console.error('Error at sendURL: ', error);
-        }
-      },
+    async goToTopics() {
+      const topicsStore = useTopicsStore();
 
-      async goToTopics() {
-        const topicsStore = useTopicsStore();
-
-        try {
+      try {
         topicsStore.fetchTopics();
         this.$router.push('/topics');
-        } catch(error) {
-          console.error("Failed to fetch topics: ", error);
-        }
-      },
-
-      async pasteUrl() {
-        const text = await navigator.clipboard.readText();
-        this.inputURL += text;
-      },
+      } catch (error) {
+        console.error("Failed to fetch topics: ", error);
+      }
     },
-  }
+
+    async pasteUrl() {
+      const text = await navigator.clipboard.readText();
+      this.inputURL += text;
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -85,6 +87,7 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .url-input {
   width: 90%;
   background-color: transparent;
@@ -92,8 +95,9 @@
   padding-left: 16px;
   outline: none;
   caret-color: white;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
+
 .paste-icon {
   position: relative;
   padding: 10px 16px;
@@ -101,13 +105,15 @@
   cursor: pointer;
   user-select: none;
 }
-form{
+
+form {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 5em;
 }
-.generate-btn{
+
+.generate-btn {
   background-color: var(--color-accent);
   color: var(--color-text);
   border: 0px;
@@ -120,12 +126,15 @@ form{
 
   transition: box-shadow 0.4s ease;
 }
+
 .generate-btn:hover {
   box-shadow: 0 0 8px #9F00FF;
 }
+
 .input-heading {
   font-size: 24px;
 }
+
 .input-subheading {
   font-size: 16px;
   padding-bottom: 40px;

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi_cache import FastAPICache
 
 from backend.app.services.ai_service.litellm_service import LiteLLMService
@@ -9,14 +9,14 @@ from backend.app.utils.default_article import default_article, default_topic
 router = APIRouter()
 
 
-# Temporary get and post method at the same time
+# @router.get("/article/generate", response_model=ArticleResponse)
 @router.post("/article/generate", response_model=ArticleResponse)
-@router.get("/article/generate", response_model=ArticleResponse)
-async def extract_article(
-    url: str = default_article,
-    selected_topic: str = default_topic,
-) -> ArticleResponse:
+async def extract_article(request: Request) -> ArticleResponse:
     try:
+        request_body = await request.json()
+        url = request_body.get("url", default_article)
+        selected_topic = request_body.get("selected_topic", default_topic)
+
         cache_key = f"article:{url}"
         default_cache_key = f"article:{default_article}"
         cached_content = await FastAPICache.get_backend().get(cache_key)

@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi_cache import FastAPICache
 from starlette.responses import JSONResponse
 
@@ -12,15 +12,16 @@ from backend.app.utils.default_article import default_article, default_article_u
 router = APIRouter()
 
 
+# @router.get("/url-validate")
 @router.post("/url-validate")
-@router.get("/url-validate")
 async def url_validate(
-    url: str = default_article_url,
-    hostnames: list[str] = None,
+    request: Request,
 ) -> JSONResponse:
-    # List of trustworthy sources
-    if hostnames is None:
-        hostnames = ["slovak.statistics.sk"]
+    request_body = await request.json()
+    url = request_body.get("url", default_article_url)
+    hostnames = request_body.get(
+        "hostnames", ["slovak.statistics.sk"]
+    )  # List of trustworthy sources
 
     try:
         result = urlparse(url)
@@ -34,18 +35,19 @@ async def url_validate(
     return JSONResponse(content={"detail": url})
 
 
-# Temporary default url for testing purposes, temporary get and post method at the same time
+# @router.get("/article/topics", response_model=TopicsResponse)
 @router.post("/article/topics", response_model=TopicsResponse)
-@router.get("/article/topics", response_model=TopicsResponse)
 async def extract_topics(
-    url: str = default_article,
+    request: Request,
 ) -> TopicsResponse:
     try:
+        request_body = await request.json()
+        url = request_body.get("url", default_article)
+
         cache_key = f"article:{url}"
         default_cache_key = f"article:{default_article_url}"
         cached_content = await FastAPICache.get_backend().get(cache_key)
 
-        # Temporary solution until scraper works again
         if not cached_content:
             if url == default_article:
                 scraped_content = url

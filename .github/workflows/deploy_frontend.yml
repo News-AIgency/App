@@ -15,7 +15,7 @@ on:
   #     - './frontend/**'
   push:
     branches:
-      - devopls-deploy-test-branch
+      - devops-deploy-test-branch
 
 env:
   NODE_VERSION: '16.17.1'

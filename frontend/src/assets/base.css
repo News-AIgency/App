@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 /* semantic color variables for this project */
 :root {
   --vt-c-white: #ffffff;
@@ -29,6 +29,7 @@ body {
   background: var(--color-background);
   line-height: 1.6;
   font-family:
+    Montserrat,
     Inter,
     -apple-system,
     BlinkMacSystemFont,

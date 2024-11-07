@@ -58,7 +58,7 @@ jobs:
     environment: development
     
     steps:
-    - name: Add SSH private key
+      - name: Add SSH private key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519

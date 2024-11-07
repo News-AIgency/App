@@ -91,6 +91,11 @@
           </div>
         </div>
 
+        <div class="source-wrapper">
+          <h3 class="header-container">Original Source</h3>
+          <a :href="originalUrl" class="url">{{ originalUrl }}</a>
+        </div>
+
         <div class="action-bar" v-show="!articleStore.loading">
           <button class="export-button" @click="exportText">Export</button>
         </div>
@@ -137,6 +142,7 @@ export default {
       tags: [] as string[],
       isAddingTag: false,
       newTag: '',
+      originalUrl: ''
     }
   },
   mounted() {
@@ -206,6 +212,7 @@ export default {
         this.tags = savedTags ? JSON.parse(savedTags) : [];
       }
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || '';
+      this.originalUrl = localStorage.getItem('originalUrl') || '';
     },
     exportText() {
       const tagsText = this.tags.length > 0 ? this.tags.join(', ') : 'No tags';
@@ -489,6 +496,21 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+.source-wrapper {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.url {
+  display: inline-block;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: inherit;
 }
 
 .word-count-time-to-read-wrapper {

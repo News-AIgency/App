@@ -66,6 +66,7 @@ export default {
       const topicsStore = useTopicsStore();
       const articleStore = useArticleStore();
       articleStore.url = url;
+      localStorage.setItem('originalUrl', url);
 
       try {
         topicsStore.fetchTopics(this.inputURL);

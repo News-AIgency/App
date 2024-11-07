@@ -1,19 +1,31 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
+
+const router = useRouter();
+
+function goToStart() {
+  router.push('/');
+}
+
+function mailTo() {
+  var mail = document.createElement('a');
+  mail.href = "mailto:tptim042024@gmail.com";
+  mail.click();
+}
 </script>
 
 <template>
   <div class="page-wrapper">
-  <nav class="navbar">
-    <a class="navbar-logo">News <span class="text-accent">AI</span>gency</a>
-    <a>Contact Us</a>
-  </nav>
-  <RouterView/>
-  <footer class="footer-container">
-    <p>News AIgency</p>
-    <p>2024</p>
-  </footer>
-</div>
+    <nav class="navbar">
+      <a class="navbar-logo" @click="goToStart">News <span class="text-accent">AI</span>gency</a>
+      <a class="contact-us" @click="mailTo">Contact Us</a>
+    </nav>
+    <RouterView />
+    <footer class="footer-container">
+      <p>News AIgency</p>
+      <p>2024</p>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
@@ -21,6 +33,9 @@ import { RouterView } from 'vue-router'
   color: var(--color-text);
 }
 
+.navbar-logo {
+  cursor: pointer;
+}
 
 .page-wrapper {
   display: flex;
@@ -30,6 +45,9 @@ import { RouterView } from 'vue-router'
   padding-bottom: 2.5rem;
 }
 
+.contact-us {
+  cursor: pointer;
+}
 
 .footer-container {
   display: flex;
@@ -45,6 +63,7 @@ import { RouterView } from 'vue-router'
   font-size: 16px;
   opacity: 0.5;
 }
+
 footer {
   position: absolute;
   bottom: 0;

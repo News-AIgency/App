@@ -72,9 +72,10 @@ class LiteLLMService:
         response = await self.client.completions.create(
             model=self.model,
             response_model=ArticleResponse,
-            temperature=0.2,
-            presence_penalty=1,
-            frequency_penalty=1,
+            temperature=0.3,
+            top_p = 0.4,
+            presence_penalty=-0.3,
+            frequency_penalty=0.6,
             messages=[
                 {
                     "role": "user",

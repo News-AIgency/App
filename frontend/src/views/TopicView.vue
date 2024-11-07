@@ -10,7 +10,7 @@
         </button>
       </div>
       <div class="or-divider">OR</div>
-      <h2 class="title">Topic Suggestions</h2>
+      <h2 class="title">Topic Suggestions (AI)</h2>
 
       <form class="topics">
         <button v-for="(topic, index) in topics" :key="index" @click.prevent="selectTopic(topic)" class="topic-button">

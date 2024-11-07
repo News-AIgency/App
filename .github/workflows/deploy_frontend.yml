@@ -1,0 +1,53 @@
+name: Frontend Deployment
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - './frontend/**'
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types:
+  #     - closed
+  #   paths:
+  #     - './frontend/**'
+  push:
+    branches:
+      - devopls-deploy-test-branch
+
+env:
+  NODE_VERSION: '16.17.1'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    #if: github.event.pull_request.merged == true || github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Store Dist Folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: dist
+      

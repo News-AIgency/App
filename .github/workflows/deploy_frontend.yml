@@ -73,4 +73,4 @@ jobs:
         with:
           name: app-build
           path: ${{ secrets.BUILD_PATH }}
-
+          run: ls -R ${{ secrets.BUILD_PATH }}

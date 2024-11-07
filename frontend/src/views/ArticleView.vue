@@ -82,7 +82,7 @@
           </div>
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
-              {{ tag }}
+              {{ tag.toLocaleLowerCase() }}
               <span class="material-icons close-icon" @click="delTag(index)">close</span>
             </div>
             <input v-if="isAddingTag" v-model="newTag" id="tag-input" class="tag-input" @keyup.enter="confirmTag"
@@ -91,7 +91,7 @@
           </div>
         </div>
 
-        <div class="source-wrapper">
+        <div class="source-wrapper" v-show="!articleStore.loading">
           <h3 class="header-container">Original Source</h3>
           <a :href="originalUrl" class="url">{{ originalUrl }}</a>
         </div>
@@ -101,7 +101,7 @@
         </div>
       </div>
 
-      <div class="title-suggestion-wrapper" >
+      <div class="title-suggestion-wrapper" v-show="!articleStore.loading">
         <h2 class="filler"></h2>
         <div class="regenerate-wrapper" v-show="!articleStore.loading">
           <h3 class="header-container" v-show="!articleStore.loading">Title suggestions</h3>

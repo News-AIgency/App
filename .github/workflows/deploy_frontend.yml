@@ -73,4 +73,8 @@ jobs:
         with:
           name: app-build
           path: ${{ secrets.BUILD_PATH }}
-          run: ls -R ${{ secrets.BUILD_PATH }}
+        
+      - name: Copy Files
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER }} "sudo cp -ra ${{ secrets.BUILD_PATH }}/. ${{ secrets.SERVE_PATH }}"
+      

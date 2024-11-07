@@ -1,12 +1,19 @@
 <template>
   <main>
     <ProgressBar :active-page="3"></ProgressBar>
+    <div class="loading-container" v-show="articleStore.loading">
+          <LoadingSpinner></LoadingSpinner>
+          Generating article...
+        </div>
     <div class="page-wrapper">
+
       <div class="textarea-wrapper">
-        <h2 class="title">{{ selectedTopic }}</h2>
-        <div class="textarea-container">
+
+        <h2 class="title" v-show="!articleStore.loading">{{ selectedTopic }}</h2>
+
+        <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
-            <h3 class="header-container">Title</h3>
+            <h3 class="header-container" >Title</h3>
             <p class="word-counter">Word count: {{ titleWordCount }}</p>
           </div>
           <div class="textarea-copy-wrapper">
@@ -16,7 +23,7 @@
           </div>
         </div>
 
-        <div class="textarea-container">
+        <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Engaging text</h3>
@@ -32,7 +39,7 @@
           </div>
         </div>
 
-        <div class="textarea-container">
+        <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Perex</h3>
@@ -48,7 +55,7 @@
           </div>
         </div>
 
-        <div class="textarea-container">
+        <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Body</h3>
@@ -67,7 +74,7 @@
           </div>
         </div>
 
-        <div class="tags-container">
+        <div class="tags-container" v-show="!articleStore.loading">
           <div class="regenerate-wrapper">
             <h3 class="header-container">Tags</h3>
             <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
@@ -89,30 +96,33 @@
           <a :href="originalUrl" class="url">{{ originalUrl }}</a>
         </div>
 
-        <div class="action-bar">
+        <div class="action-bar" v-show="!articleStore.loading">
           <button class="export-button" @click="exportText">Export</button>
         </div>
       </div>
 
-      <div class="title-suggestion-wrapper">
+      <div class="title-suggestion-wrapper" >
         <h2 class="filler"></h2>
-        <div class="regenerate-wrapper">
-          <h3 class="header-container">Title suggestions</h3>
+        <div class="regenerate-wrapper" v-show="!articleStore.loading">
+          <h3 class="header-container" v-show="!articleStore.loading">Title suggestions</h3>
           <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
             @click="regenTitleSuggestions">autorenew</button>
         </div>
+
         <button v-for="(suggestion, index) in titleSuggestions" :key="index" class="title-btn"
           @click="copyTitle(suggestion)">
           {{ suggestion }}
         </button>
       </div>
     </div>
+
   </main>
 </template>
 
 <script lang="ts">
 import { useArticleStore } from '@/stores/articleStore'
 import ProgressBar from '@/components/ProgressBar.vue';
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
 export default {
   setup() {
@@ -121,6 +131,7 @@ export default {
   },
   components: {
     ProgressBar,
+    LoadingSpinner,
   },
   data() {
     return {
@@ -312,6 +323,17 @@ html {
   scroll-behavior: smooth;
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 12%;
+}
+
 .page-wrapper {
   margin: auto;
   display: flex;
@@ -379,6 +401,7 @@ html {
   display: flex;
   width: 30%;
   flex-direction: column;
+  margin-top: 6px;
 }
 
 .regenerate-wrapper {
@@ -516,10 +539,11 @@ html {
 }
 
 .title {
-  font-size: 2em;
+  font-size: 20px;
   font-weight: bold;
   text-align: center;
-  margin-top: 1%;
+  margin: auto;
+  margin-top: 4%;
 }
 
 textarea {

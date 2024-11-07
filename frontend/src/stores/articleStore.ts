@@ -10,7 +10,8 @@ export const useArticleStore = defineStore('article', {
     tags: [] as string[],
     perex: "" as string,
     body: "" as string,
-    url: "" as string
+    url: "" as string,
+    loading: false,
   }),
   getters: {
     getTitleSuggestions(): string[] {
@@ -32,6 +33,7 @@ export const useArticleStore = defineStore('article', {
   actions: {
     async fetchArticle() {
       try {
+        this.loading = true;
         const response = await ArticleService.article(this.url, this.selectedTopic)
         this.titleSuggestions = response.data.headlines;
         this.engagingText = response.data.engaging_text;
@@ -41,6 +43,8 @@ export const useArticleStore = defineStore('article', {
 
       } catch (error) {
         console.error(error)
+      } finally {
+        this.loading = false;
       }
     }
   }

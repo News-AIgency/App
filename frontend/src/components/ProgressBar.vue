@@ -95,9 +95,7 @@ export default {
     justify-content: center;
     justify-self: center;
     max-width: 500px;
-    width: 100vw;
-    margin-left: 10%;
-    margin-right: 10%;
+    width: 75vw;
 }
 
 .steps {

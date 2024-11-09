@@ -8,9 +8,7 @@ function goToStart() {
 }
 
 function mailTo() {
-  var mail = document.createElement('a');
-  mail.href = "mailto:tptim042024@gmail.com";
-  mail.click();
+  window.location.href = 'mailto:tptim042024@gmail.com';
 }
 </script>
 
@@ -29,6 +27,16 @@ function mailTo() {
 </template>
 
 <style scoped>
+@media screen and (max-device-width:480px) {
+  .navbar {
+    gap: 10%;
+  }
+
+  .navbar-logo {
+    font-size: 22px;
+  }
+}
+
 .navbar {
   color: var(--color-text);
 }

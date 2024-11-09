@@ -90,6 +90,34 @@ export default {
 </script>
 
 <style scoped>
+@media screen and (max-device-width:480px) {
+  .title {
+    font-size: 20px !important;
+    margin-bottom: 2%;
+  }
+
+  .or-divider {
+    margin: 10px 0px !important;
+  }
+
+  .topics {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topic-num {
+    padding: 0 15px 0 15px !important;
+  }
+
+  .topic-button:hover {
+    display: none;
+  }
+
+  .topics .forward-arrow {
+    display: none;
+  }
+}
+
 .topic-selection {
   display: flex;
   flex-direction: column;
@@ -101,6 +129,7 @@ export default {
 
 .custom-topic-container {
   width: 60%;
+  min-width: 320px;
   display: flex;
   flex-direction: row;
   gap: 10px;
@@ -160,6 +189,7 @@ export default {
 .topics {
   width: 60%;
   max-width: 80%;
+  min-width: 320px;
   margin-top: 1%;
 }
 

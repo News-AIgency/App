@@ -10,7 +10,13 @@
         </button>
       </div>
       <div class="or-divider">OR</div>
-      <h2 class="title">Topic Suggestions (AI)</h2>
+
+      <div class="ai-gen-content">
+        <h2 class="title">Topic Suggestions</h2>
+        <span class="ai-box">AI<span class="material-icons ai-spark">
+            bolt
+          </span></span>
+      </div>
 
       <form class="topics">
         <button v-for="(topic, index) in topics" :key="index" @click.prevent="selectTopic(topic)" class="topic-button">
@@ -116,6 +122,29 @@ export default {
   .topics .forward-arrow {
     display: none;
   }
+}
+
+.ai-gen-content {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.ai-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;      
+  padding: 0.3em 0.4em;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10%;
+  background-color: #9d00ff34;
+  color: #9f00ff;
+  margin: 0.5em 0;
+}
+
+.ai-spark {
+  font-size: 22px;
 }
 
 .topic-selection {

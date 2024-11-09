@@ -2,9 +2,9 @@
   <main>
     <ProgressBar :active-page="3"></ProgressBar>
     <div class="loading-container" v-show="articleStore.loading">
-          <LoadingSpinner></LoadingSpinner>
-          Generating article...
-        </div>
+      <LoadingSpinner></LoadingSpinner>
+      Generating article...
+    </div>
     <div class="page-wrapper">
 
       <div class="textarea-wrapper">
@@ -13,7 +13,7 @@
 
         <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
-            <h3 class="header-container" >Title</h3>
+            <h3 class="header-container">Title</h3>
             <p class="word-counter">Word count: {{ titleWordCount }}</p>
           </div>
           <div class="textarea-copy-wrapper">
@@ -27,6 +27,7 @@
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Engaging text</h3>
+              <AiContent></AiContent>
               <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
                 @click="regenEngagingText">autorenew</button>
             </div>
@@ -43,6 +44,7 @@
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Perex</h3>
+              <AiContent></AiContent>
               <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
                 @click="regenPerex">autorenew</button>
             </div>
@@ -59,6 +61,7 @@
           <div class="header-container">
             <div class="regenerate-wrapper">
               <h3 class="header-container">Body</h3>
+              <AiContent></AiContent>
               <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
                 @click="regenBody">autorenew</button>
             </div>
@@ -77,6 +80,7 @@
         <div class="tags-container" v-show="!articleStore.loading">
           <div class="regenerate-wrapper">
             <h3 class="header-container">Tags</h3>
+            <AiContent></AiContent>
             <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
               @click="regenTags">autorenew</button>
           </div>
@@ -105,6 +109,7 @@
         <h2 class="filler"></h2>
         <div class="regenerate-wrapper" v-show="!articleStore.loading">
           <h3 class="header-container" v-show="!articleStore.loading">Title suggestions</h3>
+          <AiContent></AiContent>
           <button class="material-icons regenerate-button" v-b-tooltip.hover title="Regenerate"
             @click="regenTitleSuggestions">autorenew</button>
         </div>
@@ -121,8 +126,9 @@
 
 <script lang="ts">
 import { useArticleStore } from '@/stores/articleStore'
-import ProgressBar from '@/components/ProgressBar.vue';
+import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
+import AiContent from '@/components/AiContent.vue';
 
 export default {
   setup() {
@@ -132,6 +138,7 @@ export default {
   components: {
     ProgressBar,
     LoadingSpinner,
+    AiContent
   },
   data() {
     return {

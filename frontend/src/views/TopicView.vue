@@ -13,9 +13,7 @@
 
       <div class="ai-gen-content">
         <h2 class="title">Topic Suggestions</h2>
-        <span class="ai-box">AI<span class="material-icons ai-spark">
-            bolt
-          </span></span>
+        <AiContent></AiContent>
       </div>
 
       <form class="topics">
@@ -38,6 +36,7 @@ import { useArticleStore } from '@/stores/articleStore'
 import { useTopicsStore } from '../stores/topicsStore'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import ProgressBar from '@/components/ProgressBar.vue';
+import AiContent from '@/components/AiContent.vue';
 
 export default {
   setup() {
@@ -48,6 +47,7 @@ export default {
   components: {
     LoadingSpinner,
     ProgressBar,
+    AiContent,
   },
   data() {
     return {
@@ -128,23 +128,6 @@ export default {
   display: flex;
   flex-direction: row;
   gap: 12px;
-}
-
-.ai-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;      
-  padding: 0.3em 0.4em;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 10%;
-  background-color: #9d00ff34;
-  color: #9f00ff;
-  margin: 0.5em 0;
-}
-
-.ai-spark {
-  font-size: 22px;
 }
 
 .topic-selection {

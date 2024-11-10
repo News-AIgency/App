@@ -10,7 +10,11 @@
         </button>
       </div>
       <div class="or-divider">OR</div>
-      <h2 class="title">Topic Suggestions (AI)</h2>
+
+      <div class="ai-gen-content">
+        <h2 class="title">Topic Suggestions</h2>
+        <AiContent></AiContent>
+      </div>
 
       <form class="topics">
         <button v-for="(topic, index) in topics" :key="index" @click.prevent="selectTopic(topic)" class="topic-button">
@@ -32,6 +36,7 @@ import { useArticleStore } from '@/stores/articleStore'
 import { useTopicsStore } from '../stores/topicsStore'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import ProgressBar from '@/components/ProgressBar.vue';
+import AiContent from '@/components/AiContent.vue';
 
 export default {
   setup() {
@@ -42,6 +47,7 @@ export default {
   components: {
     LoadingSpinner,
     ProgressBar,
+    AiContent,
   },
   data() {
     return {
@@ -116,6 +122,12 @@ export default {
   .topics .forward-arrow {
     display: none;
   }
+}
+
+.ai-gen-content {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
 }
 
 .topic-selection {

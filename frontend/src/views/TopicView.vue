@@ -127,6 +127,7 @@ export default {
 .ai-gen-content {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 12px;
 }
 
@@ -194,7 +195,7 @@ export default {
 
 .title {
   color: var(--color-text);
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: bold;
 }
 

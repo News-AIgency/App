@@ -4,8 +4,17 @@
     <div class="topic-selection">
       <h2 class="title">Custom topic</h2>
       <div class="custom-topic-container">
-        <input type="text" placeholder="Enter custom topic" class="topic-input" v-model="customTopic" />
-        <button class="custom-topic-button" :disabled="!customTopic.trim()" @click.prevent="selectTopic(customTopic)">
+        <input
+          type="text"
+          placeholder="Enter custom topic"
+          class="topic-input"
+          v-model="customTopic"
+        />
+        <button
+          class="custom-topic-button"
+          :disabled="!customTopic.trim()"
+          @click.prevent="selectTopic(customTopic)"
+        >
           <span class="material-icons">arrow_forward</span>
         </button>
       </div>
@@ -17,7 +26,12 @@
       </div>
 
       <form class="topics">
-        <button v-for="(topic, index) in topics" :key="index" @click.prevent="selectTopic(topic)" class="topic-button">
+        <button
+          v-for="(topic, index) in topics"
+          :key="index"
+          @click.prevent="selectTopic(topic)"
+          class="topic-button"
+        >
           <span class="topic-num">{{ index + 1 }}</span>
           <p class="topic-label">{{ topic }}</p>
           <span class="material-icons forward-arrow">arrow_forward</span>
@@ -35,8 +49,8 @@
 import { useArticleStore } from '@/stores/articleStore'
 import { useTopicsStore } from '../stores/topicsStore'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
-import ProgressBar from '@/components/ProgressBar.vue';
-import AiContent from '@/components/AiContent.vue';
+import ProgressBar from '@/components/ProgressBar.vue'
+import AiContent from '@/components/AiContent.vue'
 
 export default {
   setup() {
@@ -65,38 +79,38 @@ export default {
   },
   methods: {
     async selectTopic(topic: string) {
-      console.log("TOPIC: ", topic);
-      this.selectedTopic = topic;
-      const articleStore = useArticleStore();
-      articleStore.selectedTopic = topic;
+      console.log('TOPIC: ', topic)
+      this.selectedTopic = topic
+      const articleStore = useArticleStore()
+      articleStore.selectedTopic = topic
 
       try {
-        articleStore.fetchArticle();
-        this.$router.push('/article');
+        articleStore.fetchArticle()
+        this.$router.push('/article')
       } catch (error) {
-        console.error("Failed to fetch article: ", error);
+        console.error('Failed to fetch article: ', error)
       }
     },
     loadFromLocalStorage() {
       if (localStorage.getItem('generatedTopics') != null) {
-        const topics = localStorage.getItem('generatedTopics');
-        this.topicsStore.topics = topics ? JSON.parse(topics) : [];
+        const topics = localStorage.getItem('generatedTopics')
+        this.topicsStore.topics = topics ? JSON.parse(topics) : []
       }
-    }
+    },
   },
   watch: {
     selectedTopic(newValue) {
       localStorage.setItem('selectedTopic', newValue)
     },
     topics(newValue) {
-      localStorage.setItem("generatedTopics", JSON.stringify(newValue))
-    }
+      localStorage.setItem('generatedTopics', JSON.stringify(newValue))
+    },
   },
 }
 </script>
 
 <style scoped>
-@media screen and (max-device-width:480px) {
+@media screen and (max-device-width: 480px) {
   .title {
     font-size: 20px !important;
     margin-bottom: 2%;
@@ -174,7 +188,6 @@ export default {
   caret-color: white;
   color: rgba(255, 255, 255, 0.7);
   height: 58px;
-  margin-left: 2%;
 }
 
 .or-divider {
@@ -200,10 +213,13 @@ export default {
 }
 
 .topics {
+  display: flex;
+  flex-direction: column;
   width: 60%;
   max-width: 80%;
   min-width: 320px;
   margin-top: 1%;
+  gap: 16px;
 }
 
 .topic-button {
@@ -214,7 +230,6 @@ export default {
   font-size: 16px;
   width: 100%;
   height: 58px;
-  margin: 2%;
   border-radius: 5px;
   border: 0px transparent;
   background-color: #38383e;

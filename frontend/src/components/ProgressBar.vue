@@ -54,28 +54,28 @@ export default {
             if (progressBar) {
                 if (this.isActive[0]) {
                     progressBar.style.background = `linear-gradient(
-                        to right, 
-                        #9f00ff 0%, 
-                        #9f00ff 27%, 
-                        #545454 27%, 
+                        to right,
+                        #9f00ff 0%,
+                        #9f00ff 27%,
+                        #545454 27%,
                         #545454 100%
                     )`;
                 } else if (this.isActive[1]) {
                     progressBar.style.background = `linear-gradient(
-                        to right, 
-                        #545454 0%, 
-                        #545454 25%, 
-                        #9f00ff 25%, 
-                        #9f00ff 75%, 
-                        #545454 75%, 
+                        to right,
+                        #545454 0%,
+                        #545454 25%,
+                        #9f00ff 25%,
+                        #9f00ff 75%,
+                        #545454 75%,
                         #545454 100%
                     )`;
                 } else if (this.isActive[2]) {
                     progressBar.style.background = `linear-gradient(
-                        to right, 
-                        #545454 0%, 
-                        #545454 73%, 
-                        #9f00ff 73%, 
+                        to right,
+                        #545454 0%,
+                        #545454 73%,
+                        #9f00ff 73%,
                         #9f00ff 100%
                     )`;
                 } else {
@@ -96,6 +96,7 @@ export default {
     justify-self: center;
     max-width: 500px;
     width: 75vw;
+    margin-bottom: 20px;
 }
 
 .steps {

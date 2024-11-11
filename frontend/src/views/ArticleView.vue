@@ -31,6 +31,32 @@
           </div>
         </div>
 
+        <!-- MOBILE - TITLE SUGGESTION - TEMPORARY -->
+        <div class="m-title-suggestion-wrapper" v-show="!articleStore.loading">
+        <div class="regenerate-wrapper" v-show="!articleStore.loading">
+          <h3 class="header-container" v-show="!articleStore.loading">
+            Title suggestions
+          </h3>
+          <AiContent></AiContent>
+          <button
+            class="material-icons regenerate-button"
+            title="Regenerate"
+            @click="regenTitleSuggestions"
+          >
+            autorenew
+          </button>
+        </div>
+
+        <button
+          v-for="(suggestion, index) in titleSuggestions"
+          :key="index"
+          class="title-btn"
+          @click="copyTitle(suggestion)"
+        >
+          {{ suggestion }}
+        </button>
+      </div>
+
         <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
             <div class="regenerate-wrapper">
@@ -292,6 +318,7 @@ export default {
     },
     loadFromLocalStorage() {
       this.title = localStorage.getItem('title') || ''
+
       if (localStorage.getItem('titleSuggestions') != null) {
         const savedTitleSuggestions = localStorage.getItem('titleSuggestions')
         this.titleSuggestions = savedTitleSuggestions
@@ -301,6 +328,7 @@ export default {
       this.engagingText = localStorage.getItem('engagingText') || ''
       this.perex = localStorage.getItem('perex') || ''
       this.body = localStorage.getItem('body') || ''
+
       if (localStorage.getItem('tags') != null) {
         const savedTags = localStorage.getItem('tags')
         this.tags = savedTags ? JSON.parse(savedTags) : []
@@ -385,7 +413,7 @@ export default {
     tags(newValue) {
       localStorage.setItem('tags', JSON.stringify(newValue))
     },
-    genTitleSuggestions(newValue) {
+    titleSuggestions(newValue) {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
     },
     genEngagingText(newValue) {
@@ -400,6 +428,9 @@ export default {
     genTags(newValue) {
       this.tags = newValue
     },
+    genTitleSuggestions(newValue) {
+      this.titleSuggestions = newValue
+    }
   },
 }
 </script>
@@ -431,7 +462,7 @@ html {
 }
 
 .filler {
-  padding: 25.5px;
+  padding: 32px;
 }
 
 .textarea-copy-wrapper {
@@ -454,6 +485,7 @@ html {
 }
 
 .title-btn {
+  width: 100%;
   background-color: rgba(56, 56, 62, 0.75);
   color: rgba(255, 255, 255, 0.5);
   border: 0px;
@@ -487,7 +519,11 @@ html {
   display: flex;
   width: 30%;
   flex-direction: column;
-  margin-top: 6px;
+  margin-top: 11.5px; /* toto potom opravit */
+}
+
+.m-title-suggestion-wrapper {
+  display: none;
 }
 
 .regenerate-wrapper {
@@ -632,7 +668,6 @@ html {
   font-weight: bold;
   text-align: center;
   margin: auto;
-  margin-top: 4%;
 }
 
 textarea {
@@ -663,5 +698,27 @@ h3 {
 #body-textarea {
   height: 25em;
   min-height: 25em;
+}
+
+@media (max-width: 480px) {
+  .title-suggestion-wrapper {
+    display: none;
+  }
+
+  .textarea-wrapper {
+    width: 98%;
+    margin: 0;
+  }
+
+  .export-button {
+    width: 100%;
+    height: 42px;
+    margin-bottom: 40px;
+  }
+
+  .m-title-suggestion-wrapper {
+    display: block;
+  }
+
 }
 </style>

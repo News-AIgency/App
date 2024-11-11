@@ -7,7 +7,7 @@
     </div>
     <div class="page-wrapper">
       <div class="textarea-wrapper">
-        <h2 class="title" v-show="!articleStore.loading">
+        <h2 id="titleBox" class="title" v-show="!articleStore.loading">
           {{ selectedTopic }}
         </h2>
 
@@ -33,29 +33,29 @@
 
         <!-- MOBILE - TITLE SUGGESTION - TEMPORARY -->
         <div class="m-title-suggestion-wrapper" v-show="!articleStore.loading">
-        <div class="regenerate-wrapper" v-show="!articleStore.loading">
-          <h3 class="header-container" v-show="!articleStore.loading">
-            Title suggestions
-          </h3>
-          <AiContent></AiContent>
+          <div class="regenerate-wrapper" v-show="!articleStore.loading">
+            <h3 class="header-container" v-show="!articleStore.loading">
+              Title suggestions
+            </h3>
+            <AiContent></AiContent>
+            <button
+              class="material-icons regenerate-button"
+              title="Regenerate"
+              @click="regenTitleSuggestions"
+            >
+              autorenew
+            </button>
+          </div>
+
           <button
-            class="material-icons regenerate-button"
-            title="Regenerate"
-            @click="regenTitleSuggestions"
+            v-for="(suggestion, index) in titleSuggestions"
+            :key="index"
+            class="title-btn"
+            @click="copyTitle(suggestion)"
           >
-            autorenew
+            {{ suggestion }}
           </button>
         </div>
-
-        <button
-          v-for="(suggestion, index) in titleSuggestions"
-          :key="index"
-          class="title-btn"
-          @click="copyTitle(suggestion)"
-        >
-          {{ suggestion }}
-        </button>
-      </div>
 
         <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
@@ -199,7 +199,7 @@
       </div>
 
       <div class="title-suggestion-wrapper" v-show="!articleStore.loading">
-        <h2 class="filler"></h2>
+        <h2 id="fillerBox" class="filler"></h2>
         <div class="regenerate-wrapper" v-show="!articleStore.loading">
           <h3 class="header-container" v-show="!articleStore.loading">
             Title suggestions
@@ -260,6 +260,13 @@ export default {
     this.titleSuggestions = [...this.articleStore.titleSuggestions]
     this.tags = [...this.articleStore.tags]
     this.loadFromLocalStorage()
+
+    const leftBox = document.getElementById('titleBox');
+    const rightBox = document.getElementById('fillerBox');
+
+    if (leftBox && rightBox) {
+      rightBox.style.padding = `${leftBox.offsetHeight/2}px`;
+}
   },
   computed: {
     titleWordCount(): number {
@@ -379,7 +386,7 @@ export default {
     },
     confirmTag() {
       if (this.newTag.trim()) {
-        var hash_tag = this.newTag.trim()
+        let hash_tag = this.newTag.trim()
         if (hash_tag[0] != '#') {
           hash_tag = '#' + hash_tag
         }
@@ -430,7 +437,7 @@ export default {
     },
     genTitleSuggestions(newValue) {
       this.titleSuggestions = newValue
-    }
+    },
   },
 }
 </script>
@@ -719,6 +726,5 @@ h3 {
   .m-title-suggestion-wrapper {
     display: block;
   }
-
 }
 </style>

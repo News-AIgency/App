@@ -268,6 +268,14 @@ export default {
       rightBox.style.padding = `${leftBox.offsetHeight/2}px`;
 }
   },
+  updated() {
+    const leftBox = document.getElementById('titleBox');
+    const rightBox = document.getElementById('fillerBox');
+
+    if (leftBox && rightBox) {
+      rightBox.style.padding = `${leftBox.offsetHeight/2}px`;
+    }
+  },
   computed: {
     titleWordCount(): number {
       return this.countWords(this.title)

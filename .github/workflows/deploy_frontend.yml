@@ -73,3 +73,6 @@ jobs:
         with:
           name: app-build
           path: ${{ secrets.BUILD_PATH }}
+
+      - name: Check Runner User
+        run: whoami

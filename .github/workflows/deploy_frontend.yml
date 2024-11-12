@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     #if: github.event.pull_request.merged == true || github.event_name == 'push'
+    if: false
 
     steps:
       - name: Checkout repository
@@ -73,6 +74,3 @@ jobs:
         with:
           name: app-build
           path: ${{ secrets.BUILD_PATH }}
-
-      - name: Check Runner User
-        run: whoami

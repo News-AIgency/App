@@ -1,0 +1,76 @@
+name: Frontend Deployment
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - './frontend/**'
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types:
+  #     - closed
+  #   paths:
+  #     - './frontend/**'
+  push:
+    branches:
+      - devops-deploy-test-branch
+
+env:
+  NODE_VERSION: '16.17.1'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    #if: github.event.pull_request.merged == true || github.event_name == 'push'
+    if: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Store Dist Folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: ./frontend/dist
+
+  deploy:
+    needs: [ build ]
+    runs-on: self-hosted
+    environment: development
+    
+    steps:
+      # - name: Add SSH private key
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+      #     chmod 600 ~/.ssh/id_ed25519
+    
+      # - name: Add SSH server to known hosts
+      #   run: |
+      #     ssh-keyscan -H ${{ secrets.SSH_SERVER }} >> ~/.ssh/known_hosts 
+
+      - name: Download Dist Folder
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: ${{ secrets.BUILD_PATH }}

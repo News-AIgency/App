@@ -73,7 +73,7 @@ class LiteLLMService:
             model=self.model,
             response_model=ArticleResponse,
             temperature=0.3,
-            top_p = 0.4,
+            top_p=0.4,
             presence_penalty=-0.3,
             frequency_penalty=0.6,
             messages=[

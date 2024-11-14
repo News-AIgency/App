@@ -68,7 +68,7 @@ jobs:
         run: mv ${{ secrets.BUILD_PATH }} ${{ secrets.SERVE_PATH }}releases/${GITHUB_RUN_ID}
 
       - name: Remove old link
-          run: rm -f ${{ secrets.SERVE_PATH }}current
+        run: rm -f ${{ secrets.SERVE_PATH }}/current
 
       - name: Create new symlink
-        run: ln -s ${{ secrets.SERVE_PATH }}releases/${GITHUB_RUN_ID} ${{ secrets.SERVE_PATH }}current
+        run: ln -s ${{ secrets.SERVE_PATH }}/releases/${GITHUB_RUN_ID} ${{ secrets.SERVE_PATH }}/current

@@ -1,21 +1,18 @@
 name: Frontend Deployment
  
 on:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - './frontend/**'
-  # pull_request:
-  #   branches:
-  #     - main
-  #   types:
-  #     - closed
-  #   paths:
-  #     - './frontend/**'
   push:
     branches:
-      - devops-XD
+      - main
+    paths:
+      - './frontend/**'
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+    paths:
+      - './frontend/**'
 
 env:
   NODE_VERSION: '16.17.1'
@@ -25,7 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    #if: github.event.pull_request.merged == true || github.event_name == 'push'
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
 
     steps:
       - name: Checkout repository

@@ -11,9 +11,9 @@ from typing import Annotated
 
 import uvicorn
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
-from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
@@ -35,9 +35,7 @@ app = FastAPI(
 app.include_router(api_router)
 
 # CORS - testing only
-origins = [
-    "*"
-]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -45,6 +43,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -63,6 +63,9 @@ jobs:
         with:
           name: app-build
           path: ${{ secrets.BUILD_PATH }}
+        
+      - name: Who The Fuck Am I
+        run: whoami
 
       - name: Move build
         run: mv ${{ secrets.BUILD_PATH }} ${{ secrets.SERVE_PATH }}/releases/${GITHUB_RUN_ID}

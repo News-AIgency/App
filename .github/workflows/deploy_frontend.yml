@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - './frontend/**'
+      - 'frontend/**'
   pull_request:
     branches:
       - main
     types:
       - closed
     paths:
-      - './frontend/**'
+      - 'frontend/**'
 
 env:
   NODE_VERSION: '16.17.1'

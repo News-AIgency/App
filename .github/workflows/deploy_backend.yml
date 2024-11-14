@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - './backend/**'
+      - 'backend/**'
   pull_request:
     branches:
       - main
     types: 
       - closed
     paths:
-      - './backend/**'
+      - 'backend/**'
 
 env:
   REGISTRY: ghcr.io

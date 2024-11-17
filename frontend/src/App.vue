@@ -15,7 +15,7 @@ function mailTo() {
 <template>
   <div class="page-wrapper">
     <nav class="navbar">
-      <a class="navbar-logo" @click="goToStart">News <span class="text-accent">AI</span>gency</a>
+      <a class="navbar-logo" @click="goToStart">WR<span class="text-accent">AI</span>TE</a>
       <a class="contact-us" @click="mailTo">Contact Us</a>
     </nav>
     <RouterView />

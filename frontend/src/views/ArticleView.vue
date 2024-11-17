@@ -5,12 +5,17 @@
       <LoadingSpinner></LoadingSpinner>
       Generating article...
     </div>
+
+    <!-- TOPIC -->
+     <div class="topic-container">
+    <h2 id="topicBox" class="title" v-show="!articleStore.loading">
+      {{ selectedTopic }}
+    </h2>
+    </div>
+
+
     <div class="page-wrapper">
       <div class="textarea-wrapper">
-        <h2 id="titleBox" class="title" v-show="!articleStore.loading">
-          {{ selectedTopic }}
-        </h2>
-
         <div class="textarea-container" v-show="!articleStore.loading">
           <div class="header-container">
             <h3 class="header-container">Title</h3>
@@ -193,18 +198,29 @@
           <a :href="originalUrl" class="url">{{ originalUrl }}</a>
         </div>
 
+        <!-- ACTION BAR -- EXPORT -->
         <div class="action-bar" v-show="!articleStore.loading">
-          <button class="export-button" @click="exportText">Export</button>
+          <button class="export-to-external-system button">
+            Export to external system
+          </button>
+          <button class="export-button button" @click="exportText">
+            Export to TXT
+          </button>
         </div>
       </div>
 
+      <!-- TITLE SUGGESTION -->
       <div class="title-suggestion-wrapper" v-show="!articleStore.loading">
-        <h2 id="fillerBox" class="filler"></h2>
-        <div class="regenerate-wrapper" v-show="!articleStore.loading">
-          <h3 class="header-container" v-show="!articleStore.loading">
-            Title suggestions
-          </h3>
-          <AiContent></AiContent>
+        <div class="header-container">
+          <div class="regenerate-wrapper">
+            <h3
+              class="header-container title-suggestion-label"
+              v-show="!articleStore.loading"
+            >
+              Title suggestions
+            </h3>
+            <AiContent></AiContent>
+          </div>
           <button
             class="material-icons regenerate-button"
             title="Regenerate"
@@ -261,19 +277,19 @@ export default {
     this.tags = [...this.articleStore.tags]
     this.loadFromLocalStorage()
 
-    const leftBox = document.getElementById('titleBox');
-    const rightBox = document.getElementById('fillerBox');
+    const leftBox = document.getElementById('titleBox')
+    const rightBox = document.getElementById('fillerBox')
 
     if (leftBox && rightBox) {
-      rightBox.style.padding = `${leftBox.offsetHeight/2}px`;
-}
+      rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
+    }
   },
   updated() {
-    const leftBox = document.getElementById('titleBox');
-    const rightBox = document.getElementById('fillerBox');
+    const leftBox = document.getElementById('titleBox')
+    const rightBox = document.getElementById('fillerBox')
 
     if (leftBox && rightBox) {
-      rightBox.style.padding = `${leftBox.offsetHeight/2}px`;
+      rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
   },
   computed: {
@@ -470,7 +486,7 @@ html {
   margin: auto;
   display: flex;
   width: 95%;
-  gap: 0px;
+  gap: 2%;
   justify-content: flex-end;
   flex-direction: row;
   color: var(--color-text);
@@ -487,6 +503,7 @@ html {
 .textarea {
   padding-right: 10%;
 }
+
 
 .copy-icon {
   position: absolute;
@@ -519,7 +536,9 @@ html {
 .action-bar {
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 80px;
 }
 
 .textarea-container textarea {
@@ -532,13 +551,17 @@ html {
 
 .title-suggestion-wrapper {
   display: flex;
-  width: 30%;
+  width: 23%;
   flex-direction: column;
-  margin-top: 11.5px; /* toto potom opravit */
 }
 
 .m-title-suggestion-wrapper {
   display: none;
+}
+
+.title-suggestion-label {
+  text-wrap: nowrap;
+  overflow: hidden;
 }
 
 .regenerate-wrapper {
@@ -562,15 +585,25 @@ html {
   display: flex;
   width: 50%;
   flex-direction: column;
-  margin-right: 2%;
+}
+
+
+.topic-container {
+  display: flex;
+  justify-content: center;
+}
+
+#topicBox {
+  margin: 10px 0;
+  width: 47.5%; /* 0.95 * 50% */
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
-  margin-top: 1%;
+  margin-top: 4px;
+  margin-bottom: 2px;
 }
 
 .word-counter {
@@ -660,16 +693,24 @@ html {
   gap: 16px;
 }
 
-.export-button {
-  width: 15%;
-  background-color: var(--color-accent);
-  color: var(--color-text);
+.button {
   border: 0px;
   border-radius: 10px;
   font-weight: 600;
   font-size: 12px;
   padding: 10px;
   cursor: pointer;
+}
+
+.export-to-external-system {
+  background-color: rgba(76, 76, 83, 0.75);
+  color: white;
+}
+
+.export-button {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  border: 0px;
 
   transition: box-shadow 0.4s ease;
 }
@@ -733,6 +774,12 @@ h3 {
 
   .m-title-suggestion-wrapper {
     display: block;
+  }
+
+  #topicBox {
+    width: 90%;
+    padding-right: 0;
+    text-wrap: pretty;
   }
 }
 </style>

@@ -1,4 +1,3 @@
-from typing import Any, Coroutine
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, HTTPException, Request
@@ -13,7 +12,8 @@ from backend.app.utils.default_article import default_article, default_article_u
 
 router = APIRouter()
 
-# region Url domain validation endpoint
+
+# region Url domain validation
 async def url_validate(
     url: str = default_article_url,
     hostnames: list[str] = None,
@@ -33,13 +33,16 @@ async def url_validate(
         raise HTTPException(status_code=400, detail="Invalid URL")
     return JSONResponse(content={"detail": url})
 
+
 if settings.ENVIRONMENT == "development":
+
     @router.get("/url-validate")
     async def url_validate_get(
         url: str = default_article_url,
         hostnames: list[str] = None,
     ) -> JSONResponse:
         return await url_validate(url)
+
 
 @router.post("/url-validate")
 async def url_validate_post(
@@ -48,10 +51,12 @@ async def url_validate_post(
     request_body = await request.json()
     url = request_body.get("url", default_article_url)
     return await url_validate(url)
+
+
 # endregion
 
 
-# region Extract topics endpoint
+# region Extract topics
 async def extract_topics(
     url: str = default_article,
 ) -> TopicsResponse:
@@ -82,6 +87,7 @@ async def extract_topics(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.post("/article/topics", response_model=TopicsResponse)
 async def extract_topics_post(
     request: Request,
@@ -95,9 +101,12 @@ async def extract_topics_post(
 
 
 if settings.ENVIRONMENT == "development":
+
     @router.get("/article/topics", response_model=TopicsResponse)
     async def extract_topics_get(
-    url: str = default_article,
+        url: str = default_article,
     ) -> TopicsResponse:
         return await extract_topics(url)
+
+
 # endregion

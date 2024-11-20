@@ -1,4 +1,3 @@
-import instructor
 from litellm import acompletion
 
 from backend.app.core.config import settings
@@ -17,12 +16,10 @@ class LiteLLMService:
         self.litellm_url = "http://147.175.151.44/"
         self.model = "gpt-4o-mini"
 
-        self.client = instructor.from_litellm(acompletion)
-
     async def test_litellm(self) -> TestLiteLLMPoem:
-        response = await self.client.chat.completions.create(
+        response = await acompletion(
             model=self.model,
-            response_model=TestLiteLLMPoem,
+            response_format=TestLiteLLMPoem,
             messages=[
                 {
                     "role": "user",
@@ -33,7 +30,7 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response
+        return TestLiteLLMPoem.model_validate_json(response.choices[0].message.content)
 
     async def generate_topics(
         self,
@@ -41,9 +38,9 @@ class LiteLLMService:
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        response = await self.client.chat.completions.create(
+        response = await acompletion(
             model=self.model,
-            response_model=TopicsResponse,
+            response_format=TopicsResponse,
             messages=[
                 {
                     "role": "user",
@@ -59,7 +56,7 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response
+        return TopicsResponse.model_validate_json(response.choices[0].message.content)
 
     async def generate_article(
         self,
@@ -69,9 +66,9 @@ class LiteLLMService:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        response = await self.client.completions.create(
+        response = await acompletion(
             model=self.model,
-            response_model=ArticleResponse,
+            response_format=ArticleResponse,
             temperature=0.3,
             top_p=0.4,
             presence_penalty=-0.3,
@@ -109,7 +106,7 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response
+        return ArticleResponse.model_validate_json(response.choices[0].message.content)
 
     async def regenerate_headlines(
         self,
@@ -119,9 +116,9 @@ class LiteLLMService:
         headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        response = await self.client.completions.create(
+        response = await acompletion(
             model=self.model,
-            response_model=ArticleResponse,
+            response_format=ArticleResponse,
             messages=[
                 {
                     "role": "user",
@@ -139,7 +136,7 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response
+        return ArticleResponse.model_validate_json(response.choices[0].message.content)
 
     async def regenerate_engaging_text(
         self,
@@ -149,9 +146,9 @@ class LiteLLMService:
         current_headline: str | None,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        response = await self.client.completions.create(
+        response = await acompletion(
             model=self.model,
-            response_model=ArticleResponse,
+            response_format=ArticleResponse,
             messages=[
                 {
                     "role": "user",
@@ -171,4 +168,4 @@ class LiteLLMService:
             base_url=self.litellm_url,
         )
 
-        return response
+        return ArticleResponse.model_validate_json(response.choices[0].message.content)

@@ -5,9 +5,11 @@ class TestLiteLLMPoem(BaseModel):
     poem: str
 
 
-class TopicsResponse(BaseModel):
+class BaseResponse(BaseModel):
     chain_of_thought: str
 
+
+class TopicsResponse(BaseResponse):
     topics: list[str] = Field(
         None,
         description="Examples of topics:"
@@ -19,9 +21,7 @@ class TopicsResponse(BaseModel):
     )
 
 
-class ArticleResponse(BaseModel):
-    chain_of_thought: str
-
+class ArticleResponse(BaseResponse):
     headlines: list[str] = Field(
         None,
         description="Examples of headlines:"
@@ -58,7 +58,65 @@ class ArticleResponse(BaseModel):
         "Tento trend sa pozoruje už niekoľko týždňov, pričom motoristi sú naďalej obozretní pri "
         "tankovaní, snažiac sa nájsť najlepšie ceny.",
     )
-    tags: str = Field(
+    tags: list[str] = Field(
+        None,
+        description="Examples of tags: #cenyPohonnýchLátok"
+        "#benzín"
+        "#nafta"
+        "#Slovensko",
+    )
+
+
+class HeadlineResponse(BaseResponse):
+    headlines: list[str] = Field(
+        None,
+        description="Examples of headlines:"
+        "Ceny palív stagnujú na Slovensku, "
+        "Dopyt po pohonných látkach v 41. týždni, "
+        "Analýza: Ceny benzínu a nafty v SR, ",
+    )
+
+
+class EngagingTextResponse(BaseResponse):
+    engaging_text: str = Field(
+        None,
+        description="Examples of engaging text:"
+        "Priemerné ceny pohonných látok v SR v 41. týždni 2024 vzrástli. Benzín a nafta zdraželi v priemere o 2 centy na liter. "
+        "Cena LPG stúpla, LNG klesla, CNG mierne zlacnel. Detaily zverejnil Štatistický úrad SR.",
+    )
+
+
+class PerexResponse(BaseResponse):
+    perex: str = Field(
+        None,
+        description="Example of perex:"
+        "Ceny pohonných látok na Slovensku sa v 41. týždni 2024 stabilizovali."
+        " Zistite, čo stojí za týmto trendom a aké sú aktuálne ceny.",
+    )
+
+
+class ArticleBodyResponse(BaseResponse):
+    article: str = Field(
+        None,
+        description="Examples of article:"
+        "V 41. týždni 2024 sa na Slovensku ceny pohonných látok stabilizovali, pričom benzín a nafta "
+        "udržali svoje hodnoty v porovnaní s predchádzajúcim týždňom. Podľa údajov zo spoločnosti "
+        "májový prieskum ukázal, že priemerná cena benzínu sa pohybuje okolo 1,50 € za liter, "
+        "zatiaľ čo cena nafty je približne 1,40 € za liter. Tieto ceny sú výsledkom globálneho trhu s "
+        "ropou a miestnych dodávateľských podmienok. Na stretnutí s novinármi minulé pondelok, "
+        'hovorca Ministerstva hospodárstva SR uviedol: "Ceny palív sú obyčajne ovplyvnené medzinárodným'
+        ' trhom. V súčasnosti sme svedkami stabilného vývoja, čo je priaznivá správa pre vodičov." '
+        "Vzhľadom na dopyt po pohonných látkach počas jeseň, očakáva sa, že ceny môžu byť pod tlakom. "
+        "Špecialisti na trh predpovedajú potenciálne zvýšenie cien, ak dôjde k jeho narušeniu napríklad "
+        "pre geopolitické faktory alebo zmeny v produkcii ropy. Taktiež, v niektorých regiónoch, "
+        "ako sú Bratislava a Košice, sú ceny mierne vyššie, z dôvodu miestnej konkurencie a dopytu. "
+        "Tento trend sa pozoruje už niekoľko týždňov, pričom motoristi sú naďalej obozretní pri "
+        "tankovaní, snažiac sa nájsť najlepšie ceny.",
+    )
+
+
+class TagsResponse(BaseResponse):
+    tags: list[str] = Field(
         None,
         description="Examples of tags: #cenyPohonnýchLátok"
         "#benzín"

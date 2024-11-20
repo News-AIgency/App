@@ -80,9 +80,11 @@ default_engaging_text = """
     Zistite, ktoré pohonné látky sú na vrchole cenového rebríčka a prečo sa niektoré alternatívy tešia vyšším cenám.
     """
 
-default_tags = """"
-    #CENYPOHONNYCHLATOK|
-    #BENZIN|
-    #NAFTA|
-    #SLOVENSKO
-    """
+default_perex = "Ceny pohonných látok na Slovensku sa v 41. týždni 2024 stabilizovali, pričom benzín a nafta udržali svoje hodnoty. Aké faktory to ovplyvnili?"
+
+default_tags = [
+    "#CENYPOHONNYCHLATOK",
+    "#BENZIN",
+    "#NAFTA",
+    "#SLOVENSKO",
+]

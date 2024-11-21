@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt .
 
 RUN python -m pip install -r requirements.txt
+RUN playwright install
 
 COPY ./backend ./backend
 

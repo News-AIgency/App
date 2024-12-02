@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "News AIgency"
     API_VERSION: str = "v1"
     LITE_LLM_KEY: str
+    TAVILY_API_KEY: str
     # Can be "development" or "production"
     ENVIRONMENT: str
 

@@ -11,8 +11,13 @@ from backend.app.services.ai_service.response_models import (
     PerexResponse,
     TagsResponse,
 )
+from backend.app.services.ai_service.storm_agent.STORM_service import (
+    setup_storm_parser,
+    storm_agent,
+)
 from backend.app.utils.default_article import (
     default_article,
+    default_article_url,
     default_engaging_text,
     default_headline,
     default_headlines,
@@ -554,6 +559,45 @@ async def regenerate_tags_post(
         return await regenerate_tags(
             url, selected_topic, old_tags, current_headline, current_article
         )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# endregion
+
+
+# region STORM retrieval
+@router.get("/article/storm-retrieve")
+async def storm_retrieve(
+    url: str = default_article_url, selected_topic: str = default_topic
+) -> None:
+    try:
+        # setup pipeline
+        parser = setup_storm_parser()
+        args = parser.parse_args(
+            [
+                "--do-research",
+                "--do-generate-outline",
+                "--do-generate-article",
+                "--do-polish-article",
+                "--output-dir",
+                "./results",
+                "--max-thread-num",
+                "3",
+                "--max-conv-turn",
+                "3",
+                "--max-perspective",
+                "3",
+                "--search-top-k",
+                "3",
+                "--retrieve-top-k",
+                "3",
+                "--remove-duplicate",
+            ]
+        )
+
+        storm_agent(args, selected_topic, url)
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

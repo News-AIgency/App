@@ -518,8 +518,8 @@ html {
 
 .title-btn {
   width: 100%;
-  background-color: rgba(56, 56, 62, 0.75);
-  color: rgba(255, 255, 255, 0.5);
+  background-color: var(--color-block);
+  color: var(--color-text);
   border: 0px;
   border-radius: 5px;
   padding: 8px;
@@ -529,8 +529,7 @@ html {
 }
 
 .title-btn:hover {
-  background-color: rgba(76, 76, 83, 0.75);
-  color: white;
+  background-color: rgba(217, 217, 217, 1);
 }
 
 .action-bar {
@@ -657,7 +656,7 @@ html {
 }
 
 .tags div {
-  background-color: rgba(76, 76, 83, 0.75);
+  background-color: var(--color-block);
   color: var(--color-text);
   border: 0px;
   border-radius: 5px;
@@ -681,7 +680,7 @@ html {
   overflow: hidden;
   white-space: nowrap;
   color: inherit;
-  background-color: rgba(76, 76, 83, 0.75);
+  background-color: var(--color-block);
   border-radius: 5px;
   padding: 6px 8px;
 }
@@ -702,21 +701,25 @@ html {
   cursor: pointer;
 }
 
+button {
+  font-weight: 500;
+}
+
 .export-to-external-system {
-  background-color: rgba(76, 76, 83, 0.75);
-  color: white;
+  background-color: #D9D9D9;
+  color: var(--color-text);
 }
 
 .export-button {
   background-color: var(--color-accent);
-  color: var(--color-text);
+  color: var(--color-text-dark-bg);
   border: 0px;
 
   transition: box-shadow 0.4s ease;
 }
 
 .export-button:hover {
-  box-shadow: 0 0 8px #9f00ff;
+  box-shadow: 0 0 8px var(--color-accent);
 }
 
 .title {
@@ -727,14 +730,14 @@ html {
 }
 
 textarea {
-  background-color: rgba(56, 56, 62, 0.75);
+  background-color: var(--color-block);
   border-radius: 5px;
   resize: none;
   outline: none;
-  caret-color: white;
+  caret-color: black;
   padding: 10px;
   color: var(--color-text);
-  border: 2px solid rgb(84, 84, 84);
+  border: 0;
 }
 
 h3 {

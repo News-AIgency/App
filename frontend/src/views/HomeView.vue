@@ -91,10 +91,9 @@ export default {
   max-width: 700px;
   min-width: 300px;
   height: 3em;
-  border: 2px solid;
-  border-color: #545454;
+  border: 0;
   border-radius: 5px;
-  background-color: rgba(212, 217, 228, 0.16);
+  background-color: var(--color-block);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,8 +105,8 @@ export default {
   border: 0px transparent;
   padding-left: 16px;
   outline: none;
-  caret-color: white;
-  color: rgba(255, 255, 255, 0.7);
+  caret-color: var(--color-accent);
+  color: var(--color-text-haze);
 }
 
 .error-container {
@@ -137,7 +136,7 @@ form {
 
 .generate-btn {
   background-color: var(--color-accent);
-  color: var(--color-text);
+  color: var(--color-text-dark-bg);
   border: 0px;
   border-radius: 10px;
   font-weight: 600;
@@ -150,7 +149,7 @@ form {
 }
 
 .generate-btn:hover {
-  box-shadow: 0 0 8px #9F00FF;
+  box-shadow: 0 0 8px var(--color-accent);
 }
 
 .input-heading {

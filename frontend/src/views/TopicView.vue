@@ -126,6 +126,7 @@ export default {
   }
 
   .topic-num {
+    color: var(--color-text);
     padding: 0 15px 0 15px !important;
   }
 
@@ -232,16 +233,17 @@ export default {
   height: 58px;
   border-radius: 5px;
   border: 0px transparent;
-  background-color: #38383e;
-  color: rgba(255, 255, 255, 1);
+  background-color: var(--color-block);
+  color: var(--color-text);
 }
 
 .topic-label {
+  width: 80%;
   text-align: left;
 }
 
 .topic-button:hover {
-  background-color: #9f00ff;
+  background-color: rgba(217, 217, 217, 1);
   transition: 0.3s ease;
   cursor: pointer;
   box-shadow:
@@ -250,7 +252,7 @@ export default {
 }
 
 .forward-arrow {
-  color: rgba(255, 255, 255, 1);
+  color: var(--color-text);
   font-size: 24px;
   opacity: 0;
   position: absolute;
@@ -266,7 +268,7 @@ export default {
   width: auto;
   height: auto;
   padding: 10px 20px;
-  color: #fff;
+  color: var(--color-text);
   text-align: center;
   font-weight: bold;
 }

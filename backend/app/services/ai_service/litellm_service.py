@@ -19,11 +19,12 @@ class LiteLLMService:
     def __init__(self) -> None:
         self.api_key = settings.LITE_LLM_KEY
         self.litellm_url = "http://147.175.151.44/"
-        self.model = "gpt-4o-mini"
+        self.gpt_4o_mini_model = "gpt-4o-mini"
+        self.o1_mini_model = "o1_mini"
 
     async def test_litellm(self) -> TestLiteLLMPoem:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=TestLiteLLMPoem,
             messages=[
                 {
@@ -44,7 +45,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=TopicsResponse,
             messages=[
                 {
@@ -72,7 +73,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=ArticleResponse,
             temperature=0.3,
             top_p=0.4,
@@ -121,7 +122,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=HeadlineResponse,
             messages=[
                 {
@@ -151,7 +152,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=HeadlineResponse,
             messages=[
                 {
@@ -181,7 +182,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=EngagingTextResponse,
             messages=[
                 {
@@ -214,7 +215,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=EngagingTextResponse,
             messages=[
                 {
@@ -247,7 +248,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> PerexResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=PerexResponse,
             messages=[
                 {
@@ -277,7 +278,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> PerexResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=PerexResponse,
             messages=[
                 {
@@ -307,7 +308,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.o1_mini_model,
             response_format=ArticleBodyResponse,
             messages=[
                 {
@@ -345,7 +346,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.o1_mini_model,
             response_format=ArticleBodyResponse,
             messages=[
                 {
@@ -385,7 +386,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> TagsResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=TagsResponse,
             messages=[
                 {
@@ -417,7 +418,7 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> TagsResponse:
         response = await acompletion(
-            model=self.model,
+            model=self.gpt_4o_mini_model,
             response_format=TagsResponse,
             messages=[
                 {

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
+from fastapi_cache import FastAPICache
 
 # from fastapi_cache import FastAPICache
 from backend.app.core.config import settings
@@ -12,8 +13,7 @@ from backend.app.services.ai_service.response_models import (
     TagsResponse,
 )
 from backend.app.services.ai_service.storm_agent.STORM_service import (
-    setup_storm_parser,
-    storm_agent,
+    run_storm,
 )
 from backend.app.utils.default_article import (
     default_article,
@@ -567,36 +567,18 @@ async def regenerate_tags_post(
 
 
 # region STORM retrieval
-@router.get("/article/storm-retrieve")
+#@router.get("/article/storm-retrieve")
 async def storm_retrieve(
     url: str = default_article_url, selected_topic: str = default_topic
-) -> None:
+) -> str:
     try:
-        # setup pipeline
-        parser = setup_storm_parser()
-        args = parser.parse_args(
-            [
-                "--do-research",
-                "--do-generate-outline",
-                "--do-generate-article",
-                "--do-polish-article",
-                "--output-dir",
-                "./results",
-                "--max-thread-num",
-                "3",
-                "--max-conv-turn",
-                "3",
-                "--max-perspective",
-                "3",
-                "--search-top-k",
-                "3",
-                "--retrieve-top-k",
-                "3",
-                "--remove-duplicate",
-            ]
-        )
+        storm_article = run_storm(selected_topic, url)
 
-        storm_agent(args, selected_topic, url)
+        # Store the storm article in cache for further use
+        cache_key = f"storm_article:{url}"
+        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
+
+        return "Great success!"
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

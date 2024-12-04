@@ -14,7 +14,7 @@ from knowledge_storm import (
 )
 
 from backend.app.core.config import settings
-from backend.app.utils.default_article import default_topic, default_article_url
+from backend.app.utils.default_article import default_article_url, default_topic
 
 OUTPUT_DIR = ".\\services\\ai_service\\storm_agent\\results"
 MAX_CONV_TURN = 3

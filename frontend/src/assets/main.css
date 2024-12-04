@@ -19,7 +19,7 @@
 }
 
 .text-accent {
-  color: #9F00FF;
+  color: var(--color-accent);
   font-weight: inherit; 
   font-size: inherit; 
 }

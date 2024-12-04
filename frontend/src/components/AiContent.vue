@@ -11,7 +11,7 @@
   justify-content: center;
   padding: 0px 3px 0px 3px;
   border-radius: 10%;
-  background-color: #9d00ff34;
+  background-color: var(--color-accent-haze);
   color: var(--color-accent);
   margin: 0;
 }

@@ -23,4 +23,4 @@ Pipfile.lock
 /backend/app/api/routes/__pycache__
 /backend/app/.idea
 /backend/app/utils/__pycache__
-backend/app/core/.DS_Store
+*.DS_Store

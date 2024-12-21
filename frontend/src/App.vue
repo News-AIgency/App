@@ -5,7 +5,7 @@
       <!-- <a class="navbar-logo" @click="goToStart"
         >WR<span class="text-accent">AI</span>TE</a
       > -->
-      <img src="../public/logo.svg" alt="WrAIte XMAS logo <3">
+      <img src="../public/logo.svg" @click="goToStart" alt="WrAIte XMAS logo <3">
       <div class="navbar-item"><a href="">Home</a></div>
       <div class="navbar-item"><a href="">Organization</a></div>
       <div class="navbar-item"><a href="">History</a></div>

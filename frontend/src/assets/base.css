@@ -12,10 +12,11 @@
   --color-heading: var(--text-black);
   --color-text: var(--text-black);
   --color-text-dark-bg: var(--vt-c-white);
-  --color-text-haze: rgba(0,0,0,0.5);
+  --color-text-haze: rgb(137, 137, 137);
   
   --color-background: var(--light-background);
-  --color-block: rgba(217, 217, 217, 0.5);
+  --color-block: #F2F4F4;
+  --color-block-hover: #EDEFEF;
 
   --gradient-background-dark: linear-gradient(180deg, #141718, #363139);
   --light-background: #F9FAFB;

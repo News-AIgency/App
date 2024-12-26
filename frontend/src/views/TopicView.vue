@@ -167,7 +167,7 @@ export default {
 .custom-topic-button {
   aspect-ratio: 1/1;
   height: 58px;
-  background-color: rgba(212, 217, 228, 0.16);
+  background-color: #E8E9E9;
   border: 0px transparent;
   border-radius: 5px;
   color: var(--color-text);
@@ -175,19 +175,19 @@ export default {
 }
 
 .custom-topic-button:disabled {
-  background-color: rgba(212, 217, 228, 0.2);
+  background-color: E8E9E9;
   cursor: not-allowed;
 }
 
 .topic-input {
   width: 100%;
-  background-color: rgba(212, 217, 228, 0.16);
+  background-color: #E8E9E9;
   border: 0px transparent;
   border-radius: 5px;
   padding-left: 16px;
   outline: none;
   caret-color: white;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-haze);
   height: 58px;
 }
 

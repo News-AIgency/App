@@ -15,8 +15,8 @@
   --color-text-haze: rgb(137, 137, 137);
   
   --color-background: var(--light-background);
-  --color-block: #F2F4F4;
-  --color-block-hover: #EDEFEF;
+  --color-block: #eceef5;
+  --color-block-hover: #e8eaf0;
 
   --gradient-background-dark: linear-gradient(180deg, #141718, #363139);
   --light-background: #F9FAFB;

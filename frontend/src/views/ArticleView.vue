@@ -483,11 +483,10 @@ html {
 }
 
 .page-wrapper {
-  margin: auto;
   display: flex;
-  width: 95%;
+  width: 75%;
   gap: 2%;
-  justify-content: flex-end;
+  margin: auto;
   flex-direction: row;
   color: var(--color-text);
 }
@@ -582,7 +581,7 @@ html {
 
 .textarea-wrapper {
   display: flex;
-  width: 50%;
+  width: 60%;
   flex-direction: column;
 }
 
@@ -590,6 +589,7 @@ html {
 .topic-container {
   display: flex;
   justify-content: center;
+  width: 75%;
 }
 
 #topicBox {

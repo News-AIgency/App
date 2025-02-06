@@ -101,7 +101,7 @@ function mailTo() {
   justify-content: space-between;
   gap: 8px;
   color: var(--color-text);
-  width: 25%;
+  width: 20%;
   height: 100vh;
   position: fixed; /* to prevent scroll */
   left: 0;
@@ -163,9 +163,9 @@ function mailTo() {
   margin: 30px 30px 30px 0px;
   border-radius: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 75%;
+  width: 80%;
   min-height: calc(100vh - 60px);
-  margin-left: 25%; /* the size of the sidebar */
+  margin-left: 20%; /* the size of the sidebar */
   overflow-y: auto;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <main>
-    <ProgressBar :active-page="3"></ProgressBar>
+    <ProgressBar :currentStep="currentStep"></ProgressBar>
     <div class="loading-container" v-show="articleStore.loading">
       <LoadingSpinner></LoadingSpinner>
       Generating article...
@@ -270,6 +270,7 @@ export default {
       isAddingTag: false,
       newTag: '',
       originalUrl: '',
+      currentStep: 3,
     }
   },
   mounted() {

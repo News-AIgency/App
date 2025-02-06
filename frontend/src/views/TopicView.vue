@@ -1,6 +1,6 @@
 <template>
   <main>
-    <ProgressBar :active-page="2"></ProgressBar>
+    <ProgressBar :currentStep="currentStep"></ProgressBar>
     <div class="topic-selection">
       <h2 class="title">Custom topic</h2>
       <div class="custom-topic-container">
@@ -67,6 +67,7 @@ export default {
     return {
       selectedTopic: '',
       customTopic: '',
+      currentStep: 2,
     }
   },
   mounted() {

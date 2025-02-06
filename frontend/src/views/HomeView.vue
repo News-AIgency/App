@@ -1,6 +1,6 @@
 <template>
   <main>
-    <ProgressBar :active-page="TEST"></ProgressBar>
+    <ProgressBar :currentStep="currentStep"></ProgressBar>
     <form>
       <p class="input-heading">Enter URL below</p>
       <p class="input-subheading">to generate topic ideas</p>
@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       inputURL: "",
-      TEST: 1,
+      currentStep: 1,
       error_text: "",
     };
   },
@@ -127,11 +127,15 @@ export default {
   user-select: none;
 }
 
+main {
+  height: 100%;
+}
+
 form {
+  margin-top: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2em;
 }
 
 .generate-btn {
@@ -154,6 +158,7 @@ form {
 
 .input-heading {
   font-size: 24px;
+  font-weight: bold;
 }
 
 .input-subheading {

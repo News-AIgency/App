@@ -16,6 +16,7 @@
   
   --color-background: var(--light-background);
   --color-block: #eceef5;
+  --color-block-inactive: #ECEEF575;
   --color-block-hover: #e8eaf0;
 
   --gradient-background-dark: linear-gradient(180deg, #141718, #363139);

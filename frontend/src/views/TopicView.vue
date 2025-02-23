@@ -176,13 +176,13 @@ export default {
 }
 
 .custom-topic-button:disabled {
-  background-color: E8E9E9;
+  background-color: var(--color-block);
   cursor: not-allowed;
 }
 
 .topic-input {
   width: 100%;
-  background-color: #E8E9E9;
+  background-color: var(--color-block);
   border: 0px transparent;
   border-radius: 5px;
   padding-left: 16px;
@@ -204,7 +204,7 @@ export default {
   align-items: center;
   height: auto;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text);
   margin-top: 20px;
 }
 
@@ -244,12 +244,12 @@ export default {
 }
 
 .topic-button:hover {
-  background-color: rgba(217, 217, 217, 1);
+  background-color: var(--color-block-hover);
   transition: 0.3s ease;
   cursor: pointer;
   box-shadow:
-    0 6px 10px 0 rgba(0, 0, 0, 0.2),
-    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    0 2px 2px 0 rgba(0, 0, 0, 0.1),
+    0 2px 10px 0 rgba(0, 0, 0, 0.06);
 }
 
 .forward-arrow {

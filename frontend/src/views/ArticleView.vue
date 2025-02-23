@@ -1,172 +1,41 @@
 <template>
   <main>
-    <ProgressBar :currentStep="currentStep"></ProgressBar>
-    <div class="loading-container" v-show="articleStore.loading">
-      <LoadingSpinner></LoadingSpinner>
-      Generating article...
-    </div>
+    <section class="article-section">
+      <ProgressBar :currentStep="currentStep"></ProgressBar>
+      <div class="loading-container" v-show="articleStore.loading">
+        <LoadingSpinner></LoadingSpinner>
+        Generating article...
+      </div>
 
-    <!-- TOPIC -->
-     <div class="topic-container">
-    <h2 id="topicBox" class="title" v-show="!articleStore.loading">
-      {{ selectedTopic }}
-    </h2>
-    </div>
+      <div class="intro-box">
+        <div class="back-button" v-show="!articleStore.loading">Back to topic selection</div>
+        <div class="time-to-read" v-show="!articleStore.loading">Time to read: <span class="bold">{{ timeToRead }}</span></div>
+      </div>
 
-
-    <div class="page-wrapper">
-      <div class="textarea-wrapper">
-        <div class="textarea-container" v-show="!articleStore.loading">
-          <div class="header-container">
-            <h3 class="header-container">Title</h3>
-            <p class="word-counter">Word count: {{ titleWordCount }}</p>
-          </div>
-          <div class="textarea-copy-wrapper">
-            <span
-              class="material-icons copy-icon"
-              @click="copyText('title-textarea')"
-              title="Copy text to clipboard"
-              >content_copy</span
-            >
-            <textarea
-              id="title-textarea"
-              v-model="title"
-              @input="autoResize"
-            ></textarea>
-          </div>
-        </div>
-
-        <!-- MOBILE - TITLE SUGGESTION - TEMPORARY -->
-        <div class="m-title-suggestion-wrapper" v-show="!articleStore.loading">
-          <div class="regenerate-wrapper" v-show="!articleStore.loading">
-            <h3 class="header-container" v-show="!articleStore.loading">
-              Title suggestions
-            </h3>
-            <AiContent></AiContent>
-            <button
-              class="material-icons regenerate-button"
-              title="Regenerate"
-              @click="regenTitleSuggestions"
-            >
-              autorenew
-            </button>
-          </div>
-
-          <button
-            v-for="(suggestion, index) in titleSuggestions"
-            :key="index"
-            class="title-btn"
-            @click="copyTitle(suggestion)"
-          >
-            {{ suggestion }}
-          </button>
-        </div>
-
-        <div class="textarea-container" v-show="!articleStore.loading">
-          <div class="header-container">
-            <div class="regenerate-wrapper">
-              <h3 class="header-container">Engaging text</h3>
-
-              <button
-                class="material-icons regenerate-button"
-                title="Regenerate"
-                @click="regenEngagingText"
-              >
-                autorenew
-              </button>
-            </div>
-            <p class="word-counter">Word count: {{ engagingTextWordCount }}</p>
-          </div>
-          <div class="textarea-copy-wrapper">
-            <span
-              class="material-icons copy-icon"
-              @click="copyText('engaging-textarea')"
-              title="Copy text to clipboard"
-              >content_copy</span
-            >
-            <textarea
-              id="engaging-textarea"
-              v-model="engagingText"
-              @input="autoResize"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="textarea-container" v-show="!articleStore.loading">
-          <div class="header-container">
-            <div class="regenerate-wrapper">
-              <h3 class="header-container">Perex</h3>
-
-              <button
-                class="material-icons regenerate-button"
-                title="Regenerate"
-                @click="regenPerex"
-              >
-                autorenew
-              </button>
-            </div>
-            <p class="word-counter">Word count: {{ perexWordCount }}</p>
-          </div>
-          <div class="textarea-copy-wrapper">
-            <span
-              class="material-icons copy-icon"
-              @click="copyText('perex-textarea')"
-              title="Copy text to clipboard"
-              >content_copy</span
-            >
-            <textarea
-              id="perex-textarea"
-              v-model="perex"
-              @input="autoResize"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="textarea-container" v-show="!articleStore.loading">
-          <div class="header-container">
-            <div class="regenerate-wrapper">
-              <h3 class="header-container">Body</h3>
-
-              <button
-                class="material-icons regenerate-button"
-                title="Regenerate"
-                @click="regenBody"
-              >
-                autorenew
-              </button>
-            </div>
-            <div class="word-count-time-to-read-wrapper">
-              <p class="time-to-read">Time to read: {{ timeToRead }}</p>
-              <p class="word-counter">Word count: {{ bodyWordCount }}</p>
-            </div>
-          </div>
-          <div class="textarea-copy-wrapper">
-            <span
-              class="material-icons copy-icon"
-              @click="copyText('body-textarea')"
-              title="Copy text to clipboard"
-              >content_copy</span
-            >
-            <textarea
-              id="body-textarea"
-              v-model="body"
-              @input="autoResize"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="tags-container" v-show="!articleStore.loading">
-          <div class="regenerate-wrapper">
-            <h3 class="header-container">Tags</h3>
-
-            <button
-              class="material-icons regenerate-button"
-              title="Regenerate"
-              @click="regenTags"
-            >
-              autorenew
-            </button>
-          </div>
+      <div class="textarea-container" v-show="!articleStore.loading">
+        <div class="topic-box">{{ selectedTopic }}</div>
+      </div>
+      <div class="textarea-container" v-show="!articleStore.loading">
+        <textarea
+          class="headline"
+          id="title-textarea"
+          v-model="title"
+          @input="autoResize"
+          spellcheck="false"
+        >
+Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
+        >
+      </div>
+      <div class="textarea-container" v-show="!articleStore.loading">
+        <ArticleBlock :text="engagingText" type="Engaging Text"></ArticleBlock>
+      </div>
+      <div class="textarea-container" v-show="!articleStore.loading">
+        <ArticleBlock :text="perex" type="Perex"></ArticleBlock>
+      </div>
+      <div class="textarea-container" v-show="!articleStore.loading">
+        <ArticleBlock :text="body" type="Body"></ArticleBlock>
+      </div>
+      <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
               {{ tag.toLocaleLowerCase() }}
@@ -192,54 +61,23 @@
             </div>
           </div>
         </div>
-
-        <div class="source-wrapper" v-show="!articleStore.loading">
-          <h3 class="header-container">Original Source</h3>
-          <a :href="originalUrl" class="url">{{ originalUrl }}</a>
-        </div>
-
-        <!-- ACTION BAR -- EXPORT -->
-        <div class="action-bar" v-show="!articleStore.loading">
-          <button class="export-to-external-system button">
-            Export to external system
-          </button>
-          <button class="export-button button" @click="exportText">
-            Export to TXT
-          </button>
-        </div>
+    </section>
+    <section class="sidebar-section">
+      <div class="buttons-container">
+        <button class="btn-primary btn">Publish</button>
+        <button class="btn-secondary btn">Share</button>
       </div>
-
-      <!-- TITLE SUGGESTION -->
-      <div class="title-suggestion-wrapper" v-show="!articleStore.loading">
-        <div class="header-container">
-          <div class="regenerate-wrapper">
-            <h3
-              class="header-container title-suggestion-label"
-              v-show="!articleStore.loading"
-            >
-              Title suggestions
-            </h3>
-            <AiContent></AiContent>
-          </div>
-          <button
-            class="material-icons regenerate-button"
-            title="Regenerate"
-            @click="regenTitleSuggestions"
-          >
-            autorenew
-          </button>
-        </div>
-
-        <button
+      <div class="suggestions-container">
+        <p class="sidebar-label">Headline suggestions</p>
+      <button
           v-for="(suggestion, index) in titleSuggestions"
           :key="index"
           class="title-btn"
           @click="copyTitle(suggestion)"
         >
           {{ suggestion }}
-        </button>
-      </div>
-    </div>
+        </button></div>
+    </section>
   </main>
 </template>
 
@@ -248,6 +86,7 @@ import { useArticleStore } from '@/stores/articleStore'
 import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
+import ArticleBlock from '@/components/ArticleBlock.vue';
 
 export default {
   setup() {
@@ -258,6 +97,7 @@ export default {
     ProgressBar,
     LoadingSpinner,
     AiContent,
+    ArticleBlock,
   },
   data() {
     return {
@@ -472,6 +312,83 @@ html {
   scroll-behavior: smooth;
 }
 
+main {
+  display: flex;
+}
+.tags-container {
+  font-size: 12px;
+  width: 75%;
+  padding-left: 22px;
+  padding-bottom: 20px;
+}
+
+.sidebar-label {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 0 0px 8px;
+}
+
+.sidebar-section {
+  width: 25%;
+  height: 100vh;
+  border-left: 1px solid var(--color-border);
+}
+
+.article-section {
+  width: 75%;
+  height: 100vh;
+  overflow-y: none;
+}
+
+.intro-box {
+  width: 96%;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 3%;
+}
+
+.suggestions-container {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* TEXTAREA */
+.textarea-container {
+  display: flex;
+  flex-direction: column;
+  width: 96%;
+  margin: auto;
+}
+
+textarea {
+  background-color: white;
+  border-radius: 5px;
+  resize: none;
+  outline: none;
+  caret-color: black;
+  padding: 10px 3%;
+  color: var(--color-text);
+  border: 0;
+}
+
+textarea:focus,
+textarea:hover {
+  background-color: var(--color-block);
+}
+
+.headline {
+  font-size: 1.75rem;
+  font-weight: 900;
+}
+
+.topic-box {
+  padding: 0px 3%;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-text-haze);
+}
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -485,7 +402,7 @@ html {
 
 .page-wrapper {
   display: flex;
-  width: 75%;
+  width: 90%;
   gap: 2%;
   margin: auto;
   flex-direction: row;
@@ -504,7 +421,6 @@ html {
   padding-right: 10%;
 }
 
-
 .copy-icon {
   position: absolute;
   top: 9px;
@@ -517,7 +433,7 @@ html {
 }
 
 .title-btn {
-  width: 100%;
+  width: 90%;
   background-color: var(--color-block);
   color: var(--color-text);
   border: 0px;
@@ -525,11 +441,12 @@ html {
   padding: 8px;
   text-align: left;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin: 8px 6px 2px 8px;
+  font-size: 12px;
 }
 
 .title-btn:hover {
-  background-color: rgba(217, 217, 217, 1);
+  background-color: var(--color-block-hover);
 }
 
 .action-bar {
@@ -538,14 +455,6 @@ html {
   gap: 8px;
   margin-top: 10px;
   margin-bottom: 80px;
-}
-
-.textarea-container textarea {
-  width: 100%;
-  padding-right: 40px;
-  box-sizing: border-box;
-  overflow: hidden;
-  resize: none;
 }
 
 .title-suggestion-wrapper {
@@ -564,6 +473,7 @@ html {
 }
 
 .regenerate-wrapper {
+  border: 0 0 0 20px solid black;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -584,6 +494,34 @@ html {
   display: flex;
   width: 60%;
   flex-direction: column;
+}
+
+/* BUTTONS */
+
+.buttons-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  padding: 20px 16px;
+}
+
+.btn {
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  padding: 8px 10px;
+  border: none;
+  color: var(--color-text-dark-bg);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  padding: 8px 10px;
+  border: 1px solid black;
 }
 
 
@@ -611,7 +549,7 @@ html {
   opacity: 0.5;
 }
 
-.time-to-read {
+.time-to-read, .back-button {
   font-size: 12px;
   opacity: 0.5;
 }
@@ -631,7 +569,7 @@ html {
   justify-content: flex-start;
   white-space: nowrap;
   flex-wrap: wrap;
-  gap: 10px 10px;
+  gap: 8px 8px;
   margin-top: 1%;
   margin-bottom: 1%;
 }
@@ -702,12 +640,8 @@ html {
   cursor: pointer;
 }
 
-button {
-  font-weight: 500;
-}
-
 .export-to-external-system {
-  background-color: #D9D9D9;
+  background-color: #d9d9d9;
   color: var(--color-text);
 }
 
@@ -730,17 +664,6 @@ button {
   margin: auto;
 }
 
-textarea {
-  background-color: var(--color-block);
-  border-radius: 5px;
-  resize: none;
-  outline: none;
-  caret-color: black;
-  padding: 10px;
-  color: var(--color-text);
-  border: 0;
-}
-
 h3 {
   font-weight: 600;
 }
@@ -758,6 +681,11 @@ h3 {
 #body-textarea {
   height: 25em;
   min-height: 25em;
+}
+
+/* UTILITY */
+.bold {
+  font-weight: bold;
 }
 
 @media (max-width: 480px) {

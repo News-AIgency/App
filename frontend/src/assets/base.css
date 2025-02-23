@@ -9,6 +9,8 @@
   --color-accent-haze: #D6141450;
   --color-error: #de5e5e;
 
+  --color-border: #00000010;
+
   --color-heading: var(--text-black);
   --color-text: var(--text-black);
   --color-text-dark-bg: var(--vt-c-white);
@@ -58,7 +60,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -1,9 +1,10 @@
 import json
 import os
-from os import PathLike
+import tempfile
 from typing import Any
 
 import knowledge_storm
+from fs.memoryfs import MemoryFS
 from knowledge_storm import (
     OpenAIModel,
     QdrantVectorStoreManager,
@@ -14,9 +15,22 @@ from knowledge_storm import (
 )
 
 from backend.app.core.config import settings
+from backend.app.services.ai_service.storm_agent.FileIOHelper import FileIOHelper
 from backend.app.utils.default_article import default_article_url, default_topic
 
-OUTPUT_DIR = ".\\services\\ai_service\\storm_agent\\results"
+"""
+ We need to create temporary in-memory file system for STORM outputs.
+ Since STORM only accepts string file-path we need make it so the
+ string file-path points towards the in-memory filepath
+"""
+memory_fs = MemoryFS()
+
+# Create a temporary directory on the real filesystem to "mount" MemoryFS
+temp_dir = tempfile.TemporaryDirectory()
+OUTPUT_DIR = temp_dir.name  # This makes STORM think it's a normal path
+
+file_io_helper = FileIOHelper(memory_fs)
+
 MAX_CONV_TURN = 3
 MAX_PERSPECTIVE = 3
 SEARCH_TOP_K = 3
@@ -24,7 +38,8 @@ MAX_THREAD_NUM = 3
 COLLECTION_NAME = "corpus"
 EMBEDDING_MODEL = "BAAI/bge-m3"
 DEVICE = "cpu"
-VECTOR_STORE_DIR = ".\\services\\ai_service\\storm_agent\\vector_store"
+# VECTOR_STORE_DIR = ".\\services\\ai_service\\storm_agent\\vector_store"
+VECTOR_STORE_DIR = ".\\vector_store"
 
 CSV_FILE_PATH = ".\\output_file.csv"
 EMBED_BATCH_SIZE = 64
@@ -69,11 +84,14 @@ def generate_references_footer(selected_topic: str) -> tuple[list[dict[str, Any]
     :return:
         str: Generated references footer section
     """
+    print("MemoryFS contents:", memory_fs.listdir("/"))
+
     url_to_info_path = os.path.join(
         os.path.join(OUTPUT_DIR, selected_topic), "url_to_info.json"
     )
-    with open(url_to_info_path) as f:
-        data = json.load(f)
+
+    # Read from MemoryFS instead of disk
+    data = json.loads(file_io_helper.read_utf8(url_to_info_path))
 
     # Parsing the json with references necessary for constructing markdown reference link
     parsed_data = [
@@ -105,13 +123,12 @@ def create_finalized_article(selected_topic: str) -> str:
 
     parsed_references, references_footer = generate_references_footer(selected_topic)
 
-    with open(
-        os.path.join(
-            os.path.join(OUTPUT_DIR, selected_topic), "storm_gen_article_polished.txt"
-        ),
-        encoding="utf-8",
-    ) as f:
-        text = f.read()
+    article_path = os.path.join(
+        OUTPUT_DIR, selected_topic, "storm_gen_article_polished.txt"
+    )
+
+    # Read from MemoryFS instead of disk
+    text = file_io_helper.read_utf8(article_path)
 
     for ref in parsed_references:
         text = text.replace(f"[{ref['key']}]", rf"\[[{ref['key']}]({ref['url']})\]")
@@ -119,6 +136,8 @@ def create_finalized_article(selected_topic: str) -> str:
     text += f"\n\n## References\n\n{references_footer}"
 
     print(text)
+
+    memory_fs.close()  # Delete the temporary filesystem
     return text
 
 
@@ -127,17 +146,11 @@ def create_finalized_article(selected_topic: str) -> str:
 # region Run STORM
 
 
-# STORM file writing util method does not have utf-8 encoding
-# Therefore monkey-patch is needed to prevent from crashing when in writing slovak language
-def file_write_utf8(
-    s: str, path: int | str | bytes | PathLike[str] | PathLike[bytes]
-) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(s)
-
-
 def monkey_patch_storm() -> None:
-    knowledge_storm.utils.FileIOHelper.write_str = file_write_utf8
+    knowledge_storm.utils.FileIOHelper.write_str = file_io_helper.write_utf8
+    knowledge_storm.utils.FileIOHelper.load_str = file_io_helper.read_utf8
+    knowledge_storm.utils.FileIOHelper.dump_json = file_io_helper.dump_json_memory
+    knowledge_storm.utils.FileIOHelper.load_json = file_io_helper.load_json_memory
 
 
 def run_storm(selected_topic: str, article_url: str) -> str:

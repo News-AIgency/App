@@ -27,3 +27,4 @@ backend/app/core/.DS_Store
 /backend/app/results
 backend/app/services/ai_service/storm_agent/__pycache__/__init__.cpython-310.pyc
 backend/app/services/ai_service/storm_agent/__pycache__/STORM_service.cpython-310.pyc
+/backend/app/services/ai_service/storm_agent/__pycache__

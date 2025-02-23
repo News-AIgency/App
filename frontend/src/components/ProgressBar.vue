@@ -1,145 +1,93 @@
 <template>
-    <div class="container">
-        <div class="steps">
-            <span class="circle" :class="{ active: isActive[0] }">1</span>
-            <span class="circle" :class="{ active: isActive[1] }">2</span>
-            <span class="circle" :class="{ active: isActive[2] }">3</span>
-            <div id="progress-bar" class="progress-bar">
-                <span class="indicator"></span>
-            </div>
-        </div>
-        <div class="step-descriptions">
-            <p>Article<br>URL</p>
-            <p>Select<br>topic</p>
-            <p>Save<br>results</p>
-        </div>
+  <div class="container">
+    <div class="step-container">
+      <div class="step-num" :class="['step', { active: currentStep == 1 }]">
+        STEP 1
+      </div>
+      <span class="step-text" :class="['step', { active: currentStep == 1 }]"
+        >Enter source URL</span
+      ><svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          d="M9.575 12L5.7 8.1q-.275-.275-.288-.687T5.7 6.7q.275-.275.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.687.288T5.7 17.3q-.275-.275-.275-.7t.275-.7zm6.6 0L12.3 8.1q-.275-.275-.288-.687T12.3 6.7q.275-.275.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.687.288T12.3 17.3q-.275-.275-.275-.7t.275-.7z"
+        />
+      </svg>
+      <div class="step-num" :class="['step', { active: currentStep == 2 }]">
+        STEP 2
+      </div>
+      <span class="step-text" :class="['step', { active: currentStep == 2 }]"
+        >Select article topic</span
+      ><svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          d="M9.575 12L5.7 8.1q-.275-.275-.288-.687T5.7 6.7q.275-.275.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.687.288T5.7 17.3q-.275-.275-.275-.7t.275-.7zm6.6 0L12.3 8.1q-.275-.275-.288-.687T12.3 6.7q.275-.275.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.687.288T12.3 17.3q-.275-.275-.275-.7t.275-.7z"
+        />
+      </svg>
+      <div class="step-num" :class="['step', { active: currentStep == 3 }]">
+        STEP 3
+      </div>
+      <span class="step-text" :class="['step', { active: currentStep == 3 }]"
+        >Edit and export your article</span
+      >
     </div>
+  </div>
 </template>
 
 <script lang="ts">
 export default {
-    props: {
-        activePage: {
-            type: Number,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            isActive: [false, false, false],
-        };
-    },
-    watch: {
-        isActive: {
-            handler: 'setStep',
-            deep: true,
-        },
-        activePage: {
-            immediate: true,
-            handler(newPage) {
-                this.updateActiveSteps(newPage);
-            },
-        },
-    },
-    methods: {
-        updateActiveSteps(page: number) {
-            this.isActive = [false, false, false];
-            if (page >= 1 && page < this.isActive.length + 1) {
-                this.isActive[page - 1] = true;
-            }
-            this.setStep();
-        },
-        setStep() {
-            const progressBar = document.getElementById("progress-bar")
-            if (progressBar) {
-                if (this.isActive[0]) {
-                    progressBar.style.background = `linear-gradient(
-                        to right,
-                        #9f00ff 0%,
-                        #9f00ff 27%,
-                        #545454 27%,
-                        #545454 100%
-                    )`;
-                } else if (this.isActive[1]) {
-                    progressBar.style.background = `linear-gradient(
-                        to right,
-                        #545454 0%,
-                        #545454 25%,
-                        #9f00ff 25%,
-                        #9f00ff 75%,
-                        #545454 75%,
-                        #545454 100%
-                    )`;
-                } else if (this.isActive[2]) {
-                    progressBar.style.background = `linear-gradient(
-                        to right,
-                        #545454 0%,
-                        #545454 73%,
-                        #9f00ff 73%,
-                        #9f00ff 100%
-                    )`;
-                } else {
-                    progressBar.style.background = `#545454`;
-                }
-            }
-        }
-    }
+  name: 'ProgressBar',
+  props: {
+    currentStep: Number,
+  },
 }
 </script>
 
 <style scoped>
+svg {
+  opacity: 0.5;
+}
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    justify-self: center;
-    max-width: 500px;
-    width: 75vw;
-    margin-bottom: 20px;
+  padding-top: 20px;
+  margin: auto;
+  width: 100%;
+  font-size: 0.75rem;
+}
+.step-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
 }
 
-.steps {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-    position: relative;
+.step-num {
+  background-color: var(--color-block-inactive);
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: var(--color-text-haze);
+  font-weight: bold;
 }
 
-.step-descriptions {
-    display: flex;
-    flex-direction: row;
-    justify-self: center;
-    justify-content: space-between;
-    text-align: center;
-    width: 99%;
+.step-num.active {
+  background-color: var(--color-block);
+  color: var(--color-text);
 }
 
-.circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--color-text);
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    background-color: #545454;
-    border: 4px solid #444343;
+.step-text {
+  color: rgba(0, 0, 0, 0.5);
 }
 
-.active {
-    background-color: var(--color-accent) !important;
-    border: 4px solid #5a0092 !important;
-}
-
-.progress-bar {
-    position: absolute;
-    height: 4px;
-    width: 100%;
-    background-color: #545454;
-    z-index: -1;
+.step-text.active {
+  color: var(--text-black);
 }
 </style>

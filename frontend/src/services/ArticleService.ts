@@ -1,10 +1,50 @@
 import Api from '@/services/Api'
 
 export default {
-    article(url: string, selected_topic: string) {
-        return Api().post("article/generate", {
-            "url": url,
-            "selected_topic": selected_topic
-        })
-    }
+  article(url: string, selected_topic: string) {
+    return Api().post('article/generate', {
+      url: url,
+      selected_topic: selected_topic,
+    })
+  },
+  regenerateEngagingText(
+    url?: string,
+    selected_topic?: string,
+    old_engaging_text?: string,
+    current_headline?: string,
+  ) {
+    return Api().post('regenerate/engaging_text', {
+      url: url,
+      selected_topic: selected_topic,
+      old_engaging_text: old_engaging_text,
+      current_headline: current_headline,
+    })
+  },
+  regeneratePerex(
+    url?: string,
+    selected_topic?: string,
+    old_perex?: string,
+    current_headline?: string,
+  ) {
+    return Api().post('regenerate/perex', {
+      url: url,
+      selected_topic: selected_topic,
+      old_perex: old_perex,
+      current_headline: current_headline,
+    })
+  },
+  regenerateBody(
+    url?: string,
+    selected_topic?: string,
+    old_article_body?: string,
+    current_headline?: string,
+  ) {
+    return Api().post('regenerate/articlebody', {
+      url: url,
+      selected_topic: selected_topic,
+      old_article_body: old_article_body,
+      current_headline: current_headline,
+    })
+  }
+
 }

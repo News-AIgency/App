@@ -3,16 +3,26 @@
 /* semantic color variables for this project */
 :root {
   --vt-c-white: #ffffff;
-  --color-accent: #9F00FF;
-  --color-accent-box: #9F00FF25;
+  --text-black: #000000;
+  /* --color-accent: #9F00FF; */
+  --color-accent: #D61414;
+  --color-accent-haze: #D6141450;
   --color-error: #de5e5e;
 
-  --color-heading: var(--vt-c-white);
-  --color-text: var(--vt-c-white);
+  --color-border: #00000010;
+
+  --color-heading: var(--text-black);
+  --color-text: var(--text-black);
+  --color-text-dark-bg: var(--vt-c-white);
+  --color-text-haze: rgb(137, 137, 137);
   
-  --color-background: var(--gradient-background-dark);
+  --color-background: var(--light-background);
+  --color-block: #eceef5;
+  --color-block-inactive: #ECEEF575;
+  --color-block-hover: #e8eaf0;
 
   --gradient-background-dark: linear-gradient(180deg, #141718, #363139);
+  --light-background: #F9FAFB;
   
 }
 
@@ -24,7 +34,11 @@
   font-weight: normal;
 }
 textarea {
-  font-family: "Roboto Mono", monospace;
+  font-family: Montserrat,"Roboto Mono", monospace;
+}
+
+button {
+  font-family: Montserrat;
 }
 
 body {
@@ -46,7 +60,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

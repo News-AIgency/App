@@ -23,7 +23,7 @@ Pipfile.lock
 /backend/app/api/routes/__pycache__
 /backend/app/.idea
 /backend/app/utils/__pycache__
-backend/app/core/.DS_Store
+*.DS_Store
 /backend/app/results
 backend/app/services/ai_service/storm_agent/__pycache__/__init__.cpython-310.pyc
 backend/app/services/ai_service/storm_agent/__pycache__/STORM_service.cpython-310.pyc

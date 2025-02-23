@@ -17,7 +17,7 @@
   height: 32px;
   border-radius: 50%;
   border: 4px solid rgba(255, 255, 255, 0.25);
-  border-top-color: white;
+  border-top-color: var(--color-accent);
   animation: loading 1s linear infinite;
 }
 @keyframes loading {

@@ -42,18 +42,19 @@ export default {
     text(newVal) {
       this.internalText = newVal
       this.$nextTick(() => {
-        this.autoResize({ target: this.$refs.textarea })
+        this.autoResize({ target: this.textarea  })
       })
     },
   },
   mounted() {
     this.$nextTick(() => {
-      this.autoResize({ target: this.$refs.textarea })
+      this.autoResize({ target: this.textarea  })
     })
   },
   methods: {
-    autoResize(event: Event) {
-      const target = event.target as HTMLTextAreaElement
+    autoResize(event: { target: EventTarget | null }) {
+      const target = event.target as HTMLTextAreaElement | null;
+      if (!target) return;
       target.style.height = 'auto'
       target.style.height = `${target.scrollHeight}px`
     },
@@ -80,14 +81,18 @@ export default {
         }
 
         this.$nextTick(() => {
-        this.autoResize({ target: this.$refs.textarea })
+        this.autoResize({ target: this.textarea  })
       })
       } catch (error) {
         console.error(error)
       }
     },
   },
-}
+  computed: {
+    textarea(): HTMLTextAreaElement | null {
+      return this.$refs.textarea as HTMLTextAreaElement | null;
+  }
+}}
 </script>
 
 <style scoped>

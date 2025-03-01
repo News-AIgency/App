@@ -1,6 +1,9 @@
 name: Deploy Backend
 
 on:
+  push:
+    branches:
+      - devops/memory-issue
   pull_request:
     branches:
       - main

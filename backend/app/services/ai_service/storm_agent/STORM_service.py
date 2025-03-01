@@ -7,13 +7,15 @@ import knowledge_storm
 from fs.memoryfs import MemoryFS
 from knowledge_storm import (
     OpenAIModel,
-    QdrantVectorStoreManager,
     STORMWikiLMConfigs,
     STORMWikiRunner,
     STORMWikiRunnerArguments,
     VectorRM,
 )
+from langchain_qdrant import Qdrant
+from qdrant_client import QdrantClient
 
+import backend.app.services.ai_service.storm_agent.VectorStoreManager
 from backend.app.core.config import settings
 from backend.app.services.ai_service.storm_agent.FileIOHelper import FileIOHelper
 from backend.app.utils.default_article import default_article_url, default_topic
@@ -37,16 +39,15 @@ SEARCH_TOP_K = 3
 MAX_THREAD_NUM = 3
 COLLECTION_NAME = "corpus"
 EMBEDDING_MODEL = "BAAI/bge-m3"
-DEVICE = "cpu"
-# VECTOR_STORE_DIR = ".\\services\\ai_service\\storm_agent\\vector_store"
+DEVICE = "cpu"  # Change to "cuda" if possible
 VECTOR_STORE_DIR = ".\\vector_store"
 
-CSV_FILE_PATH = ".\\output_file.csv"
+CSV_FILE_PATH = ".\\storm_data.csv"
 EMBED_BATCH_SIZE = 64
 
 
 # region Embedding pipeline
-def embedding_pipeline() -> None:
+def embedding_pipeline(location: str, port: int) -> None:
     # Create / update the vector store with the documents in the csv file
     kwargs = {
         "file_path": CSV_FILE_PATH,
@@ -55,13 +56,13 @@ def embedding_pipeline() -> None:
         "url_column": "url",
         "desc_column": "description",
         "batch_size": EMBED_BATCH_SIZE,
-        "vector_db_mode": "offline",
         "collection_name": COLLECTION_NAME,
         "embedding_model": EMBEDDING_MODEL,
-        "device": "cuda",
+        "device": DEVICE,
     }
-    QdrantVectorStoreManager.create_or_update_vector_store(
-        vector_store_path=VECTOR_STORE_DIR, **kwargs
+
+    backend.app.services.ai_service.storm_agent.VectorStoreManager.QdrantVectorStoreManager.create_or_update_vector_store(
+        location=location, port=port, **kwargs
     )
 
 
@@ -143,14 +144,37 @@ def create_finalized_article(selected_topic: str) -> str:
 
 # endregion
 
+
 # region Run STORM
-
-
 def monkey_patch_storm() -> None:
     knowledge_storm.utils.FileIOHelper.write_str = file_io_helper.write_utf8
     knowledge_storm.utils.FileIOHelper.load_str = file_io_helper.read_utf8
     knowledge_storm.utils.FileIOHelper.dump_json = file_io_helper.dump_json_memory
     knowledge_storm.utils.FileIOHelper.load_json = file_io_helper.load_json_memory
+
+
+def init_qdrant_server(rm: VectorRM) -> None:
+    try:
+        rm.client = QdrantClient("localhost", port=6333)
+
+        """
+        Check if the Qdrant collection exists and create it if it does not.
+        """
+        if rm.client is None:
+            raise ValueError("Qdrant client is not initialized.")
+        if rm.client.collection_exists(collection_name=f"{rm.collection_name}"):
+            print(f"Collection {rm.collection_name} exists. Loading the collection...")
+            rm.qdrant = Qdrant(
+                client=rm.client,
+                collection_name=rm.collection_name,
+                embeddings=rm.model,
+            )
+        else:
+            raise ValueError(
+                f"Collection {rm.collection_name} does not exist. Please create the collection first."
+            )
+    except Exception as e:
+        raise ValueError(f"Error occurs when connecting to the server: {e}")
 
 
 def run_storm(selected_topic: str, article_url: str) -> str:
@@ -220,8 +244,8 @@ def run_storm(selected_topic: str, article_url: str) -> str:
         k=SEARCH_TOP_K,
     )
 
-    # Initialize the vector store offline (stored the db locally):
-    rm.init_offline_vector_db(vector_store_path=VECTOR_STORE_DIR)
+    # Initialize the vector store on qdrant server
+    init_qdrant_server(rm)
 
     # Initialize the STORM Wiki Runner
     runner = STORMWikiRunner(engine_args, engine_lm_configs, rm)
@@ -248,7 +272,7 @@ def run_storm(selected_topic: str, article_url: str) -> str:
 # endregion
 
 if __name__ == "__main__":
+    # embedding_pipeline("localhost", 6333)
     selected_topic = default_topic
     article_url = default_article_url
     run_storm(selected_topic, article_url)
-    # create_finalized_article(selected_topic.replace(" ", "_"))

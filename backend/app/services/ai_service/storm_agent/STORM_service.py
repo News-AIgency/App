@@ -147,6 +147,7 @@ def create_finalized_article(selected_topic: str) -> str:
 
 # region Run STORM
 def monkey_patch_storm() -> None:
+    # Monkey-patching io operation methods to cooperate with in-memory filesystem as well as utf-8
     knowledge_storm.utils.FileIOHelper.write_str = file_io_helper.write_utf8
     knowledge_storm.utils.FileIOHelper.load_str = file_io_helper.read_utf8
     knowledge_storm.utils.FileIOHelper.dump_json = file_io_helper.dump_json_memory

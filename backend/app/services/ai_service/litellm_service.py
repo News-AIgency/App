@@ -112,7 +112,9 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_headlines_program = GenerateHeadlines()
         generate_headlines_program = dspy.asyncify(generate_headlines_program)
-        generate_headlines_program.load(path="backend/app/services/ai_service/optimized_signatures/Generate_Headlines.json")
+        generate_headlines_program.load(
+            path="backend/app/services/ai_service/optimized_signatures/Generate_Headlines.json"
+        )
         generated_headlines = await generate_headlines_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -215,7 +217,9 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_perex_program = GeneratePerex()
         generate_perex_program = dspy.asyncify(generate_perex_program)
-        generate_perex_program.load(path="backend/app/services/ai_service/optimized_signatures/Generate_Perex.json")
+        generate_perex_program.load(
+            path="backend/app/services/ai_service/optimized_signatures/Generate_Perex.json"
+        )
         generated_perex = await generate_perex_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -264,7 +268,9 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_article_body_program = GenerateArticleBody()
         generate_article_body_program = dspy.asyncify(generate_article_body_program)
-        generate_article_body_program.load(path="backend/app/services/ai_service/optimized_signatures/Generate_Body.json")
+        generate_article_body_program.load(
+            path="backend/app/services/ai_service/optimized_signatures/Generate_Body.json"
+        )
         generated_article = await generate_article_body_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -315,7 +321,9 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_tags_program = GenerateTags()
         generate_tags_program = dspy.asyncify(generate_tags_program)
-        generate_tags_program.load(path="backend/app/services/ai_service/optimized_signatures/Generate_Tags.json")
+        generate_tags_program.load(
+            path="backend/app/services/ai_service/optimized_signatures/Generate_Tags.json"
+        )
         generated_tags = await generate_tags_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,

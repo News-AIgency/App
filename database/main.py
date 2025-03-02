@@ -1,55 +1,183 @@
-from typing import TYPE_CHECKING, List
-import fastapi as _fastapi
-import sqlalchemy.orm as _orm
+from fastapi import FastAPI, HTTPException, Depends, status
+from pydantic import BaseModel
+from typing import Annotated, List
+from sqlalchemy.orm import Session
+from database import engine, SessionLocal
 
-import database.schemas as _schemas
-import database.services as _services
+import models
 
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
+app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
 
-app = _fastapi.FastAPI()
+class ChoiceBase(BaseModel):
+    choice_text: str
+    is_correct: bool
 
+class QuestionBase(BaseModel):
+    question_text: str
+    choices: List[ChoiceBase]
 
-@app.post("/api/contacts/", response_model=_schemas.Contact)
-async def create_contact(contact: _schemas.CreateContact, db: _orm.Session = _fastapi.Depends(_services.get_db)):
-    return await _services.create_contact(contact=contact, db=db)
+class HeadingBase(BaseModel):
+    heading_content: str
 
+class HeadingCreate(HeadingBase):
+    generated_article_id: int
 
-@app.get("/api/contacts/", response_model=List[_schemas.Contact])
-async def get_contacts(db: _orm.Session = _fastapi.Depends(_services.get_db)):
-    return await _services.get_all_contacts(db=db)
+class Heading(HeadingBase):
+    id: int
+    generated_article_id: int
 
-
-@app.get("/api/contacts/{contact_id}/", response_model=_schemas.Contact)
-async def get_contact(contact_id: int, db: _orm.Session = _fastapi.Depends(_services.get_db)):
-    return await _services.get_contact(contact_id=contact_id, db=db)
-
-
-@app.delete("/api/contacts/{contact_id}/")
-async def delete_contact(contact_id: int, db: _orm.Session = _fastapi.Depends(_services.get_db)):
-    contact = await _services.get_contact(db=db, contact_id=contact_id)
-    if contact is None:
-        raise _fastapi.HTTPException(status_code=404, detail="User does not exist")
-    await _services.delete_contact(contact, db=db)
-
-    return "Successfully deleted the user"
+    class Config:
+        from_attributes = True
 
 
-@app.put("/api/contacts/{contact_id}/", response_model=_schemas.Contact)
-async def update_contact(
-        contact_id: int,
-        contact_data: _schemas.CreateContact,
-        db: _orm.Session = _fastapi.Depends(_services.get_db),
-        ):
+### Topic Schema ###
+class TopicBase(BaseModel):
+    topic_content: str
 
-    contact = await _services.get_contact(db=db, contact_id=contact_id)
-    if contact is None:
-        raise _fastapi.HTTPException(status_code=404, detail="User does not exist")
+class TopicCreate(TopicBase):
+    generated_article_id: int
 
-    return await _services.update_contact(
-        contact_data=contact_data,
-        contact=contact,
-        db=db
-    )
+class Topic(TopicBase):
+    id: int
+    generated_article_id: int
 
+    class Config:
+        from_attributes = True
+
+
+### Text Schema ###
+class TextBase(BaseModel):
+    text_content: str
+
+class TextCreate(TextBase):
+    generated_article_id: int
+
+class Text(TextBase):
+    id: int
+    generated_article_id: int
+
+    class Config:
+        from_attributes = True
+
+
+### Body Schema ###
+class BodyBase(BaseModel):
+    body_content: str
+
+class BodyCreate(BodyBase):
+    generated_article_id: int
+
+class Body(BodyBase):
+    id: int
+    generated_article_id: int
+
+    class Config:
+        from_attributes = True
+
+
+### Perex Schema ###
+class PerexBase(BaseModel):
+    perex_content: str
+
+class PerexCreate(PerexBase):
+    generated_article_id: int
+
+class Perex(PerexBase):
+    id: int
+    generated_article_id: int
+
+    class Config:
+        from_attributes = True
+
+
+### Tags Schema ###
+class TagsBase(BaseModel):
+    tag_content: str
+
+class TagsCreate(TagsBase):
+    generated_article_id: int
+
+class Tags(TagsBase):
+    id: int
+    generated_article_id: int
+
+    class Config:
+        from_attributes = True
+
+
+### Images Schema ###
+class ImagesBase(BaseModel):
+    link_to_image: str
+
+class ImagesCreate(ImagesBase):
+    generated_article_id: int
+
+class Images(ImagesBase):
+    id: int
+    generated_article_id: int
+
+    class Config:
+        from_attributes = True
+
+
+### Generated Article Schema (Nested Relationships) ###
+class GeneratedArticleBase(BaseModel):
+    pass  # No fields because it references other models
+
+class GeneratedArticleCreate(BaseModel):
+    heading: HeadingCreate
+    topic: TopicCreate
+    text: TextCreate
+    body: BodyCreate
+    perex: PerexCreate
+    tags: TagsCreate
+    images: ImagesCreate
+
+class GeneratedArticle(GeneratedArticleBase):
+    id: int
+    heading: Heading
+    topic: Topic
+    text: Text
+    body: Body
+    perex: Perex
+    tags: Tags
+    images: Images
+
+    class Config:
+        from_attributes = True
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+db_dependency = Annotated[Session, Depends(get_db)]
+
+@app.post("/questions/")
+async def create_question(question: QuestionBase, db: db_dependency):
+    db_question = models.Questions(question_text=question.question_text)
+    db.add(db_question)
+    db.commit()
+    db.refresh(db_question)
+    for choice in question.choices:
+        db_choice = models.Choices(choice_text=choice.choice_text, is_correct=choice.is_correct, question_id=db_question.id)
+        db.add(db_choice)
+    db.commit()
+
+@app.get("/questions/{question_id}")
+async def read_question(question_id: int, db: db_dependency):
+    result = db.query(models.Questions).filter(models.Questions.id == question_id).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return result
+
+@app.get("/choices/{question_id}")
+async def read_choices(question_id: int, db: db_dependency):
+    result = db.query(models.Choices).filter(models.Choices.question_id == question_id).all()
+    if not result:
+        raise HTTPException(status_code=404, detail="Choices not found")
+    return result

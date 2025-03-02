@@ -61,7 +61,10 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
             </div>
           </div>
         </div>
+        <SrcUrlBlock :url="originalUrl" v-show="!articleStore.loading"></SrcUrlBlock>
     </section>
+
+    <!-- RIGHT SIDEBAR -->
     <section class="sidebar-section">
       <div class="buttons-container">
         <button class="btn-primary btn">Publish</button>
@@ -87,6 +90,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
+import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 
 export default {
   setup() {
@@ -98,6 +102,7 @@ export default {
     LoadingSpinner,
     AiContent,
     ArticleBlock,
+    SrcUrlBlock
   },
   data() {
     return {
@@ -308,12 +313,11 @@ export default {
 </script>
 
 <style scoped>
-html {
-  scroll-behavior: smooth;
-}
 
 main {
   display: flex;
+  max-height: 90vh;
+  overflow-y: hidden;
 }
 .tags-container {
   font-size: 12px;
@@ -336,8 +340,20 @@ main {
 
 .article-section {
   width: 75%;
-  height: 100vh;
-  overflow-y: none;
+  height: 90vh;
+  overflow-y: auto;
+}
+
+.article-section::-webkit-scrollbar {
+  width: 8px;
+}
+.article-section::-webkit-scrollbar-thumb {
+  background-color: var(--color-block);
+  border-radius: 3px;
+}
+
+.article-section::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .intro-box {
@@ -558,8 +574,7 @@ textarea:hover {
   border: none;
   border-radius: 5px;
   padding-left: 1%;
-  background-color: rgba(76, 76, 83, 0.75);
-  color: white;
+  background-color: var(--color-block-hover);
   outline: none;
 }
 

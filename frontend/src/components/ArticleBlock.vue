@@ -134,7 +134,7 @@ export default {
 .block-actions {
   display: flex;
   justify-content: start;
-  gap: 2px;
+  gap: 4px;
 }
 
 .block-action-btn {
@@ -143,9 +143,9 @@ export default {
   border-radius: 5px;
   color: var(--color-text-haze);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 1rem;
   outline: none;
   padding: 4px;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 </style>

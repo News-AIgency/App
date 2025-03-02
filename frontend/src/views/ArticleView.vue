@@ -8,7 +8,7 @@
       </div>
 
       <div class="intro-box">
-        <div class="back-button" v-show="!articleStore.loading"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
+        <div class="back-button" v-show="!articleStore.loading" @click="goBack"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
         <div class="time-to-read" v-show="!articleStore.loading">Time to read: <span class="bold">{{ timeToRead }}</span></div>
       </div>
 
@@ -176,6 +176,9 @@ export default {
     },
   },
   methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
     copyTitle(title: string) {
       this.title = title || ''
     },
@@ -580,9 +583,15 @@ textarea:hover {
 }
 
 .back-button {
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: opacity 0.3s ease;
+}
+
+.back-button:hover {
+  opacity: 1;
 }
 .back-icon {
   background-color: var(--color-block);

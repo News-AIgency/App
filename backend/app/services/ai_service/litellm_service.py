@@ -28,6 +28,7 @@ from backend.app.services.ai_service.response_models import (
 )
 from backend.app.utils.language_enum import Language
 
+
 class LiteLLMService:
 
     def __init__(self) -> None:

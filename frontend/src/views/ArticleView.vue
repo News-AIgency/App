@@ -22,6 +22,7 @@
           v-model="title"
           @input="autoResize"
           spellcheck="false"
+          placeholder="Title is empty"
         >
 Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
         >
@@ -137,6 +138,7 @@ export default {
     if (leftBox && rightBox) {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
+
   },
   computed: {
     titleWordCount(): number {

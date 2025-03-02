@@ -1,0 +1,33 @@
+{
+  "generate_article_body": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField.",
+      "fields": [
+        {
+          "prefix": "Scraped Content:",
+          "description": "Scraped news article"
+        },
+        {
+          "prefix": "Selected Topic:",
+          "description": "Selected news article topic"
+        },
+        {
+          "prefix": "Current Headline:",
+          "description": "Current headline"
+        },
+        {
+          "prefix": "Language:",
+          "description": "Language of the news article"
+        },
+        {
+          "prefix": "Article:",
+          "description": "Generated article"
+        }
+      ]
+    }
+  }
+}

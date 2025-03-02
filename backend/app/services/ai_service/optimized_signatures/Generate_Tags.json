@@ -1,0 +1,41 @@
+{
+  "generate_tags": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Generate a number of tags specified by the tag_count InputField, starting with a '#' without any spaces. Tags should relate to the article so readers can find it easily and should be all capital letters. Generate them based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField, the current headline from the current_headline InputField and the article from the current_article InputField. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField.",
+      "fields": [
+        {
+          "prefix": "Scraped Content:",
+          "description": "Scraped news article"
+        },
+        {
+          "prefix": "Selected Topic:",
+          "description": "Selected news article topic"
+        },
+        {
+          "prefix": "Current Headline:",
+          "description": "Current headline"
+        },
+        {
+          "prefix": "Current Article:",
+          "description": "Current article"
+        },
+        {
+          "prefix": "Tag Count:",
+          "description": "Number of tags to generate"
+        },
+        {
+          "prefix": "Language:",
+          "description": "Language of the news article"
+        },
+        {
+          "prefix": "Tags:",
+          "description": "Generated tags"
+        }
+      ]
+    }
+  }
+}

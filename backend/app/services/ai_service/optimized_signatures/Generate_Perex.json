@@ -1,0 +1,33 @@
+{
+  "generate_perex": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Create a perex that succinctly summarizes the article's essence in 140-160 characters, enhances the given headline, and entices readers to delve deeper into the news piece. Use the provided scraped content, selected topic, and current headline as your foundation, ensuring the text is engaging and free of bullet points. The output must be in the designated language: Slovak.",
+      "fields": [
+        {
+          "prefix": "Scraped Content:",
+          "description": "Scraped news article"
+        },
+        {
+          "prefix": "Selected Topic:",
+          "description": "Selected news article topic"
+        },
+        {
+          "prefix": "Current Headline:",
+          "description": "Current headline"
+        },
+        {
+          "prefix": "Language:",
+          "description": "Language of the news article"
+        },
+        {
+          "prefix": "Perex:",
+          "description": "Generated perex"
+        }
+      ]
+    }
+  }
+}

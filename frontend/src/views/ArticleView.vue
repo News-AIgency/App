@@ -8,7 +8,7 @@
       </div>
 
       <div class="intro-box">
-        <div class="back-button" v-show="!articleStore.loading">Back to topic selection</div>
+        <div class="back-button" v-show="!articleStore.loading"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
         <div class="time-to-read" v-show="!articleStore.loading">Time to read: <span class="bold">{{ timeToRead }}</span></div>
       </div>
 
@@ -68,8 +68,8 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
     <!-- RIGHT SIDEBAR -->
     <section class="sidebar-section">
       <div class="buttons-container">
-        <button class="btn-primary btn">Publish</button>
-        <button class="btn-secondary btn">Share</button>
+        <button class="btn-primary btn"><span class="material-icons publish"></span>Publish</button>
+        <button class="btn-secondary btn"><span class="material-icons send"></span>Share</button>
       </div>
       <div class="suggestions-container">
         <p class="sidebar-label">Headline suggestions</p>
@@ -525,8 +525,15 @@ textarea:hover {
 }
 
 .btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.btn span {
+  font-size: 14px;
 }
 
 .btn-primary {
@@ -572,6 +579,17 @@ textarea:hover {
   opacity: 0.5;
 }
 
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.back-icon {
+  background-color: var(--color-block);
+  padding: 4px;
+  border-radius: 20px;
+  font-size: 16px;
+}
 .tag-input {
   border: none;
   border-radius: 5px;

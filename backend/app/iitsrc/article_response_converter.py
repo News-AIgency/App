@@ -17,7 +17,7 @@ def create_response_json(
     engaging_text: str,
     article: str,
     tags: list[str],
-    chain_of_thought: str ="N/A",
+    chain_of_thought: str = "N/A",
 ) -> ArticleResponse:
     response = {
         "chain_of_thought": chain_of_thought,

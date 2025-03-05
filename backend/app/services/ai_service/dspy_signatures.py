@@ -82,6 +82,51 @@ class GenerateArticle(dspy.Module):
         )
         return generated_article
 
+class StormGenerateArticleSignature(dspy.Signature):
+    """Generate 5 sections based on the scraped news article from scraped_content InputField, the Storm generated article from storm_article InputField, and the selected topic from selected_topic InputField. Focus more on the information from scraped_content and use storm_article to augment the generated text. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! The generated fields should not have any resemblance to a boulevard article.All generated text should be in the language that the language InputField specifies. Sections will follow these rules:
+    1. Headlines: Generate a number of headlines specified by headlines_count InputField that interpret the news in a human-readable way. Headlines should be between 70 and 110 characters, including spaces. All headlines should start with a capital letter.
+    2. Engaging text: Generate an engaging text that will hook the reader. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it.
+    3. Perex: A short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article
+    4. Article: Write a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into at least 3 paragraphs with '\n' symbols.
+    5. Tags: Generate a number of tags specified by the tag_count InputField, starting with a '#'. Tags should relate to the article so readers can find it easily and should be all capital letters.
+    """
+
+    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
+    storm_article = dspy.InputField(desc="Article generated with Storm from the scraped source article", type=str)
+    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
+    headlines_count = dspy.InputField(
+        desc="Number of headlines to generate", type=int, default=3
+    )
+    tag_count = dspy.InputField(desc="Number of tags to generate", type=int, default=4)
+    language = dspy.InputField(
+        desc="Language of the news article", type=Language, default=Language.SLOVAK
+    )
+    article = dspy.OutputField(desc="Generated article", type=ArticleResponse)
+
+
+class StormGenerateArticle(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate_article = dspy.Predict(StormGenerateArticleSignature)
+
+    def forward(
+        self,
+        scraped_content: str,
+        storm_article: str,
+        selected_topic: str,
+        headlines_count: int,
+        tag_count: int,
+        language: Language,
+    ) -> StormGenerateArticleSignature:
+        generated_article = self.generate_article(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            headlines_count=headlines_count,
+            tag_count=tag_count,
+            language=language,
+        )
+        return generated_article
 
 class GenerateHeadlinesSignature(dspy.Signature):
     """Generate a number of new headlines specified by the headlines_count InputField that interpret the news in a human-readable way, based on the scraped news article from scraped_content InputField and the selected_topic InputField. Headlines should be between 70 and 110 characters, including spaces. All headlines should start with a capital letter, meaning the first word will start with a capital letter and the rest will be lower case. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the headlines field, the other fields should remain null."""

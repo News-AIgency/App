@@ -4,6 +4,7 @@ from litellm import acompletion
 from backend.app.core.config import settings
 from backend.app.services.ai_service.dspy_signatures import (
     GenerateArticle,
+    StormGenerateArticle,
     GenerateArticleBody,
     GenerateEngagingText,
     GenerateHeadlines,
@@ -88,6 +89,32 @@ class LiteLLMService:
         )
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_article_program = GenerateArticle()
+        generate_article_program = dspy.asyncify(generate_article_program)
+        generated_article = await generate_article_program(
+            scraped_content=scraped_content,
+            selected_topic=selected_topic,
+            headlines_count=headlines_count,
+            tag_count=tag_count,
+            language=language,
+        )
+
+        return ArticleResponse.model_validate_json(generated_article.article)
+    
+    async def storm_generate_article(
+        scraped_content: str | None,
+        storm_article: str | None,
+        selected_topic: str | None,
+        headlines_count: int = 3,
+        tag_count: int = 4,
+        language: Language = Language.SLOVAK,
+    ) -> ArticleResponse:
+        lm = dspy.LM(
+            "openai/gpt-4o-mini",
+            api_key=settings.LITE_LLM_KEY,
+            base_url="http://147.175.151.44/",
+        )
+        dspy.settings.configure(lm=lm, async_max_workers=8)
+        generate_article_program = StormGenerateArticle()
         generate_article_program = dspy.asyncify(generate_article_program)
         generated_article = await generate_article_program(
             scraped_content=scraped_content,

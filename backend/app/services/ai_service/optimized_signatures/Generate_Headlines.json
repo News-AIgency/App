@@ -1,0 +1,33 @@
+{
+  "generate_headlines": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Create a set of informative and engaging headlines from the scraped news article provided in the scraped_content InputField. The headlines should focus on the selected topic specified in the selected_topic InputField. Ensure that you generate the number of headlines indicated by the headlines_count InputField. Each headline must be between 70 and 110 characters in length, including spaces, and should begin with a capital letter. Avoid using any bullet points or list indicators, and make sure the output is entirely in the specified language from the language InputField. Fill in only the headlines field; the other input fields should remain empty.",
+      "fields": [
+        {
+          "prefix": "Scraped Content:",
+          "description": "Scraped news article"
+        },
+        {
+          "prefix": "Selected Topic:",
+          "description": "Selected news article topic"
+        },
+        {
+          "prefix": "Headlines Count:",
+          "description": "Number of headlines to generate"
+        },
+        {
+          "prefix": "Language:",
+          "description": "Language of the news article"
+        },
+        {
+          "prefix": "Headlines:",
+          "description": "Generated headlines"
+        }
+      ]
+    }
+  }
+}

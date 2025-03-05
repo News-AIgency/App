@@ -36,6 +36,7 @@ export const useArticleStore = defineStore('article', {
         this.loading = true;
         const response = await ArticleService.article(this.url, this.selectedTopic)
         this.titleSuggestions = response.data.headlines;
+        this.title = this.titleSuggestions[0];
         this.engagingText = response.data.engaging_text;
         this.perex = response.data.perex;
         this.body = response.data.article;

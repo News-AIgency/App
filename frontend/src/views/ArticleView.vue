@@ -8,7 +8,7 @@
       </div>
 
       <div class="intro-box">
-        <div class="back-button" v-show="!articleStore.loading">Back to topic selection</div>
+        <div class="back-button" v-show="!articleStore.loading" @click="goBack"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
         <div class="time-to-read" v-show="!articleStore.loading">Time to read: <span class="bold">{{ timeToRead }}</span></div>
       </div>
 
@@ -22,6 +22,7 @@
           v-model="title"
           @input="autoResize"
           spellcheck="false"
+          placeholder="Title is empty"
         >
 Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
         >
@@ -61,11 +62,14 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
             </div>
           </div>
         </div>
+        <SrcUrlBlock :url="originalUrl" v-show="!articleStore.loading"></SrcUrlBlock>
     </section>
+
+    <!-- RIGHT SIDEBAR -->
     <section class="sidebar-section">
       <div class="buttons-container">
-        <button class="btn-primary btn">Publish</button>
-        <button class="btn-secondary btn">Share</button>
+        <button class="btn-primary btn"><span class="material-icons publish"></span>Publish</button>
+        <button class="btn-secondary btn"><span class="material-icons send"></span>Share</button>
       </div>
       <div class="suggestions-container">
         <p class="sidebar-label">Headline suggestions</p>
@@ -87,6 +91,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
+import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 
 export default {
   setup() {
@@ -98,6 +103,7 @@ export default {
     LoadingSpinner,
     AiContent,
     ArticleBlock,
+    SrcUrlBlock
   },
   data() {
     return {
@@ -132,6 +138,7 @@ export default {
     if (leftBox && rightBox) {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
+
   },
   computed: {
     titleWordCount(): number {
@@ -169,6 +176,9 @@ export default {
     },
   },
   methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
     copyTitle(title: string) {
       this.title = title || ''
     },
@@ -308,12 +318,11 @@ export default {
 </script>
 
 <style scoped>
-html {
-  scroll-behavior: smooth;
-}
 
 main {
   display: flex;
+  max-height: 90vh;
+  overflow-y: hidden;
 }
 .tags-container {
   font-size: 12px;
@@ -336,8 +345,20 @@ main {
 
 .article-section {
   width: 75%;
-  height: 100vh;
-  overflow-y: none;
+  height: 90vh;
+  overflow-y: auto;
+}
+
+.article-section::-webkit-scrollbar {
+  width: 8px;
+}
+.article-section::-webkit-scrollbar-thumb {
+  background-color: var(--color-block);
+  border-radius: 3px;
+}
+
+.article-section::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .intro-box {
@@ -507,8 +528,15 @@ textarea:hover {
 }
 
 .btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.btn span {
+  font-size: 14px;
 }
 
 .btn-primary {
@@ -554,12 +582,28 @@ textarea:hover {
   opacity: 0.5;
 }
 
+.back-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.3s ease;
+}
+
+.back-button:hover {
+  opacity: 1;
+}
+.back-icon {
+  background-color: var(--color-block);
+  padding: 4px;
+  border-radius: 20px;
+  font-size: 16px;
+}
 .tag-input {
   border: none;
   border-radius: 5px;
   padding-left: 1%;
-  background-color: rgba(76, 76, 83, 0.75);
-  color: white;
+  background-color: var(--color-block-hover);
   outline: none;
 }
 

@@ -1,4 +1,5 @@
 import dspy
+
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
     ArticleResponse,
@@ -9,6 +10,7 @@ from backend.app.services.ai_service.response_models import (
     TopicsResponse,
 )
 from backend.app.utils.language_enum import Language
+
 
 class GenerateTopicsSignature(dspy.Signature):
     """Generate list of topics based on the topics_count InputField and the scraped news article from scraped_content InputField. No numbering, no introductory text, just topics. The result should not have any characters representing bullet points. The topics should be in the language that the language InputField specifies. Each topic should start with capital letter. The news report should be factual as well as neutral. The output is a list of topics in the topics OutputField."""
@@ -82,6 +84,7 @@ class GenerateArticle(dspy.Module):
         )
         return generated_article
 
+
 class StormGenerateArticleSignature(dspy.Signature):
     """Generate 5 sections based on the scraped news article from scraped_content InputField, the Storm generated article from storm_article InputField, and the selected topic from selected_topic InputField. Focus more on the information from scraped_content and use storm_article to augment the generated text. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! The generated fields should not have any resemblance to a boulevard article.All generated text should be in the language that the language InputField specifies. Sections will follow these rules:
     1. Headlines: Generate a number of headlines specified by headlines_count InputField that interpret the news in a human-readable way. Headlines should be between 70 and 110 characters, including spaces. All headlines should start with a capital letter.
@@ -92,7 +95,9 @@ class StormGenerateArticleSignature(dspy.Signature):
     """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    storm_article = dspy.InputField(desc="Article generated with Storm from the scraped source article", type=str)
+    storm_article = dspy.InputField(
+        desc="Article generated with Storm from the scraped source article", type=str
+    )
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
     headlines_count = dspy.InputField(
         desc="Number of headlines to generate", type=int, default=3
@@ -127,6 +132,7 @@ class StormGenerateArticle(dspy.Module):
             language=language,
         )
         return generated_article
+
 
 class GenerateHeadlinesSignature(dspy.Signature):
     """Generate a number of new headlines specified by the headlines_count InputField that interpret the news in a human-readable way, based on the scraped news article from scraped_content InputField and the selected_topic InputField. Headlines should be between 70 and 110 characters, including spaces. All headlines should start with a capital letter, meaning the first word will start with a capital letter and the rest will be lower case. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the headlines field, the other fields should remain null."""

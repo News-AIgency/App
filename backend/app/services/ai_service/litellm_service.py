@@ -4,7 +4,6 @@ from litellm import acompletion
 from backend.app.core.config import settings
 from backend.app.services.ai_service.dspy_signatures import (
     GenerateArticle,
-    StormGenerateArticle,
     GenerateArticleBody,
     GenerateEngagingText,
     GenerateHeadlines,
@@ -16,6 +15,7 @@ from backend.app.services.ai_service.dspy_signatures import (
     RegenerateHeadlines,
     RegeneratePerex,
     RegenerateTags,
+    StormGenerateArticle,
 )
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
@@ -99,7 +99,7 @@ class LiteLLMService:
         )
 
         return ArticleResponse.model_validate_json(generated_article.article)
-    
+
     async def storm_generate_article(
         scraped_content: str | None,
         storm_article: str | None,

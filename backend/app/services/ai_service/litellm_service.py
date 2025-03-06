@@ -15,6 +15,10 @@ from backend.app.services.ai_service.dspy_signatures import (
     RegenerateHeadlines,
     RegeneratePerex,
     RegenerateTags,
+    StormGenerateArticle,
+    StormGenerateArticleBody,
+    StormGenerateEngagingText,
+    StormGeneratePerex,
 )
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
@@ -99,6 +103,33 @@ class LiteLLMService:
 
         return ArticleResponse.model_validate_json(generated_article.article)
 
+    async def storm_generate_article(
+        scraped_content: str | None,
+        storm_article: str | None,
+        selected_topic: str | None,
+        headlines_count: int = 3,
+        tag_count: int = 4,
+        language: Language = Language.SLOVAK,
+    ) -> ArticleResponse:
+        lm = dspy.LM(
+            "openai/gpt-4o-mini",
+            api_key=settings.LITE_LLM_KEY,
+            base_url="http://147.175.151.44/",
+        )
+        dspy.settings.configure(lm=lm, async_max_workers=8)
+        generate_article_program = StormGenerateArticle()
+        generate_article_program = dspy.asyncify(generate_article_program)
+        generated_article = await generate_article_program(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            headlines_count=headlines_count,
+            tag_count=tag_count,
+            language=language,
+        )
+
+        return ArticleResponse.model_validate_json(generated_article.article)
+
     async def generate_headlines(
         scraped_content: str | None,
         selected_topic: str | None,
@@ -113,9 +144,6 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_headlines_program = GenerateHeadlines()
         generate_headlines_program = dspy.asyncify(generate_headlines_program)
-        generate_headlines_program.load(
-            path="backend/app/services/ai_service/optimized_signatures/Generate_Headlines.json"
-        )
         generated_headlines = await generate_headlines_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -204,6 +232,33 @@ class LiteLLMService:
             generated_engaging_text.engaging_text
         )
 
+    async def storm_generate_engaging_text(
+        scraped_content: str | None,
+        storm_article: str | None,
+        selected_topic: str | None,
+        current_headline: str | None,
+        language: Language = Language.SLOVAK,
+    ) -> EngagingTextResponse:
+        lm = dspy.LM(
+            "openai/gpt-4o-mini",
+            api_key=settings.LITE_LLM_KEY,
+            base_url="http://147.175.151.44/",
+        )
+        dspy.settings.configure(lm=lm, async_max_workers=8)
+        generate_engaging_text_program = StormGenerateEngagingText()
+        generate_engaging_text_program = dspy.asyncify(generate_engaging_text_program)
+        generated_engaging_text = await generate_engaging_text_program(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+
+        return EngagingTextResponse.model_validate_json(
+            generated_engaging_text.engaging_text
+        )
+
     async def generate_perex(
         scraped_content: str | None,
         selected_topic: str | None,
@@ -218,9 +273,6 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_perex_program = GeneratePerex()
         generate_perex_program = dspy.asyncify(generate_perex_program)
-        generate_perex_program.load(
-            path="backend/app/services/ai_service/optimized_signatures/Generate_Perex.json"
-        )
         generated_perex = await generate_perex_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -255,6 +307,31 @@ class LiteLLMService:
 
         return PerexResponse.model_validate_json(generated_perex.perex)
 
+    async def storm_generate_perex(
+        scraped_content: str | None,
+        storm_article: str | None,
+        selected_topic: str | None,
+        current_headline: str | None,
+        language: Language = Language.SLOVAK,
+    ) -> PerexResponse:
+        lm = dspy.LM(
+            "openai/gpt-4o-mini",
+            api_key=settings.LITE_LLM_KEY,
+            base_url="http://147.175.151.44/",
+        )
+        dspy.settings.configure(lm=lm, async_max_workers=8)
+        generate_perex_program = StormGeneratePerex()
+        generate_perex_program = dspy.asyncify(generate_perex_program)
+        generated_perex = await generate_perex_program(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+
+        return PerexResponse.model_validate_json(generated_perex.perex)
+
     async def generate_article_body(
         scraped_content: str | None,
         selected_topic: str | None,
@@ -269,9 +346,6 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_article_body_program = GenerateArticleBody()
         generate_article_body_program = dspy.asyncify(generate_article_body_program)
-        generate_article_body_program.load(
-            path="backend/app/services/ai_service/optimized_signatures/Generate_Body.json"
-        )
         generated_article = await generate_article_body_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,
@@ -306,6 +380,31 @@ class LiteLLMService:
 
         return ArticleBodyResponse.model_validate_json(generated_article.article)
 
+    async def storm_generate_article_body(
+        scraped_content: str | None,
+        storm_article: str | None,
+        selected_topic: str | None,
+        current_headline: str | None,
+        language: Language = Language.SLOVAK,
+    ) -> ArticleBodyResponse:
+        lm = dspy.LM(
+            "openai/o1_mini",
+            api_key=settings.LITE_LLM_KEY,
+            base_url="http://147.175.151.44/",
+        )
+        dspy.settings.configure(lm=lm, async_max_workers=8)
+        generate_article_body_program = StormGenerateArticleBody()
+        generate_article_body_program = dspy.asyncify(generate_article_body_program)
+        generated_article = await generate_article_body_program(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+
+        return ArticleBodyResponse.model_validate_json(generated_article.article)
+
     async def generate_tags(
         scraped_content: str | None,
         selected_topic: str | None,
@@ -322,9 +421,6 @@ class LiteLLMService:
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_tags_program = GenerateTags()
         generate_tags_program = dspy.asyncify(generate_tags_program)
-        generate_tags_program.load(
-            path="backend/app/services/ai_service/optimized_signatures/Generate_Tags.json"
-        )
         generated_tags = await generate_tags_program(
             scraped_content=scraped_content,
             selected_topic=selected_topic,

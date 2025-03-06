@@ -241,6 +241,44 @@ class GenerateEngagingText(dspy.Module):
         )
         return generated_engaging_text
 
+class StormGenerateEngagingTextSignature(dspy.Signature):
+    """Generate an engaging text that will hook the reader, based on the scraped_content InputField, the selected_topic InputField, the current_headline InputField and the storm_article InputField. Mainly use the scraped_content for information and augment it with the Storm article. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the engaging text field, the other fields should remain null."""
+
+    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
+    storm_article = dspy.InputField(
+        desc="Article generated with Storm from the scraped source article", type=str
+    )
+    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
+    current_headline = dspy.InputField(desc="Current headline", type=str)
+    language = dspy.InputField(
+        desc="Language of the news article", type=Language, default=Language.SLOVAK
+    )
+    engaging_text = dspy.OutputField(
+        desc="Generated engaging text", type=EngagingTextResponse
+    )
+
+
+class StormGenerateEngagingText(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate_engaging_text = dspy.Predict(StormGenerateEngagingTextSignature)
+
+    def forward(
+        self,
+        scraped_content: str,
+        storm_article: str,
+        selected_topic: str,
+        current_headline: str,
+        language: Language,
+    ) -> StormGenerateEngagingTextSignature:
+        generated_engaging_text = self.generate_engaging_text(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+        return generated_engaging_text
 
 class RegenerateEngagingTextSignature(dspy.Signature):
     """Generate an engaging text that will hook the reader, based on the scraped_content InputField and the selected_topic InputField and the current_headline InputField. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it. The old engaging text is in the old_engaging_text InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the engaging text field, the other fields should remain null."""
@@ -312,6 +350,42 @@ class GeneratePerex(dspy.Module):
         )
         return generated_perex
 
+class StormGeneratePerexSignature(dspy.Signature):
+    """Generate a perex: a short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article. Generate it based on this: scraped news article from scraped_content InputField, the selected topic from selected_topic InputField, the current headline from current_headline InputField and the Storm generated article from storm_article. Mainly use the scraped_content for information and augment it with the storm_article. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
+
+    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
+    storm_article = dspy.InputField(
+        desc="Article generated with Storm from the scraped source article", type=str
+    )
+    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
+    current_headline = dspy.InputField(desc="Current headline", type=str)
+    language = dspy.InputField(
+        desc="Language of the news article", type=Language, default=Language.SLOVAK
+    )
+    perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
+
+
+class StormGeneratePerex(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate_perex = dspy.Predict(StormGeneratePerexSignature)
+
+    def forward(
+        self,
+        scraped_content: str,
+        storm_article: str,
+        selected_topic: str,
+        current_headline: str,
+        language: Language,
+    ) -> StormGeneratePerexSignature:
+        generated_perex = self.generate_perex(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+        return generated_perex
 
 class RegeneratePerexSignature(dspy.Signature):
     """Generate a perex: a short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
@@ -381,6 +455,42 @@ class GenerateArticleBody(dspy.Module):
         )
         return generated_article
 
+class StormGenerateArticleBodySignature(dspy.Signature):
+    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField, the current headline from the current_headline InputField and the Storm generated article from storm_article. Mainly use the scraped_content for information and augment it with the storm_article. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField."""
+
+    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
+    storm_article = dspy.InputField(
+        desc="Article generated with Storm from the scraped source article", type=str
+    )
+    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
+    current_headline = dspy.InputField(desc="Current headline", type=str)
+    language = dspy.InputField(
+        desc="Language of the news article", type=Language, default=Language.SLOVAK
+    )
+    article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
+
+
+class StormGenerateArticleBody(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate_article_body = dspy.Predict(StormGenerateArticleBodySignature)
+
+    def forward(
+        self,
+        scraped_content: str,
+        storm_article: str,
+        selected_topic: str,
+        current_headline: str,
+        language: Language,
+    ) -> StormGenerateArticleBodySignature:
+        generated_article = self.generate_article_body(
+            scraped_content=scraped_content,
+            storm_article=storm_article,
+            selected_topic=selected_topic,
+            current_headline=current_headline,
+            language=language,
+        )
+        return generated_article
 
 class RegenerateArticleBodySignature(dspy.Signature):
     """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The old article is in the old_article InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField."""

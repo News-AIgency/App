@@ -54,6 +54,7 @@ class LiteLLMService:
         return TestLiteLLMPoem.model_validate_json(response.choices[0].message.content)
 
     async def generate_topics(
+        self,
         scraped_content: str | None,
         topics_count: int = 5,
         language: Language = Language.SLOVAK,

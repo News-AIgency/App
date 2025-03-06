@@ -61,6 +61,7 @@ async def generate_generated_article_csv() -> None:
             for url in df.iloc[:, 0].tolist():
 
                 scraped_content = await jina_scrape(url)
+                print(url)
                 topics_response = await llm_service.generate_topics(
                     scraped_content=scraped_content
                 )
@@ -70,28 +71,32 @@ async def generate_generated_article_csv() -> None:
                 headline_response = await llm_service.generate_headlines(
                     scraped_content=scraped_content, selected_topic=selected_topic
                 )
-                engaging_text_response = await llm_service.generate_perex(
+                print("headline complete")
+                engaging_text_response = await llm_service.generate_engaging_text(
                     scraped_content=scraped_content,
                     selected_topic=selected_topic,
                     current_headline=headline_response.headlines[0],
                 )
+                print("engaging text complete")
                 article_response = await llm_service.generate_article_body(
                     scraped_content=scraped_content,
                     selected_topic=selected_topic,
                     current_headline=headline_response.headlines[0],
                 )
+                print("article complete")
                 tags_response = await llm_service.generate_tags(
                     scraped_content=scraped_content,
                     selected_topic=selected_topic,
                     current_headline=headline_response.headlines[0],
                     current_article=article_response.article,
                 )
+                print("tags complete")
 
                 # Extract fields
-                headline = headline_response.headlines[0]
+                headline = random.choice(headline_response.headlines)
                 engaging_text = engaging_text_response.engaging_text
                 article = article_response.article
-                tags = " # ".join(tags_response.tags) if tags_response.tags else ""
+                tags = tags_response.tags[0].lower()
 
                 # Write to CSV
                 writer.writerow([sheet_name, headline, engaging_text, article, tags])

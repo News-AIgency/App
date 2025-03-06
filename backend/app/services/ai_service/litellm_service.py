@@ -77,9 +77,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return TopicsResponse.model_validate_json(generated_topics.topics)
+        return TopicsResponse(topics=generated_topics.topics.split("\n"))
 
     async def generate_article(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         headlines_count: int = 3,
@@ -105,6 +106,7 @@ class LiteLLMService:
         return ArticleResponse.model_validate_json(generated_article.article)
 
     async def storm_generate_article(
+        self,
         scraped_content: str | None,
         storm_article: str | None,
         selected_topic: str | None,
@@ -132,6 +134,7 @@ class LiteLLMService:
         return ArticleResponse.model_validate_json(generated_article.article)
 
     async def generate_headlines(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         headlines_count: int = 3,
@@ -152,9 +155,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return HeadlineResponse.model_validate_json(generated_headlines.headlines)
+        return HeadlineResponse(headlines=generated_headlines.headlines.split("\n"))
 
     async def regenerate_headlines(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         old_headlines: str | None,
@@ -177,9 +181,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return HeadlineResponse.model_validate_json(generated_headlines.headlines)
+        return HeadlineResponse(headlines=generated_headlines.headlines.split("\n"))
 
     async def generate_engaging_text(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         current_headline: str | None,
@@ -200,11 +205,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return EngagingTextResponse.model_validate_json(
-            generated_engaging_text.engaging_text
-        )
+        return EngagingTextResponse(engaging_text=generated_engaging_text.engaging_text)
 
     async def regenerate_engaging_text(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         old_engaging_text: str | None,
@@ -229,11 +233,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return EngagingTextResponse.model_validate_json(
-            generated_engaging_text.engaging_text
-        )
+        return EngagingTextResponse(engaging_text=generated_engaging_text.engaging_text)
 
     async def storm_generate_engaging_text(
+        self,
         scraped_content: str | None,
         storm_article: str | None,
         selected_topic: str | None,
@@ -256,11 +259,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return EngagingTextResponse.model_validate_json(
-            generated_engaging_text.engaging_text
-        )
+        return EngagingTextResponse(engaging_text=generated_engaging_text.engaging_text)
 
     async def generate_perex(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         current_headline: str | None,
@@ -281,9 +283,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return PerexResponse.model_validate_json(generated_perex.perex)
+        return PerexResponse(perex=generated_perex.perex)
 
     async def regenerate_perex(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         old_perex: str | None,
@@ -306,9 +309,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return PerexResponse.model_validate_json(generated_perex.perex)
+        return PerexResponse(perex=generated_perex.perex)
 
     async def storm_generate_perex(
+        self,
         scraped_content: str | None,
         storm_article: str | None,
         selected_topic: str | None,
@@ -331,18 +335,21 @@ class LiteLLMService:
             language=language,
         )
 
-        return PerexResponse.model_validate_json(generated_perex.perex)
+        return PerexResponse(perex=generated_perex.perex)
 
     async def generate_article_body(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         current_headline: str | None,
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
         lm = dspy.LM(
-            "openai/o1_mini",
+            "openai/o1-mini",
             api_key=settings.LITE_LLM_KEY,
             base_url="http://147.175.151.44/",
+            temperature=1.0,
+            max_tokens=5000,
         )
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_article_body_program = GenerateArticleBody()
@@ -354,9 +361,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return ArticleBodyResponse.model_validate_json(generated_article.article)
+        return ArticleBodyResponse(article=generated_article.article)
 
     async def regenerate_article_body(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         old_article: str | None,
@@ -364,9 +372,11 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
         lm = dspy.LM(
-            "openai/o1_mini",
+            "openai/o1-mini",
             api_key=settings.LITE_LLM_KEY,
             base_url="http://147.175.151.44/",
+            temperature=1.0,
+            max_tokens=5000,
         )
         dspy.settings.configure(lm=lm, async_max_workers=8)
         regenerate_article_body_program = RegenerateArticleBody()
@@ -379,9 +389,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return ArticleBodyResponse.model_validate_json(generated_article.article)
+        return ArticleBodyResponse(article=generated_article.article)
 
     async def storm_generate_article_body(
+        self,
         scraped_content: str | None,
         storm_article: str | None,
         selected_topic: str | None,
@@ -389,9 +400,11 @@ class LiteLLMService:
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
         lm = dspy.LM(
-            "openai/o1_mini",
+            "openai/o1-mini",
             api_key=settings.LITE_LLM_KEY,
             base_url="http://147.175.151.44/",
+            temperature=1.0,
+            max_tokens=5000,
         )
         dspy.settings.configure(lm=lm, async_max_workers=8)
         generate_article_body_program = StormGenerateArticleBody()
@@ -404,9 +417,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return ArticleBodyResponse.model_validate_json(generated_article.article)
+        return ArticleBodyResponse(article=generated_article.article)
 
     async def generate_tags(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         current_headline: str | None,
@@ -431,9 +445,10 @@ class LiteLLMService:
             language=language,
         )
 
-        return TagsResponse.model_validate_json(generated_tags.tags)
+        return TagsResponse(tags=generated_tags.tags.split("\n"))
 
     async def regenerate_tags(
+        self,
         scraped_content: str | None,
         selected_topic: str | None,
         old_tags: list[str] | None,
@@ -460,4 +475,4 @@ class LiteLLMService:
             language=language,
         )
 
-        return TagsResponse.model_validate_json(generated_tags.tags)
+        return TagsResponse(tags=generated_tags.tags.split("\n"))

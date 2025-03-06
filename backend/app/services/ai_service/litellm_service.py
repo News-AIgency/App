@@ -18,7 +18,7 @@ from backend.app.services.ai_service.dspy_signatures import (
     StormGenerateArticle,
     StormGenerateArticleBody,
     StormGenerateEngagingText,
-    StormGeneratePerex
+    StormGeneratePerex,
 )
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,

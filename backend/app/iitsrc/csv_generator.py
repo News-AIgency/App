@@ -43,12 +43,9 @@ def generate_original_article_csv() -> None:
                 writer.writerow([sheet_name, headline, engaging_text, article, tags])
 
 
-async def generate_generated_article_csv(storm = False) -> None:
+async def generate_generated_article_csv(storm: bool=False) -> None:
     file_path = "articles.xlsx"
-    if storm:
-        output_csv = "generated_articles_storm.csv"
-    else:
-        output_csv = "generated_articles.csv"
+    output_csv = "generated_articles_storm.csv" if storm else "generated_articles.csv"
 
     llm_service = LiteLLMService()
     xls = pd.ExcelFile(file_path)
@@ -81,11 +78,13 @@ async def generate_generated_article_csv(storm = False) -> None:
                     storm_article = run_storm(selected_topic, url)
                     print("storm article complete")
 
-                    engaging_text_response = await llm_service.storm_generate_engaging_text(
-                        scraped_content=scraped_content,
-                        storm_article = storm_article,
-                        selected_topic=selected_topic,
-                        current_headline=headline_response.headlines[0],
+                    engaging_text_response = (
+                        await llm_service.storm_generate_engaging_text(
+                            scraped_content=scraped_content,
+                            storm_article=storm_article,
+                            selected_topic=selected_topic,
+                            current_headline=headline_response.headlines[0],
+                        )
                     )
                     print("engaging text complete")
 
@@ -131,7 +130,6 @@ async def generate_generated_article_csv(storm = False) -> None:
 
 
 if __name__ == "__main__":
-    #generate_original_article_csv()
-    #asyncio.run(generate_generated_article_csv())
+    # generate_original_article_csv()
+    # asyncio.run(generate_generated_article_csv())
     asyncio.run(generate_generated_article_csv(True))
-

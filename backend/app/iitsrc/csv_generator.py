@@ -138,22 +138,33 @@ async def generate_llm_as_judge_csv() -> None:
     original_articles = pd.read_csv("original_articles.csv", delimiter=";")
     generated_articles = pd.read_csv("generated_articles.csv", delimiter=";")
 
+    original_headline_section = original_articles["Headline"]
+    generated_headline_section = generated_articles["Headline"]
+
+    original_perex_section = original_articles["Perex"]
+    generated_perex_section = generated_articles["Perex"]
+
     original_article_section = original_articles["Article"]
     generated_article_section = generated_articles["Article"]
 
     scores = []
-    for original_article, generated_article in zip(
-        original_article_section, generated_article_section
+    for original_headline, generated_headline, original_perex, generated_perex, original_article, generated_article in zip(
+            original_headline_section, generated_headline_section,
+            original_perex_section, generated_perex_section,
+            original_article_section, generated_article_section
     ):
-        score = await llm_compare_strings(original_article, generated_article)
-        scores.append(score)
+        headline_score = await llm_compare_strings(original_headline, generated_headline)
+        perex_score = await llm_compare_strings(original_perex, generated_perex)
+        article_score = await llm_compare_strings(original_article, generated_article)
 
-    scores_df = pd.DataFrame(scores, columns=["LLM as judge score"])
+        scores.append([headline_score, perex_score, article_score])
+
+    scores_df = pd.DataFrame(scores, columns=["Headline", "Perex", "Article"])
     scores_df.to_csv("llm_as_judge_scores.csv", index=False)
 
 
 if __name__ == "__main__":
     # generate_original_article_csv()
-    asyncio.run(generate_generated_article_csv())
+    #asyncio.run(generate_generated_article_csv())
     # asyncio.run(generate_generated_article_csv(True))
     asyncio.run(generate_llm_as_judge_csv())

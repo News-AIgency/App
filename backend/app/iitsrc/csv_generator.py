@@ -148,12 +148,24 @@ async def generate_llm_as_judge_csv() -> None:
     generated_article_section = generated_articles["Article"]
 
     scores = []
-    for original_headline, generated_headline, original_perex, generated_perex, original_article, generated_article in zip(
-            original_headline_section, generated_headline_section,
-            original_perex_section, generated_perex_section,
-            original_article_section, generated_article_section
+    for (
+        original_headline,
+        generated_headline,
+        original_perex,
+        generated_perex,
+        original_article,
+        generated_article,
+    ) in zip(
+        original_headline_section,
+        generated_headline_section,
+        original_perex_section,
+        generated_perex_section,
+        original_article_section,
+        generated_article_section,
     ):
-        headline_score = await llm_compare_strings(original_headline, generated_headline)
+        headline_score = await llm_compare_strings(
+            original_headline, generated_headline
+        )
         perex_score = await llm_compare_strings(original_perex, generated_perex)
         article_score = await llm_compare_strings(original_article, generated_article)
 
@@ -165,6 +177,6 @@ async def generate_llm_as_judge_csv() -> None:
 
 if __name__ == "__main__":
     # generate_original_article_csv()
-    #asyncio.run(generate_generated_article_csv())
+    # asyncio.run(generate_generated_article_csv())
     # asyncio.run(generate_generated_article_csv(True))
     asyncio.run(generate_llm_as_judge_csv())

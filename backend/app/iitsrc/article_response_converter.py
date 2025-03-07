@@ -163,22 +163,22 @@ def forbes_to_article_response(soup: BeautifulSoup) -> ArticleResponse:
     return create_response_json(headlines, engaging_text, article, tags)
 
 
-def check_origin_url(url: str) -> None:
+def check_origin_url(url: str) -> ArticleResponse:
     parsed_url = urlparse(url)
     soup = fetch_html(url)
 
     if parsed_url.hostname in ["uzitocna.pravda.sk", "ekonomika.pravda.sk"]:
-        print(pravda_to_article_response(soup))
+        return pravda_to_article_response(soup)
     elif parsed_url.hostname in ["index.sme.sk"]:
-        print(sme_to_article_response(soup))
+        return sme_to_article_response(soup)
     elif parsed_url.hostname in ["e.dennikn.sk"]:
-        print(dennikn_to_article_response(soup))
+        return dennikn_to_article_response(soup)
     elif parsed_url.hostname in ["www.trend.sk"]:
-        print(trend_to_article_response(soup))
+        return trend_to_article_response(soup)
     elif parsed_url.hostname in ["www.teraz.sk"]:
-        print(teraz_to_article_response(soup))
+        return teraz_to_article_response(soup)
     elif parsed_url.hostname in ["www.forbes.sk"]:
-        print(forbes_to_article_response(soup))
+        return forbes_to_article_response(soup)
 
 
 if __name__ == "__main__":

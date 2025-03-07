@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -6,7 +8,7 @@ class TestLiteLLMPoem(BaseModel):
 
 
 class BaseResponse(BaseModel):
-    chain_of_thought: str
+    chain_of_thought: Optional[str] = None
 
 
 class TopicsResponse(BaseResponse):

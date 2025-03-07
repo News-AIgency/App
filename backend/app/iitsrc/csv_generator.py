@@ -142,7 +142,6 @@ async def generate_llm_as_judge_csv() -> None:
     generated_article_section = generated_articles["Article"]
 
     scores = []
-    print(original_article_section)
     for original_article, generated_article in zip(
         original_article_section, generated_article_section
     ):

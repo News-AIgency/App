@@ -22,7 +22,7 @@ def generate_original_article_csv() -> None:
         writer = csv.writer(file, delimiter=";")
 
         # Write header
-        writer.writerow(["News Site", "Headline", "Engaging Text", "Article", "Tags"])
+        writer.writerow(["News Site", "Headline", "Perex", "Article", "Tags"])
 
         for sheet_name in xls.sheet_names:
             df = pd.read_excel(
@@ -37,12 +37,12 @@ def generate_original_article_csv() -> None:
                     if article_response.headlines
                     else ""
                 )
-                engaging_text = article_response.engaging_text or ""
+                perex = article_response.perex or ""
                 article = article_response.article or ""
                 tags = ", ".join(article_response.tags) if article_response.tags else ""
 
                 # Write to CSV
-                writer.writerow([sheet_name, headline, engaging_text, article, tags])
+                writer.writerow([sheet_name, headline, perex, article, tags])
 
 
 async def generate_generated_article_csv(storm: bool = False) -> None:
@@ -54,7 +54,7 @@ async def generate_generated_article_csv(storm: bool = False) -> None:
 
     with open(output_csv, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file, delimiter=";")
-        writer.writerow(["News Site", "Headline", "Engaging Text", "Article", "Tags"])
+        writer.writerow(["News Site", "Headline", "Perex", "Article", "Tags"])
 
         for sheet_name in xls.sheet_names:
             df = pd.read_excel(
@@ -81,15 +81,15 @@ async def generate_generated_article_csv(storm: bool = False) -> None:
                     storm_article = run_storm(selected_topic, url)
                     print("storm article complete")
 
-                    engaging_text_response = (
-                        await llm_service.storm_generate_engaging_text(
+                    perex_response = (
+                        await llm_service.storm_generate_perex(
                             scraped_content=scraped_content,
                             storm_article=storm_article,
                             selected_topic=selected_topic,
                             current_headline=headline_response.headlines[0],
                         )
                     )
-                    print("engaging text complete")
+                    print("perex complete")
 
                     article_response = await llm_service.storm_generate_article_body(
                         scraped_content=scraped_content,
@@ -101,12 +101,12 @@ async def generate_generated_article_csv(storm: bool = False) -> None:
                 else:
                 """
 
-                engaging_text_response = await llm_service.generate_engaging_text(
+                perex_response = await llm_service.generate_perex(
                     scraped_content=scraped_content,
                     selected_topic=selected_topic,
                     current_headline=headline_response.headlines[0],
                 )
-                print("engaging text complete")
+                print("perex complete")
                 article_response = await llm_service.generate_article_body(
                     scraped_content=scraped_content,
                     selected_topic=selected_topic,
@@ -124,12 +124,12 @@ async def generate_generated_article_csv(storm: bool = False) -> None:
 
                 # Extract fields
                 headline = random.choice(headline_response.headlines)
-                engaging_text = engaging_text_response.engaging_text
+                perex = perex_response.perex
                 article = article_response.article
                 tags = tags_response.tags[0].lower()
 
                 # Write to CSV
-                writer.writerow([sheet_name, headline, engaging_text, article, tags])
+                writer.writerow([sheet_name, headline, perex, article, tags])
 
                 print("Done")
 
@@ -155,6 +155,6 @@ async def generate_llm_as_judge_csv() -> None:
 
 if __name__ == "__main__":
     # generate_original_article_csv()
-    # asyncio.run(generate_generated_article_csv())
+    asyncio.run(generate_generated_article_csv())
     # asyncio.run(generate_generated_article_csv(True))
     asyncio.run(generate_llm_as_judge_csv())

@@ -11,12 +11,12 @@ dspy.settings.configure(lm=lm, async_max_workers=8)
 
 
 class LlmJudgeSignature(dspy.Signature):
-    """Compare the two strings str_1 and str_2. Output a float, similarity, that represents how close or similar the two strings are. The similarity output must be a float between 0.0 and 1.0. The higher the number the more similar the two strings are. If the are nothing alike, it should be 0.0, if the are totally the same, it should be 1.0."""
+    """Compare the two strings str_1 and str_2. Output an integer, similarity, that represents how close or similar the two strings are. The similarity output must be an integer between 0 and 100. The higher the number the more similar the two strings are. If the are nothing alike, it should be 0, if the are totally the same, it should be 100."""
 
     str_1 = dspy.InputField(type=str, desc="The first string to compare")
     str_2 = dspy.InputField(type=str, desc="The second string to compare")
-    similarity = dspy.OutputField(
-        type=float, desc="The similarity of the two input strings from 0.0 to 1.0"
+    similarity: int = dspy.OutputField(
+        type=int, desc="The similarity of the two input strings from 0 to 100"
     )
 
 
@@ -27,7 +27,7 @@ class LlmJudge(dspy.Module):
 
     def forward(self, str_1: str, str_2: str) -> LlmJudgeSignature:
         response = self.compare_strings(str_1=str_1, str_2=str_2)
-        return response.similarity
+        return response.similarity / 100
 
 
 async def llm_compare_strings(string_1: str, string_2: str) -> float:

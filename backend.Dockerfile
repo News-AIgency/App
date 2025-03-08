@@ -1,14 +1,17 @@
-FROM python:3.10.4
+FROM python:3.12-slim-bookworm
 
 WORKDIR /usr/src/app
 
-COPY ./requirements.txt .
+COPY --from=ghcr.io/astral-sh/uv:0.6.5 /uv /uvx /bin/
 
-RUN python -m pip install -r requirements.txt
-RUN playwright install
+COPY ./uv.lock .
+COPY ./pyproject.toml .
+RUN uv sync --frozen
 
-COPY ./backend ./backend
+RUN uv run playwright install
+
+COPY ./backend backend
 
 EXPOSE 8000
 
-CMD ["python", "./backend/app/main.py"]
+CMD ["uv", "run", "./backend/app/main.py"]

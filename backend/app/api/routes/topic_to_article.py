@@ -116,18 +116,14 @@ async def generate_headlines_post(
 async def regenerate_headlines(
     url: str = default_article,
     selected_topic: str = default_topic,
-    old_headlines: str = None,
+    old_headlines: list[str] = default_headlines,
 ) -> HeadlineResponse:
     try:
-        old_headlines_list = (
-            old_headlines.split("|") if old_headlines else default_headlines
-        )
-
         scraped_article = await cache_or_scrape(url, default_article)
 
         ai_service = LiteLLMService()
         new_headlines = await ai_service.regenerate_headlines(
-            scraped_article, selected_topic, old_headlines_list
+            scraped_article, selected_topic, old_headlines
         )
 
         return new_headlines

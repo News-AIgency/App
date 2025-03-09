@@ -161,7 +161,7 @@ class LiteLLMService:
         self,
         scraped_content: str | None,
         selected_topic: str | None,
-        old_headlines: str | None,
+        old_headlines: list[str],
         headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:

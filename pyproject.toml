@@ -26,3 +26,54 @@ dependencies = [
     "uvicorn>=0.34.0",
     "validators>=0.34.0",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.ruff]
+lint.select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "G",
+    "SIM1",
+    "PLE",
+    "N802", "N803", "N815", "N816", "N806",
+    "ANN",
+    "UP",  # pyupgrade
+]
+
+lint.ignore = [
+    "E501",  # line too long, handled by Black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "G004",
+    "ANN101",
+    "ANN003",
+    "B904"
+]
+
+lint.fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+lint.unfixable = []
+
+lint.exclude = [
+    ".git", ".venv", "__pycache__", "node_modules", "build", "dist", "models.py"
+]
+
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["fastapi", "pydantic", "starlette"]

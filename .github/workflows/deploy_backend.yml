@@ -1,6 +1,9 @@
 name: Deploy Backend
 
 on:
+  push:
+    branches:
+      - devops/new-server
   pull_request:
     branches:
       - main
@@ -58,7 +61,7 @@ jobs:
   restart-development:
     needs: [ build ]
     runs-on: self-hosted
-    environment: development
+    environment: new-server
 
     steps:
       - name: Add SSH private key

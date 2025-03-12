@@ -1,9 +1,6 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches:
-      - devops/new-server
   pull_request:
     branches:
       - main
@@ -49,7 +46,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         id: push
         with:
           context: .

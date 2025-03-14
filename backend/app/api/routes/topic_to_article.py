@@ -12,9 +12,7 @@ from backend.app.services.ai_service.response_models import (
     PerexResponse,
     TagsResponse,
 )
-from backend.app.services.ai_service.storm_agent.STORM_service import (
-    run_storm,
-)
+
 from backend.app.utils.default_article import (
     default_article,
     default_article_url,
@@ -555,27 +553,6 @@ async def regenerate_tags_post(
         return await regenerate_tags(
             url, selected_topic, old_tags, current_headline, current_article
         )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-# endregion
-
-
-# region STORM retrieval
-# @router.get("/article/storm-retrieve")
-async def storm_retrieve(
-    url: str = default_article_url, selected_topic: str = default_topic
-) -> str:
-    try:
-        storm_article = run_storm(selected_topic, url)
-
-        # Store the storm article in cache for further use
-        cache_key = f"storm_article:{url}"
-        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
-
-        return "Great success!"
-
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -1,16 +1,16 @@
 <template>
   <div class="page-wrapper">
     <nav class="navbar">
-      <!-- <a class="navbar-logo" @click="goToStart"
-        >WR<span class="text-accent">AI</span>TE</a
-      > -->
       <div class="menu-container">
-        <img
-          class="navbar-logo"
+        <a class="navbar-logo" @click="goToStart"
+        >WR<span class="text-accent">AI</span>TE</a
+      >
+        <!-- <img
+          clas>s="navbar-logo"
           src="../public/logo.svg"
           @click="goToStart"
           alt="WrAIte XMAS logo <3"
-        />
+        /> -->
         <div class="navbar-item">
           <a href=""
             ><svg
@@ -92,6 +92,7 @@ function mailTo() {
 
   .navbar-logo {
     font-size: 22px;
+    margin: auto;
   }
 }
 
@@ -115,7 +116,8 @@ function mailTo() {
 }
 
 .navbar-logo {
-  margin-bottom: 15px;
+  font-size: 30px;
+  margin: auto;
   cursor: pointer;
 }
 .navbar-item {

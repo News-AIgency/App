@@ -72,7 +72,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
         <button class="btn-secondary btn"><span class="material-icons send"></span>Share</button>
       </div>
       <div class="suggestions-container">
-        <p class="sidebar-label">Headline suggestions</p>
+      <div class="suggestions-label-container"><p class="sidebar-label">Headline suggestions</p><button class=" material-icons regenerate-button" title="Regenerate" @click="regenerateSuggestions">autorenew</button></div>
       <button
           v-for="(suggestion, index) in titleSuggestions"
           :key="index"
@@ -92,6 +92,7 @@ import LoadingSpinner from '../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
 import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
+import ArticleService from '@/services/ArticleService';
 
 export default {
   setup() {
@@ -120,7 +121,7 @@ export default {
     }
   },
   mounted() {
-    this.titleSuggestions = [...this.articleStore.titleSuggestions]
+    //this.titleSuggestions = [...this.articleStore.titleSuggestions]
     this.tags = [...this.articleStore.tags]
     this.loadFromLocalStorage()
 
@@ -158,6 +159,9 @@ export default {
     },
     genTitleSuggestions(): string[] {
       return this.articleStore.getTitleSuggestions
+    },
+    genTitle(): string {
+      return this.articleStore.getTitle
     },
     genEngagingText(): string {
       return this.articleStore.getEngagingText
@@ -199,7 +203,6 @@ export default {
       target.style.height = `${target.scrollHeight}px`
     },
     loadFromLocalStorage() {
-      this.title = localStorage.getItem('title') || ''
 
       if (localStorage.getItem('titleSuggestions') != null) {
         const savedTitleSuggestions = localStorage.getItem('titleSuggestions')
@@ -207,6 +210,8 @@ export default {
           ? JSON.parse(savedTitleSuggestions)
           : []
       }
+
+      this.title = localStorage.getItem('title') || ''
       this.engagingText = localStorage.getItem('engagingText') || ''
       this.perex = localStorage.getItem('perex') || ''
       this.body = localStorage.getItem('body') || ''
@@ -215,8 +220,8 @@ export default {
         const savedTags = localStorage.getItem('tags')
         this.tags = savedTags ? JSON.parse(savedTags) : []
       }
-      this.articleStore.selectedTopic =
-        localStorage.getItem('selectedTopic') || ''
+
+      this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || ''
       this.originalUrl = localStorage.getItem('originalUrl') || ''
     },
     exportText() {
@@ -272,17 +277,18 @@ export default {
       this.newTag = ''
       this.isAddingTag = false
     },
-    regenTitleSuggestions() {},
-    regenTitle() {},
-    regenEngagingText() {},
-    regenPerex() {},
-    regenBody() {},
-    regenTags() {},
+    async regenerateSuggestions() {
+      try {
+        const response = await ArticleService.regenerateSuggestions(this.articleStore.url, this.articleStore.selectedTopic, this.articleStore.titleSuggestions)
+
+        this.titleSuggestions = response.data.title_suggestions
+      } catch(error) {
+        console.error(error)
+      }
+
+    },
   },
   watch: {
-    title(newValue) {
-      localStorage.setItem('title', newValue)
-    },
     engagingText(newValue) {
       localStorage.setItem('engagingText', newValue)
     },
@@ -297,6 +303,12 @@ export default {
     },
     titleSuggestions(newValue) {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
+    },
+    title(newValue) {
+      localStorage.setItem('title', newValue)
+    },
+    genTitle(newValue) {
+      this.title = newValue
     },
     genEngagingText(newValue) {
       this.engagingText = newValue
@@ -331,11 +343,6 @@ main {
   padding-bottom: 20px;
 }
 
-.sidebar-label {
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 0 0px 8px;
-}
 
 .sidebar-section {
   width: 25%;
@@ -372,6 +379,20 @@ main {
 .suggestions-container {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--color-border);
+}
+
+.suggestions-label-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  padding: 8px 0 0px 8px;
+  gap:8px
+}
+
+.sidebar-label {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* TEXTAREA */

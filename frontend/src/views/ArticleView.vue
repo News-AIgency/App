@@ -82,6 +82,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           {{ suggestion }}
         </button></div>
     </section>
+    <SaveChangesPopup :visible="showSavePopup" />
   </main>
 </template>
 
@@ -93,6 +94,7 @@ import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
 import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 import ArticleService from '@/services/ArticleService';
+import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 
 export default {
   setup() {
@@ -104,7 +106,8 @@ export default {
     LoadingSpinner,
     AiContent,
     ArticleBlock,
-    SrcUrlBlock
+    SrcUrlBlock,
+    SaveChangesPopup,
   },
   data() {
     return {
@@ -118,6 +121,7 @@ export default {
       newTag: '',
       originalUrl: '',
       currentStep: 3,
+      showSavePopup: true,
     }
   },
   mounted() {

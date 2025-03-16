@@ -1,12 +1,15 @@
 <template>
   <div class="popup-container" v-show="visible">
     <p class="text">You have unsaved changes</p>
-    <div class="buttons-container"><button class="discard-btn">Discard</button><button class="save-btn">Save changes</button></div>
+    <div class="buttons-container">
+      <button class="discard-btn" @click="discardChanges">Discard</button
+      ><button class="save-btn">Save changes</button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'SaveChangePopup',
@@ -16,7 +19,12 @@ export default defineComponent({
       required: true,
     },
   },
-});
+  methods: {
+    discardChanges() {
+      this.$emit('discard')
+    },
+  },
+})
 </script>
 
 <style scoped>

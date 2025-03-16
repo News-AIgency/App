@@ -3,7 +3,7 @@
     <textarea
       :class="['article-block', type]"
       v-model="internalText"
-      @input="autoResize"
+      @input="autoResize; $emit('update:text', internalText)"
       ref="textarea"
     >
     </textarea>

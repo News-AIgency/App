@@ -256,7 +256,8 @@ class RegenerateHeadlinesSignature(dspy.Signature):
     Consider adding a label like "Weekly Analysis" for context.
     Positive or negative sentiment is better than none.
     Be specific and concrete in your descriptions.
-    The old headlines are in the old_headlines InputField. Do not repeat them, and the new headlines should not be similiar."""
+    The old headlines are in the old_headlines InputField. Do not repeat them, and the new headlines should not be similiar.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
@@ -502,7 +503,8 @@ class RegeneratePerexSignature(dspy.Signature):
     Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
     Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
     Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
-    The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar."""
+    The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)

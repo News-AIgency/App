@@ -1,11 +1,13 @@
 <template>
-  <div class="popup-container" v-show="visible">
+  <transition name="popup">
+  <div class="popup-container" v-if="visible">
     <p class="text">You have unsaved changes</p>
     <div class="buttons-container">
       <button class="discard-btn" @click="discardChanges">Discard</button
       ><button class="save-btn">Save changes</button>
     </div>
   </div>
+</transition>
 </template>
 
 <script lang="ts">
@@ -72,8 +74,9 @@ export default defineComponent({
   justify-content: space-between;
   position: fixed;
   bottom: 10px;
+  position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  translate: -50%;
   background-color: white;
   color: var(--color-text);
   padding: 10px 20px;
@@ -82,4 +85,19 @@ export default defineComponent({
   z-index: 1000;
   text-align: center;
 }
+/* transition classes */
+.popup-enter-active, .popup-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup-enter-from, .popup-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.popup-enter-to, .popup-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 </style>

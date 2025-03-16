@@ -50,7 +50,7 @@ class GenerateArticleSignature(dspy.Signature):
     Guidelines for crafting headlines:
 
     Each headline must be between 70 and 110 characters, including spaces.
-    Begin each headline with a capital letter, with subsequent words in lowercase.
+
     Avoid using numbers; instead, narrate and interpret the information.
     Aim to surprise and confront to capture interest.
     Highlight why the reader should care about the article.
@@ -224,7 +224,40 @@ class GenerateHeadlines(dspy.Module):
 
 
 class RegenerateHeadlinesSignature(dspy.Signature):
-    """Generate a number of new headlines specified by the headlines_count InputField that interpret the news in a human-readable way, based on the scraped news article from scraped_content InputField and the selected_topic InputField. Headlines should be between 70 and 110 characters, including spaces. All headlines should start with a capital letter, meaning the first word will start with a capital letter and the rest will be lower case. The old headlines are in the old_headlines InputField. Do not repeat them, and the new headlines should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the headlines field, the other fields should remain null."""
+    """As a headline generator, your task is to create engaging and insightful headlines from the provided news article content. Your goal is to interpret the news in a way that captures attention and conveys the essence of the story in a relatable, human-readable manner.
+
+    You are required to generate a number of headlines as specified by the headlines_count InputField, using the scraped news article from the scraped_content InputField and focusing on the selected_topic InputField. The language for the headlines is determined by the language InputField.
+
+    Guidelines for crafting headlines:
+
+    Each headline must be between 70 and 110 characters, including spaces.
+
+    Avoid using numbers; instead, narrate and interpret the information.
+    Aim to surprise and confront to capture interest.
+    Highlight why the reader should care about the article.
+    Consider adding sentiment or questions to provoke curiosity.
+    Emphasize the impact on people to make it relatable.
+    Incorporate emotions when appropriate.
+    Be specific and concrete: e.g., "Tourism in Slovakia rises" becomes "Hotels and inns see more visitors."
+    Ensure clarity for the average reader, avoiding complex terms.
+    Include open-ended questions that the article answers, but do not overuse them.
+    Convey significant information with notable details.
+    What to include:
+
+    Interesting data, news, or information.
+    Slovak elements or symbols to evoke emotions.
+    Use general time references like "end of the year" instead of specific dates unless crucial.
+    Shorter headlines are preferable.
+    Avoid politics where it doesn't belong.
+    Use catchy phrases like "historic low," "warns," "strikes," "discover."
+    Use "Why" to provoke thought.
+    Ensure readability with shorter sentences.
+    Avoid complicated words; the average person should understand.
+    Consider adding a label like "Weekly Analysis" for context.
+    Positive or negative sentiment is better than none.
+    Be specific and concrete in your descriptions.
+    The old headlines are in the old_headlines InputField. Do not repeat them, and the new headlines should not be similiar.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
@@ -446,7 +479,32 @@ class StormGeneratePerex(dspy.Module):
 
 
 class RegeneratePerexSignature(dspy.Signature):
-    """Generate a perex: a short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
+    """You are responsible for creating a concise and engaging perex for a news article. The perex should be 140-160 characters long, designed to complement the headline and capture reader interest. The first sentence must be intriguing yet brief to prevent truncation. The perex should be based on the content of the scraped news article, the selected topic, and the current headline, with the language specified in the language input field.
+
+    Guidelines for Crafting the Perex:
+
+    Brevity and Focus: Ensure the perex is short and focused, addressing only one or two main topics to avoid overwhelming the reader.
+    Clarity Over Complexity: Avoid using complex terms like "nuclear inflation" that might confuse the average reader; use simple, everyday language.
+    Specificity in Numbers: Prefer specific numbers over percentages to enhance clarity and relatability.
+    Avoid Political Jargon: Steer clear of vague political statements such as "the situation requires attention."
+    Interpret and Engage: Explain the article's significance in a way that resonates with the reader, highlighting why it matters or what impact it has.
+    Real-Life Examples: Incorporate real-life examples to illustrate points effectively.
+    Numerical Indicators: Include relevant numerical indicators or examples to provide context.
+    Appropriate Length: Ensure the perex is neither too long nor too short, maintaining reader engagement.
+    Accessibility: Keep the language clear and accessible, avoiding complex terminology.
+    Emotional Engagement: Use emotionally engaging words judiciously, such as "WARNING," to draw attention.
+    Engaging Conclusion: Conclude with an engaging question to prompt further interest, such as "Discover what has become more expensive? What drives these trends?"
+    Additional Considerations:
+
+    Simplified Content: The perex should be straightforward and devoid of unnecessary political content.
+    Explain Numbers Relatably: Describe numbers in relatable terms (e.g., a lot, a little, more, less, struggling, succeeding).
+    Limit Repetition: Avoid excessive repetition of the headline within the perex.
+    Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
+    Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
+    Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
+    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
+    The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)

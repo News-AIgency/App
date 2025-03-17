@@ -1,5 +1,11 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 import dspy
 from litellm import acompletion
+import asyncio
 
 from backend.app.core.config import settings
 from backend.app.services.ai_service.dspy_signatures import (
@@ -31,7 +37,7 @@ from backend.app.services.ai_service.response_models import (
     TopicsResponse,
 )
 from backend.app.utils.language_enum import Language
-
+from backend.app.utils.default_article import default_article, default_article_url, default_topic
 
 class LiteLLMService:
 
@@ -103,7 +109,11 @@ class LiteLLMService:
             language=language,
         )
 
-        return ArticleResponse.model_validate_json(generated_article.article)
+        return ArticleResponse(headlines=generated_article.headlines.split("\n"), 
+                               perex=generated_article.perex, 
+                               engaging_text=generated_article.engaging_text, 
+                               article=generated_article.article, 
+                               tags=generated_article.tags.split("\n"))
 
     async def storm_generate_article(
         self,
@@ -476,3 +486,7 @@ class LiteLLMService:
         )
 
         return TagsResponse(tags=generated_tags.tags.split("\n"))
+
+if __name__ == "__main__":
+    LM = LiteLLMService()
+    asyncio.run(LM.generate_article(scraped_content=default_article, selected_topic=default_topic))

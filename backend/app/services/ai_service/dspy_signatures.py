@@ -116,8 +116,11 @@ class GenerateArticleSignature(dspy.Signature):
     article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
     headlines = dspy.OutputField(desc="Generated headlines", type=HeadlineResponse)
     perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
-    engaging_text = dspy.OutputField(desc="Generated Engaging text", type=EngagingTextResponse)
+    engaging_text = dspy.OutputField(
+        desc="Generated Engaging text", type=EngagingTextResponse
+    )
     tags = dspy.OutputField(desc="Generated Tags", type=TagsResponse)
+
 
 class GenerateArticle(dspy.Module):
     def __init__(self) -> None:
@@ -520,7 +523,8 @@ class GeneratePerexSignature(dspy.Signature):
     Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
     Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
     Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
-    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement."""
+    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)

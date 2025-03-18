@@ -45,6 +45,17 @@ export default {
       old_article_body: old_article_body,
       current_headline: current_headline,
     })
-  }
+  },
+  regenerateSuggestions(
+    url?: string,
+    selected_topic?: string,
+    old_headlines?: string[],
+  ) {
+    return Api().post('regenerate/headlines', {
+      url: url,
+      selected_topic: selected_topic,
+      old_headlines: old_headlines,
+    })
+  },
 
 }

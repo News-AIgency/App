@@ -8,7 +8,6 @@ from backend.app.iitsrc.article_response_converter import check_origin_url
 from backend.app.iitsrc.dspy_llm_judge import llm_compare_strings
 from backend.app.services.ai_service.litellm_service import LiteLLMService
 
-# from backend.app.services.ai_service.storm_agent.STORM_service import run_storm
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
 
 
@@ -45,9 +44,9 @@ def generate_original_article_csv() -> None:
                 writer.writerow([sheet_name, headline, perex, article, tags])
 
 
-async def generate_generated_article_csv(storm: bool = False) -> None:
+async def generate_generated_article_csv() -> None:
     file_path = "articles.xlsx"
-    output_csv = "generated_articles_storm.csv" if storm else "generated_articles.csv"
+    output_csv = "generated_articles.csv"
 
     llm_service = LiteLLMService()
     xls = pd.ExcelFile(file_path)
@@ -75,31 +74,6 @@ async def generate_generated_article_csv(storm: bool = False) -> None:
                     scraped_content=scraped_content, selected_topic=selected_topic
                 )
                 print("headline complete")
-
-                """
-                                if storm:
-                    storm_article = run_storm(selected_topic, url)
-                    print("storm article complete")
-
-                    perex_response = (
-                        await llm_service.storm_generate_perex(
-                            scraped_content=scraped_content,
-                            storm_article=storm_article,
-                            selected_topic=selected_topic,
-                            current_headline=headline_response.headlines[0],
-                        )
-                    )
-                    print("perex complete")
-
-                    article_response = await llm_service.storm_generate_article_body(
-                        scraped_content=scraped_content,
-                        storm_article=storm_article,
-                        selected_topic=selected_topic,
-                        current_headline=headline_response.headlines[0],
-                    )
-                    print("article complete")
-                else:
-                """
 
                 perex_response = await llm_service.generate_perex(
                     scraped_content=scraped_content,
@@ -177,6 +151,5 @@ async def generate_llm_as_judge_csv() -> None:
 
 if __name__ == "__main__":
     # generate_original_article_csv()
-    # asyncio.run(generate_generated_article_csv())
-    # asyncio.run(generate_generated_article_csv(True))
-    asyncio.run(generate_llm_as_judge_csv())
+    asyncio.run(generate_generated_article_csv())
+    #asyncio.run(generate_llm_as_judge_csv())

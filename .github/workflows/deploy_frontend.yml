@@ -1,4 +1,4 @@
-name: Frontend Deployment
+name: Deploy Frontend
  
 on:
   pull_request:
@@ -47,7 +47,7 @@ jobs:
   deploy:
     needs: [ build ]
     runs-on: self-hosted
-    environment: development
+    environment: new-server
     
     steps:
       - name: Download Dist Folder

@@ -17,6 +17,9 @@ export const useArticleStore = defineStore('article', {
     getTitleSuggestions(): string[] {
       return this.titleSuggestions;
     },
+    getTitle(): string {
+      return this.title;
+    },
     getEngagingText(): string {
       return this.engagingText;
     },
@@ -36,7 +39,7 @@ export const useArticleStore = defineStore('article', {
         this.loading = true;
         const response = await ArticleService.article(this.url, this.selectedTopic)
         this.titleSuggestions = response.data.headlines;
-        this.title = this.titleSuggestions[0];
+        this.title = response.data.headlines[0];
         this.engagingText = response.data.engaging_text;
         this.perex = response.data.perex;
         this.body = response.data.article;

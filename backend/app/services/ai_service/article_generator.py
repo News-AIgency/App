@@ -137,7 +137,7 @@ class ArticleGenerator:
         scraped_content: str | None,
         selected_topic: str | None,
         current_headline: str | None,
-        storm_article: str | None,
+        storm_article: str | None = None,
         old_engaging_text: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:

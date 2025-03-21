@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request
-from fastapi_cache import FastAPICache
 
 # from fastapi_cache import FastAPICache
 from backend.app.core.config import settings
-from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
     ArticleResponse,
@@ -12,10 +11,8 @@ from backend.app.services.ai_service.response_models import (
     PerexResponse,
     TagsResponse,
 )
-
 from backend.app.utils.default_article import (
     default_article,
-    default_article_url,
     default_engaging_text,
     default_headline,
     default_headlines,
@@ -38,7 +35,7 @@ async def extract_article(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         article = await ai_service.generate_article(scraped_article, selected_topic)
 
         return article
@@ -79,7 +76,7 @@ async def generate_headlines(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         headlines = await ai_service.generate_headlines(scraped_article, selected_topic)
 
         return headlines
@@ -119,7 +116,7 @@ async def regenerate_headlines(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         new_headlines = await ai_service.regenerate_headlines(
             scraped_article, selected_topic, old_headlines
         )
@@ -167,7 +164,7 @@ async def generate_engaging_text(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         engaging_text = await ai_service.generate_engaging_text(
             scraped_article, selected_topic, current_headline
         )
@@ -212,7 +209,7 @@ async def regenerate_engaging_text(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         new_engaging_text = await ai_service.regenerate_engaging_text(
             scraped_article, selected_topic, old_engaging_text, current_headline
         )
@@ -266,7 +263,7 @@ async def generate_perex(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         perex = await ai_service.generate_perex(
             scraped_article, selected_topic, current_headline
         )
@@ -311,7 +308,7 @@ async def regenerate_perex(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         new_perex = await ai_service.regenerate_perex(
             scraped_article, selected_topic, old_perex, current_headline
         )
@@ -361,7 +358,7 @@ async def generate_article_body(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         article_body = await ai_service.generate_article_body(
             scraped_article, selected_topic, current_headline
         )
@@ -406,7 +403,7 @@ async def regenerate_article_body(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         new_article_body = await ai_service.regenerate_article_body(
             scraped_article, selected_topic, old_article_body, current_headline
         )
@@ -461,7 +458,7 @@ async def generate_tags(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         tags = await ai_service.generate_tags(
             scraped_article, selected_topic, current_headline, current_article
         )
@@ -513,7 +510,7 @@ async def regenerate_tags(
     try:
         scraped_article = await cache_or_scrape(url, default_article)
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         new_tags = await ai_service.regenerate_tags(
             scraped_article, selected_topic, old_tags, current_headline, current_article
         )

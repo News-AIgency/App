@@ -6,8 +6,7 @@ import pandas as pd
 
 from backend.app.iitsrc.article_response_converter import check_origin_url
 from backend.app.iitsrc.dspy_llm_judge import llm_compare_strings
-from backend.app.services.ai_service.litellm_service import LiteLLMService
-
+from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
 
 
@@ -48,7 +47,7 @@ async def generate_generated_article_csv() -> None:
     file_path = "articles.xlsx"
     output_csv = "generated_articles.csv"
 
-    llm_service = LiteLLMService()
+    llm_service = ArticleGenerator()
     xls = pd.ExcelFile(file_path)
 
     with open(output_csv, mode="w", newline="", encoding="utf-8") as file:
@@ -152,4 +151,4 @@ async def generate_llm_as_judge_csv() -> None:
 if __name__ == "__main__":
     # generate_original_article_csv()
     asyncio.run(generate_generated_article_csv())
-    #asyncio.run(generate_llm_as_judge_csv())
+    # asyncio.run(generate_llm_as_judge_csv())

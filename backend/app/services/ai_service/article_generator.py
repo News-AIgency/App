@@ -9,7 +9,6 @@ import dspy
 
 from backend.app.core.config import settings
 from backend.app.services.ai_service.dspy_signatures import (
-    GenerateArticle,
     GenerateArticleBody,
     GenerateEngagingText,
     GenerateHeadlines,
@@ -21,7 +20,6 @@ from backend.app.services.ai_service.dspy_signatures import (
     RegenerateHeadlines,
     RegeneratePerex,
     RegenerateTags,
-    StormGenerateArticle,
     StormGenerateArticleBody,
     StormGenerateEngagingText,
     StormGeneratePerex,
@@ -49,11 +47,20 @@ class ArticleGenerator:
         self.litellm_url = "http://147.175.151.44/"
         self.models = {
             "gpt-4o-mini": "gpt-4o-mini",
-            "o1-mini": "o1_mini",
+            "o1-mini": "o1-mini",
         }
 
     def _configure_lm(self, model_name: str) -> None:
-        lm = dspy.LM(model_name, api_key=self.api_key, base_url=self.litellm_url)
+        kwargs = {
+            "model": model_name,
+            "api_key": self.api_key,
+            "base_url": self.litellm_url,
+        }
+        if model_name.startswith("o1-"):
+            kwargs["temperature"] = 1.0
+            kwargs["max_tokens"] = 5000
+
+        lm = dspy.LM(**kwargs)
         dspy.settings.configure(lm=lm, async_max_workers=8)
 
     async def generate_topics(
@@ -85,26 +92,58 @@ class ArticleGenerator:
     ) -> ArticleResponse:
         self._configure_lm(self.models.get("gpt-4o-mini"))
 
-        generator = StormGenerateArticle if storm_article else GenerateArticle
-        generate_article_program = dspy.asyncify(generator())
-        kwargs = {
-            "scraped_content": scraped_content,
-            "selected_topic": selected_topic,
-            "headlines_count": headlines_count,
-            "tag_count": tag_count,
-            "language": language,
-        }
-        if storm_article:
-            kwargs["storm_article"] = storm_article
-
-        generated_article = await generate_article_program(**kwargs)
+        headlines = (
+            await self.generate_headlines(
+                scraped_content=scraped_content,
+                selected_topic=selected_topic,
+                headlines_count=headlines_count,
+                language=language,
+            ),
+        )
+        perex = (
+            await self.generate_perex(
+                scraped_content=scraped_content,
+                selected_topic=selected_topic,
+                storm_article=storm_article,
+                current_headline=None,
+                language=language,
+            ),
+        )
+        engaging_text = (
+            await self.generate_engaging_text(
+                scraped_content=scraped_content,
+                selected_topic=selected_topic,
+                storm_article=storm_article,
+                current_headline=None,
+                language=language,
+            ),
+        )
+        article = (
+            await self.generate_article_body(
+                scraped_content=scraped_content,
+                selected_topic=selected_topic,
+                storm_article=storm_article,
+                current_headline=None,
+                language=language,
+            ),
+        )
+        tags = (
+            await self.generate_tags(
+                scraped_content=scraped_content,
+                selected_topic=selected_topic,
+                current_headline=None,
+                current_article=article[0].article,
+                tag_count=tag_count,
+                language=language,
+            ),
+        )
 
         return ArticleResponse(
-            headlines=generated_article.headlines.split("\n"),
-            perex=generated_article.perex,
-            engaging_text=generated_article.engaging_text,
-            article=generated_article.article,
-            tags=generated_article.tags.split("\n"),
+            headlines=headlines[0].headlines,
+            perex=perex[0].perex,
+            engaging_text=engaging_text[0].engaging_text,
+            article=article[0].article,
+            tags=tags[0].tags,
         )
 
     async def generate_headlines(
@@ -215,7 +254,7 @@ class ArticleGenerator:
         old_article: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
-        self._configure_lm(self.models.get("o1_mini"))
+        self._configure_lm(self.models.get("o1-mini"))
 
         if storm_article and old_article:
             raise NotImplementedError("STORM regenerate body is not implemented yet.")

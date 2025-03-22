@@ -28,13 +28,13 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
         >
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="engagingText" type="Engaging Text"></ArticleBlock>
+        <ArticleBlock v-model:text="engagingText" type="Engaging Text"></ArticleBlock>
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="perex" type="Perex"></ArticleBlock>
+        <ArticleBlock v-model:text="perex" type="Perex"></ArticleBlock>
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="body" type="Body"></ArticleBlock>
+        <ArticleBlock v-model:text="body" type="Body"></ArticleBlock>
       </div>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
@@ -82,6 +82,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           {{ suggestion }}
         </button></div>
     </section>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup"/>
   </main>
 </template>
 
@@ -93,6 +94,7 @@ import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
 import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 import ArticleService from '@/services/ArticleService';
+import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 
 export default {
   setup() {
@@ -104,7 +106,8 @@ export default {
     LoadingSpinner,
     AiContent,
     ArticleBlock,
-    SrcUrlBlock
+    SrcUrlBlock,
+    SaveChangesPopup,
   },
   data() {
     return {
@@ -118,6 +121,7 @@ export default {
       newTag: '',
       originalUrl: '',
       currentStep: 3,
+      showSavePopup: false,
     }
   },
   mounted() {
@@ -287,25 +291,36 @@ export default {
       }
 
     },
+    showSaveChangesPopup() {
+      this.showSavePopup = true;
+    },
+    hideSaveChangesPopup() {
+      this.showSavePopup = false;
+    }
   },
   watch: {
     engagingText(newValue) {
       localStorage.setItem('engagingText', newValue)
+      this.showSaveChangesPopup()
     },
     perex(newValue) {
       localStorage.setItem('perex', newValue)
+      this.showSaveChangesPopup()
     },
     body(newValue) {
       localStorage.setItem('body', newValue)
+      this.showSaveChangesPopup()
     },
     tags(newValue) {
       localStorage.setItem('tags', JSON.stringify(newValue))
+      this.showSaveChangesPopup()
     },
     titleSuggestions(newValue) {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
     },
     title(newValue) {
       localStorage.setItem('title', newValue)
+      this.showSaveChangesPopup()
     },
     genTitle(newValue) {
       this.title = newValue

@@ -17,7 +17,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
-from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 
 
@@ -66,7 +66,7 @@ async def info(info_settings: Annotated[Settings, Depends(get_settings)]) -> dic
 
 @app.get("/use-litellm")
 async def use_litellm_key() -> TestLiteLLMPoem:
-    ai_service = LiteLLMService()
+    ai_service = ArticleGenerator()
     return await ai_service.test_litellm()
 
 

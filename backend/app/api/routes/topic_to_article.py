@@ -1,6 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request
+import asyncio
 
-# from fastapi_cache import FastAPICache
+import httpx
+from fastapi import APIRouter, HTTPException, Request
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+
 from backend.app.core.config import settings
 from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import (
@@ -13,6 +17,7 @@ from backend.app.services.ai_service.response_models import (
 )
 from backend.app.utils.default_article import (
     default_article,
+    default_article_url,
     default_engaging_text,
     default_headline,
     default_headlines,
@@ -20,8 +25,6 @@ from backend.app.utils.default_article import (
     default_tags,
     default_topic,
 )
-
-# from backend.app.services.scraping_service.jina_scraper import jina_scrape
 from backend.app.utils.scraping_cache_functions import cache_or_scrape
 
 router = APIRouter()
@@ -29,15 +32,22 @@ router = APIRouter()
 
 # region Extract article
 async def extract_article(
-    url: str = default_article,
+    url: str = default_article_url,
     selected_topic: str = default_topic,
+    storm: bool = False,
 ) -> ArticleResponse:
     try:
-        scraped_article = await cache_or_scrape(url, default_article)
+        scraped_article = await cache_or_scrape(url, default_article_url)
+
+        storm_article = None
+        if storm:
+            storm_article = await storm_cache_retrieve(selected_topic, url)
 
         ai_service = ArticleGenerator()
         article = await ai_service.generate_article(
-            scraped_content=scraped_article, selected_topic=selected_topic
+            scraped_content=scraped_article,
+            selected_topic=selected_topic,
+            storm_article=storm_article,
         )
 
         return article
@@ -49,9 +59,12 @@ if settings.ENVIRONMENT == "development":
 
     @router.get("/article/generate", response_model=ArticleResponse)
     async def extract_article_get(
-        url: str = default_article, selected_topic: str = default_topic
+        url: str = default_article_url,
+        selected_topic: str = default_topic,
+        storm: bool = False,
     ) -> ArticleResponse:
-        return await extract_article(url, selected_topic)
+        print()
+        return await extract_article(url, selected_topic, storm)
 
 
 @router.post("/article/generate", response_model=ArticleResponse)
@@ -60,9 +73,10 @@ async def extract_article_post(
 ) -> ArticleResponse:
     try:
         request_body = await request.json()
-        url = request_body.get("url", default_article)
+        url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
-        return await extract_article(url, selected_topic)
+        storm = request_body.get("storm", False)
+        return await extract_article(url, selected_topic, storm)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -72,12 +86,12 @@ async def extract_article_post(
 
 # region Headlines
 async def regenerate_headlines(
-    url: str = default_article,
+    url: str = default_article_url,
     selected_topic: str = default_topic,
     old_headlines: list[str] = default_headlines,
 ) -> HeadlineResponse:
     try:
-        scraped_article = await cache_or_scrape(url, default_article)
+        scraped_article = await cache_or_scrape(url, default_article_url)
 
         ai_service = ArticleGenerator()
         new_headlines = await ai_service.generate_headlines(
@@ -95,7 +109,7 @@ if settings.ENVIRONMENT == "development":
 
     @router.get("/regenerate/headlines", response_model=HeadlineResponse)
     async def regenerate_headlines_get(
-        url: str = default_article,
+        url: str = default_article_url,
         selected_topic: str = default_topic,
         old_headlines: list[str] = default_headlines,
     ) -> HeadlineResponse:
@@ -108,7 +122,7 @@ async def regenerate_headlines_post(
 ) -> HeadlineResponse:
     try:
         request_body = await request.json()
-        url = request_body.get("url", default_article)
+        url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         old_headlines = request_body.get("old_headlines")
 
@@ -122,13 +136,18 @@ async def regenerate_headlines_post(
 
 # region Engaging text
 async def regenerate_engaging_text(
-    url: str = default_article,
+    url: str = default_article_url,
     selected_topic: str = default_topic,
     old_engaging_text: str = default_engaging_text,
     current_headline: str = default_headline,
+    storm: bool = False,
 ) -> EngagingTextResponse:
     try:
-        scraped_article = await cache_or_scrape(url, default_article)
+        scraped_article = await cache_or_scrape(url, default_article_url)
+
+        storm_article = None
+        if storm:
+            storm_article = await storm_cache_retrieve(selected_topic, url)
 
         ai_service = ArticleGenerator()
         new_engaging_text = await ai_service.generate_engaging_text(
@@ -136,6 +155,7 @@ async def regenerate_engaging_text(
             selected_topic=selected_topic,
             old_engaging_text=old_engaging_text,
             current_headline=current_headline,
+            storm_article=storm_article,
         )
 
         return new_engaging_text
@@ -147,13 +167,14 @@ if settings.ENVIRONMENT == "development":
 
     @router.get("/regenerate/engaging_text", response_model=EngagingTextResponse)
     async def regenerate_engaging_text_get(
-        url: str = default_article,
+        url: str = default_article_url,
         selected_topic: str = default_topic,
         old_engaging_text: str = default_engaging_text,
         current_headline: str = default_headline,
+        storm: bool = False,
     ) -> EngagingTextResponse:
         return await regenerate_engaging_text(
-            url, selected_topic, old_engaging_text, current_headline
+            url, selected_topic, old_engaging_text, current_headline, storm
         )
 
 
@@ -163,13 +184,14 @@ async def regenerate_engaging_text_post(
 ) -> EngagingTextResponse:
     try:
         request_body = await request.json()
-        url = request_body.get("url", default_article)
+        url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         old_engaging_text = request_body.get("old_engaging_text", default_engaging_text)
         current_headline = request_body.get("current_headline", default_headline)
+        storm = request_body.get("storm", False)
 
         return await regenerate_engaging_text(
-            url, selected_topic, old_engaging_text, current_headline
+            url, selected_topic, old_engaging_text, current_headline, storm
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -180,13 +202,18 @@ async def regenerate_engaging_text_post(
 
 # region Perex
 async def regenerate_perex(
-    url: str = default_article,
+    url: str = default_article_url,
     selected_topic: str = default_topic,
     old_perex: str = default_perex,
     current_headline: str = default_headline,
+    storm: bool = False,
 ) -> PerexResponse:
     try:
-        scraped_article = await cache_or_scrape(url, default_article)
+        scraped_article = await cache_or_scrape(url, default_article_url)
+
+        storm_article = None
+        if storm:
+            storm_article = await storm_cache_retrieve(selected_topic, url)
 
         ai_service = ArticleGenerator()
         new_perex = await ai_service.generate_perex(
@@ -194,6 +221,7 @@ async def regenerate_perex(
             selected_topic=selected_topic,
             old_perex=old_perex,
             current_headline=current_headline,
+            storm_article=storm_article,
         )
 
         return new_perex
@@ -205,12 +233,15 @@ if settings.ENVIRONMENT == "development":
 
     @router.get("/regenerate/perex", response_model=PerexResponse)
     async def regenerate_perex_get(
-        url: str = default_article,
+        url: str = default_article_url,
         selected_topic: str = default_topic,
         old_perex: str = default_perex,
         current_headline: str = default_headline,
+        storm: bool = False,
     ) -> PerexResponse:
-        return await regenerate_perex(url, selected_topic, old_perex, current_headline)
+        return await regenerate_perex(
+            url, selected_topic, old_perex, current_headline, storm
+        )
 
 
 @router.post("/regenerate/perex", response_model=PerexResponse)
@@ -219,12 +250,15 @@ async def regenerate_perex_post(
 ) -> PerexResponse:
     try:
         request_body = await request.json()
-        url = request_body.get("url", default_article)
+        url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         old_perex = request_body.get("old_perex", default_perex)
         current_headline = request_body.get("current_headline", default_headline)
+        storm = request_body.get("storm", False)
 
-        return await regenerate_perex(url, selected_topic, old_perex, current_headline)
+        return await regenerate_perex(
+            url, selected_topic, old_perex, current_headline, storm
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -234,13 +268,18 @@ async def regenerate_perex_post(
 
 # region ArticleBody
 async def regenerate_article_body(
-    url: str = default_article,
+    url: str = default_article_url,
     selected_topic: str = default_topic,
     old_article_body: str = default_article,
     current_headline: str = default_headline,
+    storm: bool = False,
 ) -> ArticleBodyResponse:
     try:
         scraped_article = await cache_or_scrape(url, default_article)
+
+        storm_article = None
+        if storm:
+            storm_article = await storm_cache_retrieve(selected_topic, url)
 
         ai_service = ArticleGenerator()
         new_article_body = await ai_service.generate_article_body(
@@ -248,6 +287,7 @@ async def regenerate_article_body(
             selected_topic=selected_topic,
             old_article=old_article_body,
             current_headline=current_headline,
+            storm_article=storm_article,
         )
 
         return new_article_body
@@ -259,13 +299,14 @@ if settings.ENVIRONMENT == "development":
 
     @router.get("/regenerate/articlebody", response_model=ArticleBodyResponse)
     async def regenerate_article_body_get(
-        url: str = default_article,
+        url: str = default_article_url,
         selected_topic: str = default_topic,
         old_article_body: str = default_article,
         current_headline: str = default_headline,
+        storm: bool = False,
     ) -> ArticleBodyResponse:
         return await regenerate_article_body(
-            url, selected_topic, old_article_body, current_headline
+            url, selected_topic, old_article_body, current_headline, storm
         )
 
 
@@ -275,13 +316,14 @@ async def regenerate_article_body_post(
 ) -> ArticleBodyResponse:
     try:
         request_body = await request.json()
-        url = request_body.get("url", default_article)
+        url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         old_article_body = request_body.get("old_article_body", default_article)
         current_headline = request_body.get("current_headline", default_headline)
+        storm = request_body.get("storm", False)
 
         return await regenerate_article_body(
-            url, selected_topic, old_article_body, current_headline
+            url, selected_topic, old_article_body, current_headline, storm
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -350,3 +392,54 @@ async def regenerate_tags_post(
 
 
 # endregion
+
+
+# region STORM Microservice
+async def health_check() -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:8001/health")
+            if response.status_code == 200:
+                return {"status": "healthy", "storm_status": response.json()}
+            else:
+                return {"status": "degraded", "storm_status": response.text}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
+
+async def call_storm_microservice_generate(
+    selected_topic: str, article_url: str
+) -> None:
+    url = f"http://localhost:8001/knowledge-storm/generate?selected_topic={selected_topic}&article_url={article_url}"
+
+    async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
+        response = await client.post(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {
+                "error": f"Failed to get result. Status code: {response.status_code}, {response.text}"
+            }
+
+
+async def storm_cache_retrieve(selected_topic: str, url: str) -> str:
+    cache_key = f"storm_article:{selected_topic}:{url}"
+    cached_content = await FastAPICache.get_backend().get(cache_key)
+
+    if not cached_content:
+        storm_article = await call_storm_microservice_generate(selected_topic, url)
+        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
+    else:
+        storm_article = cached_content
+    return storm_article
+
+
+# endregion
+
+if __name__ == "__main__":
+    # result = asyncio.run(health_check())
+    # result = asyncio.run(call_storm_microservice_generate(default_topic, default_article_url))
+    FastAPICache.init(InMemoryBackend())
+    result = asyncio.run(extract_article(default_article_url, default_topic, True))
+
+    print(result)

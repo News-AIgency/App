@@ -279,7 +279,7 @@ export default {
     },
     async regenerateSuggestions() {
       try {
-        const response = await ArticleService.regenerateSuggestions(this.articleStore.url, this.articleStore.selectedTopic, this.articleStore.titleSuggestions)
+        const response = await ArticleService.regenerateSuggestions(this.articleStore.url, this.articleStore.articleId, this.articleStore.selectedTopic, this.articleStore.titleSuggestions)
 
         this.titleSuggestions = response.data.title_suggestions
       } catch(error) {

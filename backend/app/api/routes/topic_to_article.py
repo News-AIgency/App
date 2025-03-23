@@ -1,5 +1,5 @@
+import httpx
 from fastapi import APIRouter, HTTPException, Request
-from fastapi_cache import FastAPICache
 
 # from fastapi_cache import FastAPICache
 from backend.app.core.config import settings
@@ -12,10 +12,8 @@ from backend.app.services.ai_service.response_models import (
     PerexResponse,
     TagsResponse,
 )
-
 from backend.app.utils.default_article import (
     default_article,
-    default_article_url,
     default_engaging_text,
     default_headline,
     default_headlines,
@@ -33,6 +31,7 @@ router = APIRouter()
 # region Extract article
 async def extract_article(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
 ) -> ArticleResponse:
     try:
@@ -41,7 +40,25 @@ async def extract_article(
         ai_service = LiteLLMService()
         article = await ai_service.generate_article(scraped_article, selected_topic)
 
-        return article
+        article_data = {
+            # url
+            "heading": {"heading_content": article.headlines[0]},
+            "topic": {"topic_content": selected_topic},
+            "perex": {"perex_content": article.perex},
+            "body": {"body_content": article.article},
+            "text": {"text_content": article.engaging_text},
+            "tags": [{"tag_content": tag} for tag in article.tags],
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://147.175.151.160/api/save_article/", json=article_data
+            )
+
+        if response.status_code != 201:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return {"id": response.id, "article": article}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -205,6 +222,7 @@ async def generate_engaging_text_post(
 
 async def regenerate_engaging_text(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
     old_engaging_text: str = default_engaging_text,
     current_headline: str = default_headline,
@@ -217,6 +235,7 @@ async def regenerate_engaging_text(
             scraped_article, selected_topic, old_engaging_text, current_headline
         )
 
+        # Ulozit engaging text do DB
         return new_engaging_text
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -304,6 +323,7 @@ async def generate_perex_post(
 
 async def regenerate_perex(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
     old_perex: str = default_perex,
     current_headline: str = default_headline,
@@ -316,6 +336,7 @@ async def regenerate_perex(
             scraped_article, selected_topic, old_perex, current_headline
         )
 
+        # ulozit perex do DB
         return new_perex
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -399,6 +420,7 @@ async def generate_article_body_post(
 
 async def regenerate_article_body(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
     old_article_body: str = default_article,
     current_headline: str = default_headline,
@@ -411,6 +433,7 @@ async def regenerate_article_body(
             scraped_article, selected_topic, old_article_body, current_headline
         )
 
+        # ulozit article body do DB
         return new_article_body
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -505,6 +528,7 @@ async def generate_tags_post(
 
 async def regenerate_tags(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
     old_tags: list[str] = default_tags,
     current_headline: str = default_headline,
@@ -518,6 +542,7 @@ async def regenerate_tags(
             scraped_article, selected_topic, old_tags, current_headline, current_article
         )
 
+        # ulozit tags do DB
         return new_tags
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

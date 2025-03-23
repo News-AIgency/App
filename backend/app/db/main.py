@@ -1,4 +1,5 @@
-from typing import Annotated, Optional, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated, Optional
 
 import models
 import uvicorn

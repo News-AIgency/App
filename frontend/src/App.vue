@@ -43,7 +43,7 @@
             /></svg
           ><a href="">Organization</a>
         </div> -->
-        <a href="" class="navbar-item">
+        <a href="history" class="navbar-item">
           <svg
             class="icon"
             xmlns="http://www.w3.org/2000/svg"

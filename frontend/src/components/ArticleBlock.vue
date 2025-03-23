@@ -1,7 +1,7 @@
 <template>
   <div class="block-label-container">
     <textarea
-      :class="['article-block', type]"
+      :class="['article-block', type === 'Engaging Text' ? 'EngagingText' : type === 'Perex' ? 'Perex' : '']"
       v-model="internalText"
       @input="autoResize; $emit('update:text', internalText)"
       ref="textarea"
@@ -147,5 +147,10 @@ export default {
   outline: none;
   padding: 4px;
   margin-top: 4px;
+}
+
+.Perex, .EngagingText {
+  font-size: 16px;
+  font-weight: 500;
 }
 </style>

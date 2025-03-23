@@ -62,7 +62,7 @@
       </div>
       <div class="footer-container">
       <a class="contact-us" @click="mailTo">Contact Us</a>
-      <div class="footer">WRAITE<br>2024</div>
+      <div class="footer">WRAITE<br>2025</div>
     </div>
     </nav>
     <div class="content-wrapper"><RouterView /></div>

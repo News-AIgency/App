@@ -82,7 +82,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           {{ suggestion }}
         </button></div>
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
 </template>
 
@@ -135,6 +135,10 @@ export default {
     if (leftBox && rightBox) {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
+    this.$nextTick(() => {
+      this.autoResize({ target: this.textarea  })
+    })
+
   },
   updated() {
     const leftBox = document.getElementById('titleBox')
@@ -203,7 +207,7 @@ export default {
     },
     autoResize(event: Event) {
       const target = event.target as HTMLTextAreaElement
-      target.style.height = 'auto'
+      target.style.height = '24px'
       target.style.height = `${target.scrollHeight}px`
     },
     loadFromLocalStorage() {
@@ -319,6 +323,9 @@ export default {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
     },
     title(newValue) {
+      this.$nextTick(() => {
+        this.autoResize({ target: this.textarea  })
+      })
       localStorage.setItem('title', newValue)
       this.showSaveChangesPopup()
     },
@@ -746,21 +753,6 @@ textarea:hover {
 
 h3 {
   font-weight: 600;
-}
-
-#perex-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#engaging-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#body-textarea {
-  height: 25em;
-  min-height: 25em;
 }
 
 /* UTILITY */

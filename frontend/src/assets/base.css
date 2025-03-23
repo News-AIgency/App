@@ -9,6 +9,9 @@
   --color-accent-haze: #D6141450;
   --color-error: #de5e5e;
 
+  --color-green: rgb(77, 167, 89);
+  --color-green-hover: rgb(71, 154, 82)
+
   --color-border: #00000010;
 
   --color-heading: var(--text-black);
@@ -18,6 +21,7 @@
   
   --color-background: var(--light-background);
   --color-block: #eceef5;
+  --color-block-dark: #d8dce9;
   --color-block-inactive: #ECEEF575;
   --color-block-hover: #e8eaf0;
 

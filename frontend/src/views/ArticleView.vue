@@ -23,6 +23,7 @@
           @input="autoResize"
           spellcheck="false"
           placeholder="Title is empty"
+          ref="textarea"
         >
 Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
         >
@@ -136,7 +137,7 @@ export default {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
     this.$nextTick(() => {
-      this.autoResize({ target: this.textarea  })
+      this.autoResize({ target: this.$refs.textarea})
     })
 
   },
@@ -205,9 +206,10 @@ export default {
         console.error('Element with ID ', textarea_id, ' not found')
       }
     },
-    autoResize(event: Event) {
-      const target = event.target as HTMLTextAreaElement
-      target.style.height = '24px'
+    autoResize(event: { target: EventTarget | null }) {
+      const target = event.target as HTMLTextAreaElement | null;
+      if (!target) return;
+      target.style.height = 'auto'
       target.style.height = `${target.scrollHeight}px`
     },
     loadFromLocalStorage() {
@@ -324,7 +326,7 @@ export default {
     },
     title(newValue) {
       this.$nextTick(() => {
-        this.autoResize({ target: this.textarea  })
+        this.autoResize({ target: this.$refs.textarea  })
       })
       localStorage.setItem('title', newValue)
       this.showSaveChangesPopup()

@@ -137,7 +137,7 @@ export default {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
     this.$nextTick(() => {
-      this.autoResize({ target: this.$refs.textarea})
+      this.autoResize({ target: this.$refs.textarea as HTMLTextAreaElement | null })
     })
 
   },
@@ -326,7 +326,7 @@ export default {
     },
     title(newValue) {
       this.$nextTick(() => {
-        this.autoResize({ target: this.$refs.textarea  })
+        this.autoResize({ target: this.$refs.textarea as HTMLTextAreaElement | null })
       })
       localStorage.setItem('title', newValue)
       this.showSaveChangesPopup()

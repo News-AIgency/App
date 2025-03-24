@@ -23,6 +23,7 @@
           @input="autoResize"
           spellcheck="false"
           placeholder="Title is empty"
+          ref="textarea"
         >
 Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
         >
@@ -82,7 +83,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           {{ suggestion }}
         </button></div>
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
 </template>
 
@@ -135,6 +136,10 @@ export default {
     if (leftBox && rightBox) {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
+    this.$nextTick(() => {
+      this.autoResize({ target: this.$refs.textarea})
+    })
+
   },
   updated() {
     const leftBox = document.getElementById('titleBox')
@@ -201,8 +206,9 @@ export default {
         console.error('Element with ID ', textarea_id, ' not found')
       }
     },
-    autoResize(event: Event) {
-      const target = event.target as HTMLTextAreaElement
+    autoResize(event: { target: EventTarget | null }) {
+      const target = event.target as HTMLTextAreaElement | null;
+      if (!target) return;
       target.style.height = 'auto'
       target.style.height = `${target.scrollHeight}px`
     },
@@ -319,6 +325,9 @@ export default {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
     },
     title(newValue) {
+      this.$nextTick(() => {
+        this.autoResize({ target: this.$refs.textarea  })
+      })
       localStorage.setItem('title', newValue)
       this.showSaveChangesPopup()
     },
@@ -746,21 +755,6 @@ textarea:hover {
 
 h3 {
   font-weight: 600;
-}
-
-#perex-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#engaging-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#body-textarea {
-  height: 25em;
-  min-height: 25em;
 }
 
 /* UTILITY */

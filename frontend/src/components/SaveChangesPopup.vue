@@ -55,7 +55,7 @@ export default defineComponent({
 }
 
 .save-btn {
-  background-color: rgb(77, 167, 89);
+  background-color: var(--color-green);
   color: white;
   border: none;
   padding: 8px 10px;
@@ -64,7 +64,7 @@ export default defineComponent({
 }
 
 .save-btn:hover {
-  background-color: rgb(71, 154, 82);
+  background-color: var(--color-green-hover);
 }
 
 /* main container */

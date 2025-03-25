@@ -10,7 +10,7 @@
     <div class="block-panel">
       <div class="block-label">{{ type }}</div>
       <div class="block-actions">
-        <button class="block-action-btn material-icons regenerate-button" title="Regenerate" @click="regenerateText">autorenew</button>
+        <button class="block-action-btn material-icons regenerate-button" :disabled="isPending" title="Regenerate" @click="regenerateText">autorenew</button>
         <button class="block-action-btn material-icons content_copy" title="Copy"></button>
       </div>
     </div>
@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       internalText: this.text,
+      isPending: false
     }
   },
   watch: {
@@ -62,7 +63,9 @@ export default {
       try {
         const articleStore = useArticleStore()
         let response;
+        this.isPending = true
 
+        //tuto chyba try catch block
         if (this.type == "Engaging Text") {
           response = await ArticleService.regenerateEngagingText(articleStore.url, articleStore.selectedTopic, this.internalText, articleStore.title);
           this.internalText = response.data.engaging_text;
@@ -80,6 +83,7 @@ export default {
           console.error("Unknown type of block");
         }
 
+        this.isPending = false
         this.$nextTick(() => {
         this.autoResize({ target: this.textarea  })
       })
@@ -95,7 +99,7 @@ export default {
 }}
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .block-label-container {
   color: var(--color-text-haze);
   font-size: 12px;
@@ -147,5 +151,11 @@ export default {
   outline: none;
   padding: 4px;
   margin-top: 4px;
+
+  &:disabled {
+    color: var(--color-block);
+    background-color: var(--color-text-haze);
+    cursor: context-menu;
+  }
 }
 </style>

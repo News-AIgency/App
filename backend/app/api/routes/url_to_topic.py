@@ -5,7 +5,7 @@ from fastapi_cache import FastAPICache
 from starlette.responses import JSONResponse
 
 from backend.app.core.config import settings
-from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import TopicsResponse
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
 from backend.app.utils.default_article import default_article, default_article_url
@@ -80,7 +80,7 @@ async def extract_topics(
         else:
             scraped_content = cached_content
 
-        ai_service = LiteLLMService()
+        ai_service = ArticleGenerator()
         generated_topics = await ai_service.generate_topics(scraped_content)
 
         return generated_topics

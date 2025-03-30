@@ -31,7 +31,6 @@ router = APIRouter()
 # region Extract article
 async def extract_article(
     url: str = default_article,
-    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
 ) -> ArticleResponse:
     try:
@@ -41,7 +40,7 @@ async def extract_article(
         article = await ai_service.generate_article(scraped_article, selected_topic)
 
         article_data = {
-            # url
+            "url": {"url": url},
             "heading": {"heading_content": article.headlines[0]},
             "topic": {"topic_content": selected_topic},
             "perex": {"perex_content": article.perex},
@@ -52,7 +51,7 @@ async def extract_article(
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                "https://147.175.151.160/api/save_article/", json=article_data
+                "https://api.wraite.news/save_article/", json=article_data
             )
 
         if response.status_code != 201:

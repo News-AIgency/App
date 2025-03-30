@@ -1,7 +1,17 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from database import Base
+
+
+article_tags = Table(
+    "article_tags",
+    Base.metadata,
+    Column(
+        "article_id", Integer, ForeignKey("generated_articles.id"), primary_key=True
+    ),
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
+)
 
 
 class GeneratedArticles(Base):
@@ -13,8 +23,7 @@ class GeneratedArticles(Base):
     text_id = Column(Integer, ForeignKey("texts.id"), nullable=True)
     body_id = Column(Integer, ForeignKey("body.id"), nullable=True)
     perex_id = Column(Integer, ForeignKey("perex.id"), nullable=True)
-    tags_id = Column(Integer, ForeignKey("tags.id"), nullable=True)
-    images_id = Column(Integer, ForeignKey("images.id"), nullable=True)
+    # images_id = Column(Integer, ForeignKey("images.id"), nullable=True)
     sources_id = Column(Integer, ForeignKey("sources.id"), nullable=True)
 
     heading = relationship(
@@ -24,8 +33,8 @@ class GeneratedArticles(Base):
     text = relationship("Text", back_populates="article", foreign_keys=[text_id])
     body = relationship("Body", back_populates="article", foreign_keys=[body_id])
     perex = relationship("Perex", back_populates="article", foreign_keys=[perex_id])
-    tags = relationship("Tags", back_populates="article", foreign_keys=[tags_id])
-    images = relationship("Images", back_populates="article", foreign_keys=[images_id])
+    tags = relationship("Tags", secondary=article_tags, back_populates="articles")
+    # images = relationship("Images", back_populates="article", foreign_keys=[images_id])
     sources = relationship(
         "Sources", back_populates="article", foreign_keys=[sources_id]
     )
@@ -101,14 +110,12 @@ class Tags(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     tags_content = Column(String, index=True, nullable=False)
-    article = relationship(
-        "GeneratedArticles",
-        back_populates="tags",
-        foreign_keys=[GeneratedArticles.tags_id],
+    articles = relationship(
+        "GeneratedArticles", secondary=article_tags, back_populates="tags"
     )
 
 
-class Images(Base):
+"""class Images(Base):
     __tablename__ = "images"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     link_to_image = Column(String, index=True, nullable=False)
@@ -116,7 +123,7 @@ class Images(Base):
         "GeneratedArticles",
         back_populates="images",
         foreign_keys=[GeneratedArticles.images_id],
-    )
+    )"""
 
 
 #

@@ -841,3 +841,39 @@ class RegenerateTags(dspy.Module):
             language=language,
         )
         return generated_tags
+
+
+class GenerateGrahphsSignature(dspy.Signature):
+    """Decide, if generating an interpretable graph from the given article is possible. If a graph cannot be generated or doesn't make sense to be generated for the given article, return None in the graph_code OutputField. If a graph can be generated, choose one of the following graph types that makes the most sense to visualize the data from the article:
+    1. pie
+    2. line
+    3. bar
+    4. histogram
+    5. scatter
+    Generate a data representation of the chosen graph type, that can be plotted using the matplotlib library. The data reresentation should be created solely from the numbers from the given article from the scraped_content InputField. All generated text should be in the language specified by the language InputField. Then generate code that can be used to plot the graph using the data representation and matplotlib library. The code should be a valid python code that can be executed to plot the graph in an evironment with the matplotlib library installed. Generate the code without it being enclosed in "```python ```", just pure string. The output code will be stored in the graph_code OutputField.
+    """
+
+    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
+    language = dspy.InputField(
+        desc="Language of the news article", type=Language, default=Language.SLOVAK
+    )
+    graph_code = dspy.OutputField(
+        desc="Generated code for graph plotting", type=str | None
+    )
+
+
+class GenerateGraphs(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate_graphs = dspy.Predict(GenerateGrahphsSignature)
+
+    def forward(
+        self,
+        scraped_content: str,
+        language: Language,
+    ) -> GenerateGrahphsSignature:
+        graph_code = self.generate_graphs(
+            scraped_content=scraped_content,
+            language=language,
+        )
+        return graph_code

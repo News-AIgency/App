@@ -5,7 +5,7 @@
             <span class="hamburger-box">
                 <span class="hamburger-inner"></span>
             </span>
-        </button>  
+        </button>
         <div class="menu-container">
             <a class="navbar-logo" @click="goToStart"
             >WR<span class="text-accent">AI</span>TE</a
@@ -126,6 +126,9 @@
         position: absolute;
         left: calc(100% + 10px);
         top: 10px;
+        background-color: white;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 10px;
+        border-radius: 10px;
     }
 
     .menu-container {
@@ -204,6 +207,9 @@
             position: fixed;
             top: 0;
             right: 100%;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
 
             &.is-open {
                 transform: translateX(100%);

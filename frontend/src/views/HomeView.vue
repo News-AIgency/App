@@ -1,6 +1,6 @@
 <template>
   <main>
-    <ProgressBar :currentStep="currentStep"></ProgressBar>
+    <ProgressBar :currentStep="currentStep" class="progress-bar"></ProgressBar>
     <form>
       <p class="input-heading">Enter URL below</p>
       <p class="input-subheading">to generate topic ideas</p>
@@ -95,6 +95,11 @@ export default {
 </script>
 
 <style scoped>
+@media screen and (max-device-width: 1024px) {
+  .progress-bar {
+    margin-top: 48px;
+  }
+}
 .url-input-container {
   margin: auto;
   width: 40%;

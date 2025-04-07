@@ -10,7 +10,7 @@ on:
       - 'frontend/**'
 
 env:
-  NODE_VERSION: '16.17.1'
+  NODE_VERSION: '20.18.0'
 
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
           path: ${{ secrets.BUILD_PATH }}
 
       - name: Move build
-        run: mv -v ${{ secrets.BUILD_PATH }} ${{ secrets.SERVE_PATH }}/releases/${GITHUB_RUN_ID}
+        run: mv ${{ secrets.BUILD_PATH }} ${{ secrets.SERVE_PATH }}/releases/${GITHUB_RUN_ID}
 
       - name: Remove old link
         run: rm -rf ${{ secrets.SERVE_PATH }}/current

@@ -23,18 +23,19 @@
           @input="autoResize"
           spellcheck="false"
           placeholder="Title is empty"
+          ref="textarea"
         >
 Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
         >
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="engagingText" type="Engaging Text"></ArticleBlock>
+        <ArticleBlock v-model:text="engagingText" type="Engaging Text"></ArticleBlock>
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="perex" type="Perex"></ArticleBlock>
+        <ArticleBlock v-model:text="perex" type="Perex"></ArticleBlock>
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
-        <ArticleBlock :text="body" type="Body"></ArticleBlock>
+        <ArticleBlock v-model:text="body" type="Body"></ArticleBlock>
       </div>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
@@ -82,6 +83,7 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           {{ suggestion }}
         </button></div>
     </section>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
 </template>
 
@@ -93,6 +95,7 @@ import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
 import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 import ArticleService from '@/services/ArticleService';
+import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 
 export default {
   setup() {
@@ -104,7 +107,8 @@ export default {
     LoadingSpinner,
     AiContent,
     ArticleBlock,
-    SrcUrlBlock
+    SrcUrlBlock,
+    SaveChangesPopup,
   },
   data() {
     return {
@@ -118,6 +122,7 @@ export default {
       newTag: '',
       originalUrl: '',
       currentStep: 3,
+      showSavePopup: false,
     }
   },
   mounted() {
@@ -131,6 +136,10 @@ export default {
     if (leftBox && rightBox) {
       rightBox.style.padding = `${leftBox.offsetHeight / 2}px`
     }
+    this.$nextTick(() => {
+      this.autoResize({ target: this.$refs.textarea as HTMLTextAreaElement | null })
+    })
+
   },
   updated() {
     const leftBox = document.getElementById('titleBox')
@@ -197,8 +206,9 @@ export default {
         console.error('Element with ID ', textarea_id, ' not found')
       }
     },
-    autoResize(event: Event) {
-      const target = event.target as HTMLTextAreaElement
+    autoResize(event: { target: EventTarget | null }) {
+      const target = event.target as HTMLTextAreaElement | null;
+      if (!target) return;
       target.style.height = 'auto'
       target.style.height = `${target.scrollHeight}px`
     },
@@ -287,25 +297,39 @@ export default {
       }
 
     },
+    showSaveChangesPopup() {
+      this.showSavePopup = true;
+    },
+    hideSaveChangesPopup() {
+      this.showSavePopup = false;
+    }
   },
   watch: {
     engagingText(newValue) {
       localStorage.setItem('engagingText', newValue)
+      this.showSaveChangesPopup()
     },
     perex(newValue) {
       localStorage.setItem('perex', newValue)
+      this.showSaveChangesPopup()
     },
     body(newValue) {
       localStorage.setItem('body', newValue)
+      this.showSaveChangesPopup()
     },
     tags(newValue) {
       localStorage.setItem('tags', JSON.stringify(newValue))
+      this.showSaveChangesPopup()
     },
     titleSuggestions(newValue) {
       localStorage.setItem('titleSuggestions', JSON.stringify(newValue))
     },
     title(newValue) {
+      this.$nextTick(() => {
+        this.autoResize({ target: this.$refs.textarea as HTMLTextAreaElement | null })
+      })
       localStorage.setItem('title', newValue)
+      this.showSaveChangesPopup()
     },
     genTitle(newValue) {
       this.title = newValue
@@ -731,21 +755,6 @@ textarea:hover {
 
 h3 {
   font-weight: 600;
-}
-
-#perex-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#engaging-textarea {
-  height: 6em;
-  min-height: 6em;
-}
-
-#body-textarea {
-  height: 25em;
-  min-height: 25em;
 }
 
 /* UTILITY */

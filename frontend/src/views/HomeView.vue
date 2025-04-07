@@ -4,9 +4,12 @@
     <form>
       <p class="input-heading">Enter URL below</p>
       <p class="input-subheading">to generate topic ideas</p>
+      <div class="inputs-container">
       <div class="url-input-container">
         <input type="url" placeholder="Enter URL to an article" class="url-input" v-model="inputURL">
         <span class="material-icons paste-icon" @click="pasteUrl">content_paste</span>
+      </div>
+      <ToggleSwitch></ToggleSwitch>
       </div>
       <div class="error-container">{{ error_text }}</div>
       <button @click.prevent="sendURL" class="generate-btn">Generate</button>
@@ -18,6 +21,8 @@
 import { useTopicsStore } from '@/stores/topicsStore'
 import { useArticleStore } from '@/stores/articleStore';
 import ProgressBar from '../components/ProgressBar.vue'
+import ToggleSwitch from '../components/ToggleSwitch.vue'
+import { useRoute } from 'vue-router';
 
 export default {
   name: "HomeView",
@@ -30,9 +35,17 @@ export default {
   },
   components: {
     ProgressBar,
+    ToggleSwitch
   },
   mounted() {
     localStorage.clear();
+
+    // paste article url from query params (for presentation purposes)
+    const route = useRoute()
+    if ( route.query.article_url ) {
+      console.log(route.query.article_url)
+      this.inputURL = route.query.article_url.toString()
+    }
   },
   methods: {
     isValidUrl(string: string) {
@@ -99,6 +112,11 @@ export default {
   align-items: center;
 }
 
+.inputs-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .url-input {
   width: 90%;
   background-color: transparent;
@@ -146,7 +164,7 @@ form {
   font-weight: 600;
   font-size: 12px;
   padding: 10px;
-  margin-top: 24px;
+  margin-top: 4px;
   cursor: pointer;
 
   transition: box-shadow 0.4s ease;

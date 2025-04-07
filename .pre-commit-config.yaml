@@ -6,7 +6,7 @@ repos:
         name: black
         language_version: python3
         files: ^backend/
-        exclude: ^backend/app/services/ai_service/storm_agent/vector_store/
+        exclude: ^backend/app/iitsrc/Evaluation.ipynb
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.6.9
@@ -16,4 +16,4 @@ repos:
         args: [--fix]
         language_version: python3
         files: ^backend/
-        exclude: ^backend/app/services/ai_service/storm_agent/vector_store/
+        exclude: ^backend/app/iitsrc/Evaluation.ipynb

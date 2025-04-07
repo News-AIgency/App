@@ -50,6 +50,9 @@ jobs:
     environment: new-server
     
     steps:
+      - name: Create Mask
+        run: echo "::add-mask::{{ secrets.BUILD_PATH }}"
+
       - name: Download Dist Folder
         uses: actions/download-artifact@v4
         with:

@@ -95,5 +95,8 @@ svg {
   .step-text {
     display: none;
   }
+  .container {
+    padding-top: 68px;
+  }
 }
 </style>

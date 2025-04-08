@@ -15,6 +15,7 @@
       <div class="textarea-container" v-show="!articleStore.loading">
         <div class="topic-box">{{ selectedTopic }}</div>
       </div>
+      <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" v-if="isMobileDevice" />
       <div class="textarea-container" v-show="!articleStore.loading">
         <textarea
           class="headline"
@@ -24,8 +25,7 @@
           spellcheck="false"
           placeholder="Title is empty"
           ref="textarea"
-        >
-Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energie</textarea
+        ></textarea
         >
       </div>
       <div class="textarea-container" v-show="!articleStore.loading">
@@ -64,24 +64,14 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
           </div>
         </div>
         <SrcUrlBlock :url="originalUrl" v-show="!articleStore.loading"></SrcUrlBlock>
+
+        <Buttons v-if="isMobileDevice" />
     </section>
 
     <!-- RIGHT SIDEBAR -->
-    <section class="sidebar-section">
-      <div class="buttons-container">
-        <button class="btn-primary btn"><span class="material-icons publish"></span>Publish</button>
-        <button class="btn-secondary btn"><span class="material-icons send"></span>Share</button>
-      </div>
-      <div class="suggestions-container">
-      <div class="suggestions-label-container"><p class="sidebar-label">Headline suggestions</p><button class=" material-icons regenerate-button" title="Regenerate" @click="regenerateSuggestions">autorenew</button></div>
-      <button
-          v-for="(suggestion, index) in titleSuggestions"
-          :key="index"
-          class="title-btn"
-          @click="copyTitle(suggestion)"
-        >
-          {{ suggestion }}
-        </button></div>
+    <section class="sidebar-section" v-if="!isMobileDevice">
+      <Buttons />
+      <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" />
     </section>
     <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
@@ -90,12 +80,16 @@ Slovensko zaznamenalo historicky najvyšší rast obnoviteľných zdrojov energi
 <script lang="ts">
 import { useArticleStore } from '@/stores/articleStore'
 import ProgressBar from '@/components/ProgressBar.vue'
-import LoadingSpinner from '../components/LoadingSpinner.vue'
+import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
 import ArticleBlock from '@/components/ArticleBlock.vue';
 import SrcUrlBlock from '@/components/SrcUrlBlock.vue';
 import ArticleService from '@/services/ArticleService';
 import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
+import Buttons from './Buttons.vue';
+import Suggestions from './Suggestions.vue';
+
+const MOBILE_WIDTH_THRESHOLD = 1024
 
 export default {
   setup() {
@@ -109,6 +103,8 @@ export default {
     ArticleBlock,
     SrcUrlBlock,
     SaveChangesPopup,
+    Buttons,
+    Suggestions
   },
   data() {
     return {
@@ -123,6 +119,7 @@ export default {
       originalUrl: '',
       currentStep: 3,
       showSavePopup: false,
+      isMobileDevice: window.innerWidth <= MOBILE_WIDTH_THRESHOLD
     }
   },
   mounted() {
@@ -140,6 +137,11 @@ export default {
       this.autoResize({ target: this.$refs.textarea as HTMLTextAreaElement | null })
     })
 
+    // update layout on window resize
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize)
   },
   updated() {
     const leftBox = document.getElementById('titleBox')
@@ -302,6 +304,9 @@ export default {
     },
     hideSaveChangesPopup() {
       this.showSavePopup = false;
+    },
+    handleResize() {
+      this.isMobileDevice = window.innerWidth <= MOBILE_WIDTH_THRESHOLD
     }
   },
   watch: {
@@ -356,9 +361,11 @@ export default {
 <style scoped>
 
 main {
-  display: flex;
   max-height: 90vh;
   overflow-y: hidden;
+  display: grid;
+  grid-template-columns: 1fr clamp(200px, 25%, 350px); /*min/max sirku podla pocitu nastav i guess*/
+  grid-auto-rows: auto;
 }
 .tags-container {
   font-size: 12px;
@@ -369,13 +376,10 @@ main {
 
 
 .sidebar-section {
-  width: 25%;
-  height: 100vh;
   border-left: 1px solid var(--color-border);
 }
 
 .article-section {
-  width: 75%;
   height: 90vh;
   overflow-y: auto;
 }
@@ -398,20 +402,6 @@ main {
   display: flex;
   justify-content: space-between;
   padding: 3%;
-}
-
-.suggestions-container {
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.suggestions-label-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  padding: 8px 0 0px 8px;
-  gap:8px
 }
 
 .sidebar-label {
@@ -498,23 +488,6 @@ textarea:hover {
   font-size: 20px;
 }
 
-.title-btn {
-  width: 90%;
-  background-color: var(--color-block);
-  color: var(--color-text);
-  border: 0px;
-  border-radius: 5px;
-  padding: 8px;
-  text-align: left;
-  cursor: pointer;
-  margin: 8px 6px 2px 8px;
-  font-size: 12px;
-}
-
-.title-btn:hover {
-  background-color: var(--color-block-hover);
-}
-
 .action-bar {
   display: flex;
   justify-content: flex-end;
@@ -547,15 +520,6 @@ textarea:hover {
   gap: 8px;
 }
 
-.regenerate-button {
-  background-color: transparent;
-  opacity: 0.75;
-  color: var(--color-text);
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-}
-
 .textarea-wrapper {
   display: flex;
   width: 60%;
@@ -570,31 +534,6 @@ textarea:hover {
   justify-content: space-between;
   border-bottom: 1px solid var(--color-border);
   padding: 20px 16px;
-}
-
-.btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.btn span {
-  font-size: 14px;
-}
-
-.btn-primary {
-  background-color: var(--color-accent);
-  padding: 8px 10px;
-  border: none;
-  color: var(--color-text-dark-bg);
-}
-
-.btn-secondary {
-  background-color: transparent;
-  padding: 8px 10px;
-  border: 1px solid black;
 }
 
 
@@ -760,6 +699,16 @@ h3 {
 /* UTILITY */
 .bold {
   font-weight: bold;
+}
+
+@media screen and (max-device-width: 1024px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .article-section > *:not(:last-child) {
+    margin-bottom: 1rem;
+  }
 }
 
 @media (max-width: 480px) {

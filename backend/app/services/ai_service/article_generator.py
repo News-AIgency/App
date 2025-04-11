@@ -1,6 +1,8 @@
 import os
 import sys
 
+from backend.app.api.routes.grammar_checker import correct_text
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 import asyncio
@@ -37,7 +39,7 @@ from backend.app.utils.default_article import (
     default_article,
     default_topic,
 )
-from backend.app.utils.language_enum import Language
+from backend.app.utils.language_enum import LANGUAGE_TO_TOOL_LANG, Language
 
 
 class ArticleGenerator:
@@ -79,7 +81,12 @@ class ArticleGenerator:
             language=language,
         )
 
-        return TopicsResponse(topics=generated_topics.topics.split("\n"))
+        topics = generated_topics.topics.split("\n")
+        corrected_topics = [
+            correct_text(topic, LANGUAGE_TO_TOOL_LANG[language]) for topic in topics
+        ]
+
+        return TopicsResponse(topics=corrected_topics)
 
     async def generate_article(
         self,
@@ -169,7 +176,13 @@ class ArticleGenerator:
 
         generated_headlines = await generate_headlines_program(**kwargs)
 
-        return HeadlineResponse(headlines=generated_headlines.headlines.split("\n"))
+        headlines = generated_headlines.headlines.split("\n")
+        corrected_headlines = [
+            correct_text(headline, LANGUAGE_TO_TOOL_LANG[language])
+            for headline in headlines
+        ]
+
+        return HeadlineResponse(headlines=corrected_headlines)
 
     async def generate_engaging_text(
         self,
@@ -207,7 +220,11 @@ class ArticleGenerator:
 
         generated_engaging_text = await generate_engaging_text_program(**kwargs)
 
-        return EngagingTextResponse(engaging_text=generated_engaging_text.engaging_text)
+        return EngagingTextResponse(
+            engaging_text=correct_text(
+                generated_engaging_text.engaging_text, LANGUAGE_TO_TOOL_LANG[language]
+            )
+        )
 
     async def generate_perex(
         self,
@@ -243,7 +260,9 @@ class ArticleGenerator:
 
         generated_perex = await generate_perex_program(**kwargs)
 
-        return PerexResponse(perex=generated_perex.perex)
+        return PerexResponse(
+            perex=correct_text(generated_perex.perex, LANGUAGE_TO_TOOL_LANG[language])
+        )
 
     async def generate_article_body(
         self,
@@ -279,7 +298,11 @@ class ArticleGenerator:
 
         generated_article = await generate_article_body_program(**kwargs)
 
-        return ArticleBodyResponse(article=generated_article.article)
+        return ArticleBodyResponse(
+            article=correct_text(
+                generated_article.article, LANGUAGE_TO_TOOL_LANG[language]
+            )
+        )
 
     async def generate_tags(
         self,
@@ -309,13 +332,15 @@ class ArticleGenerator:
 
         generated_tags = await generate_tags_program(**kwargs)
 
-        return TagsResponse(tags=generated_tags.tags.split("\n"))
+        return TagsResponse(tags=generated_tags.tags.split(" "))
 
 
 if __name__ == "__main__":
     LM = ArticleGenerator()
-    asyncio.run(
-        LM.generate_article(
-            scraped_content=default_article, selected_topic=default_topic
+    print(
+        asyncio.run(
+            LM.generate_article(
+                scraped_content=default_article, selected_topic=default_topic
+            )
         )
     )

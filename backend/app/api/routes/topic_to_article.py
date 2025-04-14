@@ -1,4 +1,3 @@
-
 import asyncio
 
 import httpx
@@ -18,6 +17,7 @@ from backend.app.services.ai_service.response_models import (
 )
 from backend.app.utils.default_article import (
     default_article,
+    default_article_url,
     default_engaging_text,
     default_headline,
     default_headlines,
@@ -154,9 +154,7 @@ async def regenerate_headlines_post(
 
 # region Engaging text
 async def regenerate_engaging_text(
-
     url: str = default_article_url,
-
     selected_topic: str = default_topic,
     old_engaging_text: str = default_engaging_text,
     current_headline: str = default_headline,
@@ -223,9 +221,7 @@ async def regenerate_engaging_text_post(
 
 # region Perex
 async def regenerate_perex(
-
     url: str = default_article_url,
-
     selected_topic: str = default_topic,
     old_perex: str = default_perex,
     current_headline: str = default_headline,
@@ -292,7 +288,6 @@ async def regenerate_perex_post(
 
 # region ArticleBody
 async def regenerate_article_body(
-
     url: str = default_article_url,
     selected_topic: str = default_topic,
     old_article_body: str = default_article,

@@ -736,5 +736,9 @@ h3 {
     padding-right: 0;
     text-wrap: pretty;
   }
+
+  .headline {
+    font-size: 1.5rem;
+  }
 }
 </style>

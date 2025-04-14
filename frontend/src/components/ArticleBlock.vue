@@ -167,7 +167,7 @@ export default {
       display: flex;
       justify-content: space-between;
       font-size: 1.5rem;
-      
+
       div:nth-of-type(1) {
         font-weight: bold;
       }
@@ -188,6 +188,22 @@ export default {
 
   .block-panel {
     width: 15%;
+  }
+}
+
+@media screen and (max-device-width: 500px) {
+
+  .block-panel {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .block-label {
+    font-size: 12px;
+    padding: 2px 8px;
+
   }
 }
 </style>

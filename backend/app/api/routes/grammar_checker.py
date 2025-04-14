@@ -40,10 +40,7 @@ async def check_grammar(request: GrammarRequest) -> dict[str, Any]:
 def correct_text(
     text: str, language: LanguageToolLanguage = LanguageToolLanguage.SLOVAK
 ) -> str:
-    # disable MORFOLOGIK_RULE_SK to avoid over-correction of unknown words
-    tool = language_tool_python.LanguageTool(
-        language.value, config={"disabledRuleIds": ["MORFOLOGIK_RULE_SK"]}
-    )
+    tool = language_tool_python.LanguageTool(language.value)
     matches = tool.check(text)
 
     # Reverse order so that it starts fixing from the back to make sure offsets for the other replacements still fit

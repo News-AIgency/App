@@ -1,13 +1,18 @@
 <template>
-  <div class="page-wrapper">
+  <div class="page-wrapper" v-if="showNavbar">
     <Navbar></Navbar>
     <div class="content-wrapper"><RouterView /></div>
   </div>
+  <RouterView v-if="!showNavbar"/>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import Navbar from './components/Navbar.vue'
+import { RouterView, useRoute } from 'vue-router';
+import { computed } from 'vue';
+import Navbar from './components/Navbar.vue';
+
+const route = useRoute();
+const showNavbar = computed(() => route.path !== '/team');
 </script>
 
 <style scoped lang="scss">
@@ -26,7 +31,6 @@ import Navbar from './components/Navbar.vue'
   overflow-y: auto;
   flex-grow: 1;
 }
-
 
 @media screen and (min-device-width: 1025px) {
   .content-wrapper {

@@ -22,7 +22,6 @@ import { useTopicsStore } from '@/stores/topicsStore'
 import { useArticleStore } from '@/stores/articleStore';
 import ProgressBar from '../components/ProgressBar.vue'
 import ToggleSwitch from '../components/ToggleSwitch.vue'
-import { useRoute } from 'vue-router';
 
 export default {
   name: "HomeView",
@@ -41,10 +40,8 @@ export default {
     localStorage.clear();
 
     // paste article url from query params (for presentation purposes)
-    const route = useRoute()
-    if ( route.query.article_url ) {
-      console.log(route.query.article_url)
-      this.inputURL = route.query.article_url.toString()
+    if (this.$route.query.article_url) {
+      this.inputURL = this.$route.query.article_url.toString();
     }
   },
   methods: {

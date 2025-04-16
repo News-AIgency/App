@@ -110,7 +110,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 @media screen and (max-device-width: 480px) {
   .title {
     font-size: 20px !important;
@@ -129,10 +129,6 @@ export default {
   .topic-num {
     color: var(--color-text);
     padding: 0 15px 0 15px !important;
-  }
-
-  .topic-button:hover {
-    display: none;
   }
 
   .topics .forward-arrow {
@@ -243,15 +239,6 @@ export default {
   text-align: left;
 }
 
-.topic-button:hover {
-  background-color: var(--color-block-hover);
-  transition: 0.3s ease;
-  cursor: pointer;
-  box-shadow:
-    0 2px 2px 0 rgba(0, 0, 0, 0.1),
-    0 2px 10px 0 rgba(0, 0, 0, 0.06);
-}
-
 .forward-arrow {
   color: var(--color-text);
   font-size: 24px;
@@ -261,10 +248,6 @@ export default {
   transition: 0.3s ease;
 }
 
-.topic-button:hover .forward-arrow {
-  opacity: 1;
-}
-
 .topic-num {
   width: auto;
   height: auto;
@@ -272,5 +255,27 @@ export default {
   color: var(--color-text);
   text-align: center;
   font-weight: bold;
+}
+
+@media (hover: hover) {
+  .topic-button:hover {
+    background-color: var(--color-block-hover);
+    transition: 0.3s ease;
+    cursor: pointer;
+    box-shadow:
+      0 2px 2px 0 rgba(0, 0, 0, 0.1),
+      0 2px 10px 0 rgba(0, 0, 0, 0.06);
+
+      .forward-arrow {
+        opacity: 1;
+      }
+  }
+}
+
+// up to you i guess, ci chces ,aby tam ten arrow svietil na dotykovych obrazovkach
+@media (hover: none) {
+  .topic-button .forward-arrow {
+    opacity: 1;
+  }
 }
 </style>

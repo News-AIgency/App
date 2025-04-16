@@ -1,12 +1,5 @@
 <template>
   <div class="block-label-container">
-    <textarea
-      :class="['article-block', type === 'Engaging Text' ? 'EngagingText' : type === 'Perex' ? 'Perex' : '']"
-      v-model="internalText"
-      @input="autoResize; $emit('update:text', internalText)"
-      ref="textarea"
-    >
-    </textarea>
     <div class="block-panel">
       <div class="block-label">{{ type }}</div>
       <div class="block-actions">
@@ -14,6 +7,13 @@
         <button class="block-action-btn material-icons content_copy" title="Copy"></button>
       </div>
     </div>
+    <textarea
+      :class="['article-block', type === 'Engaging Text' ? 'EngagingText' : type === 'Perex' ? 'Perex' : '']"
+      v-model="internalText"
+      @input="autoResize; $emit('update:text', internalText)"
+      ref="textarea"
+    >
+    </textarea>
   </div>
 </template>
 
@@ -103,14 +103,12 @@ export default {
 .block-label-container {
   color: var(--color-text-haze);
   font-size: 12px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
   padding: 0 10px;
   margin-bottom: 10px;
   gap: 4px;
 }
 .block-panel {
-  width: 15%;
   max-height: max-content;
 }
 .block-label {
@@ -128,7 +126,7 @@ export default {
   padding: 10px 3%;
   color: var(--color-text);
   border: 0;
-  width: 85%;
+  flex-grow: 1;
 }
 
 .article-block:focus,
@@ -162,5 +160,50 @@ export default {
 .Perex, .EngagingText {
   font-size: 16px;
   font-weight: 500;
+}
+
+@media screen and (max-device-width: 1024px) {
+    .block-panel {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.5rem;
+
+      div:nth-of-type(1) {
+        font-weight: bold;
+      }
+
+      .block-action-btn {
+        font-size: 1.5rem;
+      }
+    }
+
+}
+
+@media screen and (min-device-width: 1025px) {
+  .block-label-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+  }
+
+  .block-panel {
+    width: 15%;
+  }
+}
+
+@media screen and (max-device-width: 500px) {
+
+  .block-panel {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .block-label {
+    font-size: 12px;
+    padding: 2px 8px;
+
+  }
 }
 </style>

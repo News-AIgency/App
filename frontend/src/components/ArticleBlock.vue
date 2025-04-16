@@ -67,16 +67,16 @@ export default {
 
         //tuto chyba try catch block
         if (this.type == "Engaging Text") {
-          response = await ArticleService.regenerateEngagingText(articleStore.url, articleStore.selectedTopic, this.internalText, articleStore.title);
+          response = await ArticleService.regenerateEngagingText(articleStore.url, articleStore.articleId, articleStore.selectedTopic, this.internalText, articleStore.title);
           this.internalText = response.data.engaging_text;
           console.log("Enganging text regenerated");
         } else if (this.type == "Perex") {
-          response = await ArticleService.regeneratePerex(articleStore.url, articleStore.selectedTopic, this.internalText, articleStore.title);
+          response = await ArticleService.regeneratePerex(articleStore.url, articleStore.articleId, articleStore.selectedTopic, this.internalText, articleStore.title);
           this.internalText = response.data.perex;
           console.log("Perex regenerated");
         } else if (this.type == "Body") {
           console.log("Body regenration called");
-          response = await ArticleService.regenerateBody(articleStore.url, articleStore.selectedTopic, this.internalText, articleStore.title);
+          response = await ArticleService.regenerateBody(articleStore.url, articleStore.articleId, articleStore.selectedTopic, this.internalText, articleStore.title);
           this.internalText = response.data.body;
           console.log("Body regenerated");
         } else {

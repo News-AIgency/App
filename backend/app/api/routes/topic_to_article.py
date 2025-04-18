@@ -50,7 +50,25 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        return article
+        article_data = {
+            "url": {"url": url},
+            "heading": {"heading_content": article.headlines[0]},
+            "topic": {"topic_content": selected_topic},
+            "perex": {"perex_content": article.perex},
+            "body": {"body_content": article.article},
+            "text": {"text_content": article.engaging_text},
+            "tags": [{"tag_content": tag} for tag in article.tags],
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.wraite.news/save_article/", json=article_data
+            )
+
+        if response.status_code != 201:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return {"id": response.id, "article": article}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -158,6 +176,7 @@ async def regenerate_engaging_text(
             storm_article=storm_article,
         )
 
+        # Ulozit engaging text do DB
         return new_engaging_text
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -224,6 +243,7 @@ async def regenerate_perex(
             storm_article=storm_article,
         )
 
+        # ulozit perex do DB
         return new_perex
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -290,6 +310,7 @@ async def regenerate_article_body(
             storm_article=storm_article,
         )
 
+        # ulozit article body do DB
         return new_article_body
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -335,6 +356,7 @@ async def regenerate_article_body_post(
 # region tags
 async def regenerate_tags(
     url: str = default_article,
+    # ID z db pridat pre ukladanie
     selected_topic: str = default_topic,
     old_tags: list[str] = default_tags,
     current_headline: str = default_headline,
@@ -352,6 +374,7 @@ async def regenerate_tags(
             current_article=current_article,
         )
 
+        # ulozit tags do DB
         return new_tags
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

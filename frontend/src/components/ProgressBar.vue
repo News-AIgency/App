@@ -52,7 +52,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 svg {
   opacity: 0.5;
 }
@@ -89,5 +89,14 @@ svg {
 
 .step-text.active {
   color: var(--text-black);
+}
+
+@media screen and (max-device-width: 1024px) { // mozno sa to pomesti aj na mensie obrazovky, idk
+  .step-text {
+    display: none;
+  }
+  .container {
+    padding-top: 68px;
+  }
 }
 </style>

@@ -50,8 +50,8 @@ class ArticleGenerator:
         self.api_key = settings.LITE_LLM_KEY
         self.litellm_url = "http://147.175.151.44/"
         self.models = {
-            "gpt-4o-mini": "gpt-4o-mini",
-            "o1-mini": "o1-mini",
+            "gpt-4o-nano": "gpt-4o-nano",
+            "o3-mini": "o3-mini",
         }
 
     def _configure_lm(self, model_name: str) -> None:
@@ -73,7 +73,7 @@ class ArticleGenerator:
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         generate_topics_program = GenerateTopics()
         generate_topics_program = dspy.asyncify(generate_topics_program)
@@ -99,7 +99,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         headlines = (
             await self.generate_headlines(
@@ -170,7 +170,7 @@ class ArticleGenerator:
         headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         generator = RegenerateHeadlines if old_headlines else GenerateHeadlines
         generate_headlines_program = dspy.asyncify(generator())
@@ -202,7 +202,7 @@ class ArticleGenerator:
         old_engaging_text: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         if storm_article and old_engaging_text:
             raise NotImplementedError(
@@ -244,7 +244,7 @@ class ArticleGenerator:
         old_perex: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> PerexResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         if storm_article and old_perex:
             raise NotImplementedError("STORM regenerate perex is not implemented yet.")
@@ -282,7 +282,7 @@ class ArticleGenerator:
         old_article: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> ArticleBodyResponse:
-        self._configure_lm(self.models.get("o1-mini"))
+        self._configure_lm(self.models.get("o3-mini"))
 
         if storm_article and old_article:
             raise NotImplementedError("STORM regenerate body is not implemented yet.")
@@ -323,7 +323,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> TagsResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         generator = RegenerateTags if old_tags else GenerateTags
 
@@ -348,7 +348,7 @@ class ArticleGenerator:
         scraped_content: str | None,
         language: Language = Language.SLOVAK,
     ) -> GraphResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4o-nano"))
 
         generator = GenerateGraphs()
 

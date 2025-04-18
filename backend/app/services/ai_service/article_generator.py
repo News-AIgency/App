@@ -13,6 +13,7 @@ from backend.app.core.config import settings
 from backend.app.services.ai_service.dspy_signatures import (
     GenerateArticleBody,
     GenerateEngagingText,
+    GenerateGraphs,
     GenerateHeadlines,
     GeneratePerex,
     GenerateTags,
@@ -30,6 +31,7 @@ from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
     ArticleResponse,
     EngagingTextResponse,
+    GraphResponse,
     HeadlineResponse,
     PerexResponse,
     TagsResponse,
@@ -144,6 +146,12 @@ class ArticleGenerator:
                 language=language,
             ),
         )
+        graph_metadata = (
+            await self.generate_graph(
+                scraped_content=scraped_content,
+                language=language,
+            ),
+        )
 
         return ArticleResponse(
             headlines=headlines[0].headlines,
@@ -151,6 +159,7 @@ class ArticleGenerator:
             engaging_text=engaging_text[0].engaging_text,
             article=article[0].article,
             tags=tags[0].tags,
+            graph_metadata=graph_metadata[0],
         )
 
     async def generate_headlines(
@@ -333,6 +342,29 @@ class ArticleGenerator:
         generated_tags = await generate_tags_program(**kwargs)
 
         return TagsResponse(tags=generated_tags.tags.split(" "))
+
+    async def generate_graph(
+        self,
+        scraped_content: str | None,
+        language: Language = Language.SLOVAK,
+    ) -> GraphResponse:
+        self._configure_lm(self.models.get("gpt-4o-mini"))
+
+        generator = GenerateGraphs()
+
+        generate_graphs_program = dspy.asyncify(generator())
+        kwargs = {
+            "scraped_content": scraped_content,
+            "language": language,
+        }
+
+        graph_response = await generate_graphs_program(**kwargs)
+
+        return GraphResponse(
+            gen_graph=graph_response.gen_graph,
+            graph_type=graph_response.graph_type,
+            graph_data=graph_response.graph_data,
+        )
 
 
 if __name__ == "__main__":

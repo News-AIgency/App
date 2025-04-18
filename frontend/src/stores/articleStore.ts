@@ -46,6 +46,13 @@ export const useArticleStore = defineStore('article', {
         this.body = response.data.article.article;
         this.tags = response.data.article.tags;
         this.articleId = response.data.id;
+        
+        //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE
+        console.log("Graph Metadata:");
+        console.log("  gen_graph:", response.data.article.graph_metadata.gen_graph);
+        console.log("  graph_type:", response.data.article.graph_metadata.graph_type);
+        console.log("  graph_data:", response.data.article.graph_metadata.graph_data);
+        
       } catch (error) {
         console.error(error)
       } finally {

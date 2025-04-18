@@ -26,16 +26,12 @@ async def plot_gen_graph() -> None:
 
     generate_graph_program = GenerateGraphs()
     generate_graph_program = dspy.asyncify(generate_graph_program)
-    result = await generate_graph_program(scraped_article, Language.SLOVAK)
+    response = await generate_graph_program(scraped_article, Language.SLOVAK)
 
-    with open(
-        r"C:\FIIT_STU\ING_studium\TP\App\backend\app\services\ai_service\test_graph_code.txt",
-        "w",
-        encoding="utf-8",
-    ) as f:
-        f.write(result.graph_code)
+    return response
 
 
 if __name__ == "__main__":
     _configure_lm("gpt-4o-mini")
-    asyncio.run(plot_gen_graph())
+    result = asyncio.run(plot_gen_graph())
+    print(result)

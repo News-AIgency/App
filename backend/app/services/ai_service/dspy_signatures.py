@@ -1,3 +1,4 @@
+
 import dspy
 
 from backend.app.services.ai_service.response_models import (
@@ -257,6 +258,11 @@ class GenerateHeadlinesSignature(dspy.Signature):
     Guidelines for crafting headlines:
 
     Each headline must be between 70 and 110 characters, including spaces.
+
+    NEVER number the headlines, just write them.
+    NEVER use bullet points or any other characters representing bullet points.
+    NEVER use any introductory text or phrases like "Here are the headlines:" or "The following headlines are generated:".
+    NEVER use text splitting characters like '\n' or any other characters that would split the text into multiple lines.
 
     Avoid using numbers; instead, narrate and interpret the information.
     Aim to surprise and confront to capture interest.
@@ -656,7 +662,15 @@ class RegeneratePerex(dspy.Module):
 
 
 class GenerateArticleBodySignature(dspy.Signature):
-    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField."""
+    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols.
+
+    NEVER use different text splitters.
+    NEVER number the paragraphs, just write them.
+    NEVER underline or seperate the paragraphs with any other characters.
+    DO NOT create a title for the article body.
+
+    Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField.
+    """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
@@ -844,21 +858,75 @@ class RegenerateTags(dspy.Module):
 
 
 class GenerateGrahphsSignature(dspy.Signature):
-    """Decide, if generating an interpretable graph from the given article is possible. If a graph cannot be generated or doesn't make sense to be generated for the given article, return None in the graph_code OutputField. If a graph can be generated, choose one of the following graph types that makes the most sense to visualize the data from the article:
-    1. pie
-    2. line
-    3. bar
-    4. histogram
-    5. scatter
-    Generate a data representation of the chosen graph type, that can be plotted using the matplotlib library. The data reresentation should be created solely from the numbers from the given article from the scraped_content InputField. All generated text should be in the language specified by the language InputField. Then generate code that can be used to plot the graph using the data representation and matplotlib library. The code should be a valid python code that can be executed to plot the graph in an evironment with the matplotlib library installed. Generate the code without it being enclosed in "```python ```", just pure string. The output code will be stored in the graph_code OutputField.
+    """Decide, if generating an interpretable graph from the given article is possible. If a graph cannot be generated or doesn't make sense to be generated for the given article, the gen_graph OutputField should be False else it will be True. If a graph should be generated, choose one of the following graph types in the graph_type OutputField: ["pie", "line", "bar", "histogram", "scatter"], that makes the most sense to visualize the data from the article:
+
+        1. Pie Chart
+        - You want to show parts of a whole (percentages or proportions).
+        - You're comparing a few categories (ideally <6) to each other.
+        Pie chart data example:
+            labels = ['Apple', 'Samsung', 'Xiaomi', 'Others']         # Categories
+            values = [30, 40, 20, 10]                                 # Percentages or proportions
+
+        2. Line Graph
+        - You're showing trends over time (like days, months, years).
+        - Your data is continuous and you want to observe changes.
+        Line graph data example:
+            labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May']              # Time points
+            values = [1000, 1500, 1300, 1700, 2000]                   # Values over time
+
+        3. Bar Graph
+        - You're comparing different categories.
+        - Your data is discrete (e.g., types of products, countries).
+        Bar graph data example:
+            labels = ['Electronics', 'Clothing', 'Books', 'Toys']     # Categories
+            values = [500, 700, 300, 400]                             # Discrete values per category
+
+        4. Histogram
+        - You want to show the distribution of a dataset.
+        - You're dealing with numerical data grouped into intervals.
+        Histogram graph data example:
+            labels = None  # You don't need labels — bins will be created automatically
+            values = [21, 22, 22, 23, 25, 25, 26, 27, 30, 31, 32, 33, 35, 36, 40, 42]  # Raw numerical data
+
+        5. Scatter Plot
+        - You want to see if there's a relationship or correlation between two variables.
+        - You're analyzing pairs of continuous data.
+        Scatter graph data example:
+            x_vals = [1, 2, 3, 4, 5, 6, 7]                       # X-axis variable
+            y_vals = [55, 60, 65, 70, 75, 85, 90]                # Y-axis variable
+
+    Make sure to check if the data is suitable for the chosen graph type.
+    If the data is not suitable for the chosen graph type, set the gen_graph OutputField to False.
+    Generate a data representation of the chosen graph type according to the example data for the chosen graph type. Make sure to uphold the variable names in the graph data examples:
+        pie chart, line chart, bar graph, histogram - labels, values
+        scatter plot - x_vals, y_vals
+
+    The data reresentation should be created solely from the numbers from the given article located in the scraped_content InputField. All generated text should be in the language specified by the language InputField.
     """
 
     scraped_content = dspy.InputField(desc="Scraped news article", type=str)
     language = dspy.InputField(
         desc="Language of the news article", type=Language, default=Language.SLOVAK
     )
-    graph_code = dspy.OutputField(
-        desc="Generated code for graph plotting", type=str | None
+    gen_graph = dspy.OutputField(
+        desc="Boolean value if graph should be generated", type=bool
+    )
+    graph_type = dspy.OutputField(
+        desc="The type of the graph to generate from data",
+        type=["pie", "line", "bar", "histogram", "scatter"],
+    )
+    graph_data = dspy.OutputField(
+        desc=(
+            "Graph data in dict format. "
+            "Structure depends on `graph_type`: \n"
+            "- For 'pie', 'line', 'bar', 'histogram': include `labels` (None for histogram) and `values`\n"
+            "- For 'scatter': include `x_vals` and `y_vals`\n"
+            "Examples:\n"
+            "- Pie: {'labels': [...], 'values': [...]} \n"
+            "- Histogram: {'labels': None, 'values': [...]} \n"
+            "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
+        ),
+        type=dict,
     )
 
 
@@ -872,8 +940,8 @@ class GenerateGraphs(dspy.Module):
         scraped_content: str,
         language: Language,
     ) -> GenerateGrahphsSignature:
-        graph_code = self.generate_graphs(
+        graph_response = self.generate_graphs(
             scraped_content=scraped_content,
             language=language,
         )
-        return graph_code
+        return graph_response

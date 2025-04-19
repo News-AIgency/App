@@ -1,6 +1,7 @@
+import json
 import os
 import sys
-import json
+
 from backend.app.api.routes.grammar_checker import correct_text
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -354,7 +355,7 @@ class ArticleGenerator:
 
         generator = GenerateGraphs
 
-        generate_graphs_program = dspy.asyncify(generator()) 
+        generate_graphs_program = dspy.asyncify(generator())
         kwargs = {
             "scraped_content": scraped_content,
             "language": language,
@@ -365,7 +366,7 @@ class ArticleGenerator:
         graph_data = graph_response.graph_data
         if isinstance(graph_data, str):
             graph_data = json.loads(graph_data)
-        
+
         return GraphResponse(
             gen_graph=graph_response.gen_graph,
             graph_type=graph_response.graph_type,

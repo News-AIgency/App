@@ -1,4 +1,4 @@
-from typing import Any, Optional, Literal
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -86,7 +86,7 @@ class ArticleResponse(BaseResponse):
             "- Pie: {'labels': [...], 'values': [...]} \n"
             "- Histogram: {'labels': None, 'values': [...]} \n"
             "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
-        )
+        ),
     )
 
 
@@ -147,6 +147,7 @@ class TagsResponse(BaseResponse):
         "#Slovensko",
     )
 
+
 class GraphResponse(BaseResponse):
     gen_graph: bool = Field(
         None,
@@ -167,5 +168,5 @@ class GraphResponse(BaseResponse):
             "- Pie: {'labels': [...], 'values': [...]} \n"
             "- Histogram: {'labels': None, 'values': [...]} \n"
             "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
-        )
+        ),
     )

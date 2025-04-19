@@ -50,7 +50,7 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        #Zakomentovane lebo DB tu je este zle spravena
+        # Zakomentovane lebo DB tu je este zle spravena
         """article_data = {
             "url": {"url": url},
             "heading": {"heading_content": article.headlines[0]},
@@ -69,10 +69,10 @@ async def extract_article(
         if response.status_code != 201:
             raise HTTPException(status_code=response.status_code, detail=response.text)"""
 
-        #return {"id": response.id, "article": article}
-        
+        # return {"id": response.id, "article": article}
+
         return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
-        
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

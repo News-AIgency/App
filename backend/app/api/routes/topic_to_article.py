@@ -1,4 +1,5 @@
 import asyncio
+from typing import Union
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
@@ -35,7 +36,7 @@ async def extract_article(
     url: str = default_article_url,
     selected_topic: str = default_topic,
     storm: bool = False,
-) -> ArticleResponse:
+) -> dict[str, ArticleResponse]:
     try:
         scraped_article = await cache_or_scrape(url, default_article_url)
 
@@ -50,7 +51,8 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        article_data = {
+        # Zakomentovane lebo DB tu je este zle spravena
+        """article_data = {
             "url": {"url": url},
             "heading": {"heading_content": article.headlines[0]},
             "topic": {"topic_content": selected_topic},
@@ -66,29 +68,34 @@ async def extract_article(
             )
 
         if response.status_code != 201:
-            raise HTTPException(status_code=response.status_code, detail=response.text)
+            raise HTTPException(status_code=response.status_code, detail=response.text)"""
 
-        return {"id": response.id, "article": article}
+        # return {"id": response.id, "article": article}
+
+        return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 if settings.ENVIRONMENT == "development":
 
-    @router.get("/article/generate", response_model=ArticleResponse)
+    @router.get(
+        "/article/generate", response_model=dict[str, Union[str, ArticleResponse]]
+    )
     async def extract_article_get(
         url: str = default_article_url,
         selected_topic: str = default_topic,
         storm: bool = False,
-    ) -> ArticleResponse:
+    ) -> dict[str, Union[str, ArticleResponse]]:
         print()
         return await extract_article(url, selected_topic, storm)
 
 
-@router.post("/article/generate", response_model=ArticleResponse)
+@router.post("/article/generate", response_model=dict[str, Union[str, ArticleResponse]])
 async def extract_article_post(
     request: Request,
-) -> ArticleResponse:
+) -> dict[str, Union[str, ArticleResponse]]:
     try:
         request_body = await request.json()
         url = request_body.get("url", default_article_url)

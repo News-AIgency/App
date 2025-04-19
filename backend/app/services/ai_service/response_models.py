@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -21,42 +20,6 @@ class TopicsResponse(BaseResponse):
         "Vplyv cien pohonných látok na ekonomiku, "
         "Regulácie vlády v oblasti pohonných látok, "
         "Správanie spotrebiteľov pri nákupe pohonných látok",
-    )
-
-
-class GraphType(str, Enum):
-    pie = "pie"
-    line = "line"
-    bar = "bar"
-    histogram = "histogram"
-    scatter = "scatter"
-
-
-class GraphResponse(BaseResponse):
-    gen_graph: bool = (
-        Field(
-            None,
-            description="Boolean value representing if a graph should be generated or not",
-        ),
-    )
-    graph_type: GraphType = (
-        Field(
-            None,
-            description="The type of the graph to generate from data in: pie, line, bar, histogram, scatter",
-        ),
-    )
-    graph_data: dict[str, Any] = Field(
-        None,
-        description=(
-            "Graph data in dict format. "
-            "Structure depends on `graph_type`: \n"
-            "- For 'pie', 'line', 'bar', 'histogram': include `labels` (None for histogram) and `values`\n"
-            "- For 'scatter': include `x_vals` and `y_vals`\n"
-            "Examples:\n"
-            "- Pie: {'labels': [...], 'values': [...]} \n"
-            "- Histogram: {'labels': None, 'values': [...]} \n"
-            "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
-        ),
     )
 
 
@@ -104,7 +67,27 @@ class ArticleResponse(BaseResponse):
         "#nafta"
         "#Slovensko",
     )
-    graph_metadata: GraphResponse
+    gen_graph: bool = Field(
+        None,
+        description="Boolean value representing if a graph should be generated or not",
+    )
+    graph_type: Literal["pie", "line", "bar", "histogram", "scatter"] = Field(
+        None,
+        description="The type of the graph to generate from data in: pie, line, bar, histogram, scatter",
+    )
+    graph_data: dict[str, Any] = Field(
+        None,
+        description=(
+            "Graph data in dict format. "
+            "Structure depends on `graph_type`: \n"
+            "- For 'pie', 'line', 'bar', 'histogram': include `labels` (None for histogram) and `values`\n"
+            "- For 'scatter': include `x_vals` and `y_vals`\n"
+            "Examples:\n"
+            "- Pie: {'labels': [...], 'values': [...]} \n"
+            "- Histogram: {'labels': None, 'values': [...]} \n"
+            "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
+        ),
+    )
 
 
 class HeadlineResponse(BaseResponse):
@@ -162,4 +145,28 @@ class TagsResponse(BaseResponse):
         "#benzín"
         "#nafta"
         "#Slovensko",
+    )
+
+
+class GraphResponse(BaseResponse):
+    gen_graph: bool = Field(
+        None,
+        description="Boolean value representing if a graph should be generated or not",
+    )
+    graph_type: Literal["pie", "line", "bar", "histogram", "scatter"] = Field(
+        None,
+        description="The type of the graph to generate from data in: pie, line, bar, histogram, scatter",
+    )
+    graph_data: dict[str, Any] = Field(
+        None,
+        description=(
+            "Graph data in dict format. "
+            "Structure depends on `graph_type`: \n"
+            "- For 'pie', 'line', 'bar', 'histogram': include `labels` (None for histogram) and `values`\n"
+            "- For 'scatter': include `x_vals` and `y_vals`\n"
+            "Examples:\n"
+            "- Pie: {'labels': [...], 'values': [...]} \n"
+            "- Histogram: {'labels': None, 'values': [...]} \n"
+            "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
+        ),
     )

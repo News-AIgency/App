@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -50,8 +51,8 @@ class ArticleGenerator:
         self.api_key = settings.LITE_LLM_KEY
         self.litellm_url = "http://147.175.151.44/"
         self.models = {
-            "gpt-4o-nano": "gpt-4o-nano",
-            "o3-mini": "o3-mini",
+            "gpt-4o-mini": "openai/gpt-4.1-mini",
+            "o3-mini": "openai/o3-mini",
         }
 
     def _configure_lm(self, model_name: str) -> None:
@@ -60,7 +61,7 @@ class ArticleGenerator:
             "api_key": self.api_key,
             "base_url": self.litellm_url,
         }
-        if model_name.startswith("o1-"):
+        if model_name.startswith("openai/o3-"):
             kwargs["temperature"] = 1.0
             kwargs["max_tokens"] = 5000
 
@@ -73,7 +74,7 @@ class ArticleGenerator:
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         generate_topics_program = GenerateTopics()
         generate_topics_program = dspy.asyncify(generate_topics_program)
@@ -99,7 +100,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         headlines = (
             await self.generate_headlines(
@@ -159,7 +160,9 @@ class ArticleGenerator:
             engaging_text=engaging_text[0].engaging_text,
             article=article[0].article,
             tags=tags[0].tags,
-            graph_metadata=graph_metadata[0],
+            gen_graph=graph_metadata[0].gen_graph,
+            graph_type=graph_metadata[0].graph_type,
+            graph_data=graph_metadata[0].graph_data,
         )
 
     async def generate_headlines(
@@ -170,7 +173,7 @@ class ArticleGenerator:
         headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         generator = RegenerateHeadlines if old_headlines else GenerateHeadlines
         generate_headlines_program = dspy.asyncify(generator())
@@ -202,7 +205,7 @@ class ArticleGenerator:
         old_engaging_text: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         if storm_article and old_engaging_text:
             raise NotImplementedError(
@@ -244,7 +247,7 @@ class ArticleGenerator:
         old_perex: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> PerexResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         if storm_article and old_perex:
             raise NotImplementedError("STORM regenerate perex is not implemented yet.")
@@ -323,7 +326,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> TagsResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
         generator = RegenerateTags if old_tags else GenerateTags
 
@@ -348,9 +351,9 @@ class ArticleGenerator:
         scraped_content: str | None,
         language: Language = Language.SLOVAK,
     ) -> GraphResponse:
-        self._configure_lm(self.models.get("gpt-4o-nano"))
+        self._configure_lm(self.models.get("gpt-4o-mini"))
 
-        generator = GenerateGraphs()
+        generator = GenerateGraphs
 
         generate_graphs_program = dspy.asyncify(generator())
         kwargs = {
@@ -360,10 +363,14 @@ class ArticleGenerator:
 
         graph_response = await generate_graphs_program(**kwargs)
 
+        graph_data = graph_response.graph_data
+        if isinstance(graph_data, str):
+            graph_data = json.loads(graph_data)
+
         return GraphResponse(
             gen_graph=graph_response.gen_graph,
             graph_type=graph_response.graph_type,
-            graph_data=graph_response.graph_data,
+            graph_data=graph_data,
         )
 
 

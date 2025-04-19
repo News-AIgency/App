@@ -36,7 +36,7 @@ async def extract_article(
     url: str = default_article_url,
     selected_topic: str = default_topic,
     storm: bool = False,
-) -> dict[str, ArticleResponse]:
+) -> dict[str, Union[str, ArticleResponse]]:
     try:
         scraped_article = await cache_or_scrape(url, default_article_url)
 

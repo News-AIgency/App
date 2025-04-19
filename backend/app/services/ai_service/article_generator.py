@@ -51,7 +51,7 @@ class ArticleGenerator:
         self.api_key = settings.LITE_LLM_KEY
         self.litellm_url = "http://147.175.151.44/"
         self.models = {
-            "gpt-4o-mini": "openai/gpt-4.1-mini",
+            "gpt-4.1-mini": "openai/gpt-4.1-mini",
             "o3-mini": "openai/o3-mini",
         }
 
@@ -74,7 +74,7 @@ class ArticleGenerator:
         topics_count: int = 5,
         language: Language = Language.SLOVAK,
     ) -> TopicsResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         generate_topics_program = GenerateTopics()
         generate_topics_program = dspy.asyncify(generate_topics_program)
@@ -100,7 +100,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> ArticleResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         headlines = (
             await self.generate_headlines(
@@ -173,10 +173,10 @@ class ArticleGenerator:
         headlines_count: int = 3,
         language: Language = Language.SLOVAK,
     ) -> HeadlineResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         generator = RegenerateHeadlines if old_headlines else GenerateHeadlines
-        generate_headlines_program = dspy.asyncify(generator())
+        generate_headlines_program = dspy.asyncify(generator().forward)
         kwargs = {
             "scraped_content": scraped_content,
             "selected_topic": selected_topic,
@@ -188,7 +188,7 @@ class ArticleGenerator:
 
         generated_headlines = await generate_headlines_program(**kwargs)
 
-        headlines = generated_headlines.headlines.split("\n")
+        headlines = generated_headlines.headlines.headlines
         corrected_headlines = [
             correct_text(headline, LANGUAGE_TO_TOOL_LANG[language])
             for headline in headlines
@@ -205,7 +205,7 @@ class ArticleGenerator:
         old_engaging_text: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> EngagingTextResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         if storm_article and old_engaging_text:
             raise NotImplementedError(
@@ -234,7 +234,8 @@ class ArticleGenerator:
 
         return EngagingTextResponse(
             engaging_text=correct_text(
-                generated_engaging_text.engaging_text, LANGUAGE_TO_TOOL_LANG[language]
+                generated_engaging_text.engaging_text.engaging_text,
+                LANGUAGE_TO_TOOL_LANG[language],
             )
         )
 
@@ -247,7 +248,7 @@ class ArticleGenerator:
         old_perex: str | None = None,
         language: Language = Language.SLOVAK,
     ) -> PerexResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         if storm_article and old_perex:
             raise NotImplementedError("STORM regenerate perex is not implemented yet.")
@@ -273,7 +274,9 @@ class ArticleGenerator:
         generated_perex = await generate_perex_program(**kwargs)
 
         return PerexResponse(
-            perex=correct_text(generated_perex.perex, LANGUAGE_TO_TOOL_LANG[language])
+            perex=correct_text(
+                generated_perex.perex.perex, LANGUAGE_TO_TOOL_LANG[language]
+            )
         )
 
     async def generate_article_body(
@@ -312,7 +315,7 @@ class ArticleGenerator:
 
         return ArticleBodyResponse(
             article=correct_text(
-                generated_article.article, LANGUAGE_TO_TOOL_LANG[language]
+                generated_article.article.article, LANGUAGE_TO_TOOL_LANG[language]
             )
         )
 
@@ -326,7 +329,7 @@ class ArticleGenerator:
         tag_count: int = 4,
         language: Language = Language.SLOVAK,
     ) -> TagsResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         generator = RegenerateTags if old_tags else GenerateTags
 
@@ -344,14 +347,14 @@ class ArticleGenerator:
 
         generated_tags = await generate_tags_program(**kwargs)
 
-        return TagsResponse(tags=generated_tags.tags.split(" "))
+        return TagsResponse(tags=generated_tags.tags.tags)
 
     async def generate_graph(
         self,
         scraped_content: str | None,
         language: Language = Language.SLOVAK,
     ) -> GraphResponse:
-        self._configure_lm(self.models.get("gpt-4o-mini"))
+        self._configure_lm(self.models.get("gpt-4.1-mini"))
 
         generator = GenerateGraphs
 

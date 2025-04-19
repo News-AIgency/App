@@ -1,5 +1,8 @@
 from collections.abc import AsyncGenerator
-from typing import Annotated
+from typing import Annotated, Optional
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 import models
 import uvicorn
@@ -20,24 +23,26 @@ async def startup() -> None:
 # models.Base.metadata.create_all(bind=engine)
 
 
-class ChoiceBase(BaseModel):
-    choice_text: str
-    is_correct: bool
+#class ChoiceBase(BaseModel):
+    #   choice_text: str
+    #is_correct: bool
 
 
-class QuestionBase(BaseModel):
-    question_text: str
-    choices: list[ChoiceBase]
+#class QuestionBase(BaseModel):
+    #   question_text: str
+    #choices: list[ChoiceBase]
 
 
 class GeneratedArticle(BaseModel):
     url: "Sources"
     heading: "Heading"
     topic: "Topic"
-    text: "Text"
+   # text: "Text"
     body: "Body"
     perex: "Perex"
+    engaging_text: "EngagingText"
     tags: list["Tags"]
+    graph_data: "GraphData"
     # images: Optional[list["Images"]] = []
 
     class Config:
@@ -65,11 +70,11 @@ class Topic(BaseModel):
         arbitraty_types_allowed = True
 
 
-class Text(BaseModel):
-    text_content: str
-
-    class Config:
-        arbitraty_types_allowed = True
+# class Text(BaseModel):
+#     text_content: str
+#
+#     class Config:
+#         arbitraty_types_allowed = True
 
 
 class Body(BaseModel):
@@ -85,6 +90,11 @@ class Perex(BaseModel):
     class Config:
         arbitraty_types_allowed = True
 
+class EngagingText(BaseModel):
+    engaging_text_content: str
+    class Config:
+        arbitraty_types_allowed = True
+
 
 class Tags(BaseModel):
     tags_content: str
@@ -92,9 +102,24 @@ class Tags(BaseModel):
     class Config:
         arbitraty_types_allowed = True
 
+class GraphData(BaseModel):
+    graph_type: Optional[str] = None
+    graph_labels: Optional[list[str]] = None
+    graph_values: Optional[list[float]] = None
+
+    class Config:
+        arbitraty_types_allowed = True
+
 
 class Images(BaseModel):
     images_content: str
+
+    class Config:
+        arbitraty_types_allowed = True
+
+
+class Test(BaseModel):
+    test: str
 
     class Config:
         arbitraty_types_allowed = True
@@ -119,22 +144,32 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
         topic = models.Topic(topic_content=article.topic.topic_content)
         perex = models.Perex(perex_content=article.perex.perex_content)
         body = models.Body(body_content=article.body.body_content)
-        text = models.Text(text_content=article.text.text_content)
+        engaging_text = models.EngagingText(engaging_text_content=article.engaging_text.engaging_text_content)
+        #tags are handled lower, dont add them here
+        #graph_type = models.GraphData(graph_type=article.graph_type.graph_type)
+        #graph_labels = models.GraphData(graph_labels=article.graph_labels.graph_labels)
+        #graph_values = models.GraphData(graph_values=article.graph_values.graph_values)
+        if article.graph_data:
+            graph_data = models.GraphData(
+                graph_type=article.graph_data.graph_type,
+                graph_labels=article.graph_data.graph_labels,
+                graph_values=article.graph_data.graph_values
+            )
+            db.add(graph_data)
 
-        print(type(heading), type(topic), type(perex), type(body), type(text))
+        #print(type(heading), type(topic), type(perex), type(body), type(text))
         db.add(url)
         db.add(heading)
         db.add(topic)
         db.add(perex)
         db.add(body)
-        db.add(text)
+        db.add(engaging_text)
         await db.commit()
         await db.refresh(url)
         await db.refresh(heading)
         await db.refresh(topic)
         await db.refresh(perex)
         await db.refresh(body)
-        await db.refresh(text)
 
         tag_ids = []
         for tag_data in article.tags:
@@ -146,10 +181,11 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
 
         new_article = models.GeneratedArticles(
             heading=heading,
-            topic=topic,
-            text=text,
-            body=body,
+            engaging_text=engaging_text,
             perex=perex,
+            body=body,
+            graph_data=graph_data,
+            topic=topic,
             sources=url,
         )
         new_article.tags.extend(tag_ids)
@@ -163,6 +199,46 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.get("/articles/{generated_article_id}")
+async def get_articles(generated_article_id: int, db: db_dependency):
+    try:
+        result = await db.execute(
+            select(models.GeneratedArticles)
+            .options(
+                selectinload(models.GeneratedArticles.heading),
+                selectinload(models.GeneratedArticles.topic),
+                selectinload(models.GeneratedArticles.body),
+                selectinload(models.GeneratedArticles.perex),
+                selectinload(models.GeneratedArticles.tags),
+                selectinload(models.GeneratedArticles.sources),
+                selectinload(models.GeneratedArticles.engaging_text),
+                selectinload(models.GeneratedArticles.graph_data),
+            )
+            .where(models.GeneratedArticles.id == generated_article_id)
+        )
+        article = result.scalars().first()
+
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+
+        return {
+            "id": article.id,
+            "url": article.sources.url,
+            "heading": article.heading.heading_content,
+            "topic": article.topic.topic_content,
+            "body": article.body.body_content,
+            "perex": article.perex.perex_content,
+            "engaging_text": article.engaging_text.engaging_text_content,
+            "tags": [tag.tags_content for tag in article.tags],
+            "graph_type": article.graph_data.graph_type,
+            "graph_labels": article.graph_data.graph_labels,
+            "graph_values": article.graph_data.graph_values,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch article: {str(e)}")
+
 
 
 if __name__ == "__main__":

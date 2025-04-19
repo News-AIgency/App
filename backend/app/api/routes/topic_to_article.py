@@ -1,10 +1,10 @@
 import asyncio
+from typing import Union
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
-from typing import Union
 
 from backend.app.core.config import settings
 from backend.app.services.ai_service.article_generator import ArticleGenerator
@@ -80,7 +80,9 @@ async def extract_article(
 
 if settings.ENVIRONMENT == "development":
 
-    @router.get("/article/generate", response_model=dict[str, Union[str, ArticleResponse]])
+    @router.get(
+        "/article/generate", response_model=dict[str, Union[str, ArticleResponse]]
+    )
     async def extract_article_get(
         url: str = default_article_url,
         selected_topic: str = default_topic,

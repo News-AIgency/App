@@ -52,37 +52,26 @@ async def extract_article(
             storm_article=storm_article,
         )
 
+        graph_labels_key = "x_vals" if article.graph_type == "scatter" else "labels"
+        graph_values_key = "y_vals" if article.graph_type == "scatter" else "values"
 
-        if article.graph_type == "scatter":
-            article_data = {
-                "url": {"url": url},
-                "heading": {"heading_content": article.headlines[0]},
-                "topic": {"topic_content": selected_topic},
-                "perex": {"perex_content": article.perex},
-                "body": {"body_content": article.article},
-                "text": {"text_content": article.engaging_text},
-                "tags": [{"tag_content": tag} for tag in article.tags],
-                "graph_data": {"graph_type": article.graph_type,
-                               "graph_labels": article.graph_data.x_vals,
-                               "graph_values": article.graph_data.y_vals},
-            }
-        else:
-            article_data = {
-                "url": {"url": url},
-                "heading": {"heading_content": article.headlines[0]},
-                "topic": {"topic_content": selected_topic},
-                "perex": {"perex_content": article.perex},
-                "body": {"body_content": article.article},
-                "text": {"text_content": article.engaging_text},
-                "tags": [{"tag_content": tag} for tag in article.tags],
-                "graph_data": {"graph_type": article.graph_type,
-                               "graph_labels": article.graph_data.labels,
-                               "graph_values": article.graph_data.values},
-            }
+        article_data = {
+            "url": {"url": url},
+            "heading": {"heading_content": article.headlines[0]},
+            "topic": {"topic_content": selected_topic},
+            "perex": {"perex_content": article.perex},
+            "body": {"body_content": article.article},
+            "text": {"text_content": article.engaging_text},
+            "tags": [{"tag_content": tag} for tag in article.tags],
+            "graph_data": {
+                "graph_type": article.graph_type,
+                "graph_labels": article.graph_data[graph_labels_key],
+                "graph_values": article.graph_data[graph_values_key],
+            },
+        }
 
-        # print(article_data)
-
-        async with httpx.AsyncClient() as client:
+        verify_ssl = settings.ENVIRONMENT != "development"
+        async with httpx.AsyncClient(verify=verify_ssl) as client:
             response = await client.post(
                 "https://api.wraite.news/save_article/", json=article_data
             )
@@ -92,7 +81,7 @@ async def extract_article(
 
         return {"id": response.id, "article": article}
 
-        #return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
+        # return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

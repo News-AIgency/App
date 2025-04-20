@@ -239,6 +239,75 @@ async def get_articles(generated_article_id: int, db: db_dependency):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch article: {str(e)}")
 
+@app.patch("/articles/{article_id}")
+async def update_article(
+    article_id: int,
+    update_data: UpdateArticleRequest,
+    db: db_dependency
+):
+    try:
+        result = await db.execute(
+            select(models.GeneratedArticles)
+            .options(
+                selectinload(models.GeneratedArticles.heading),
+                selectinload(models.GeneratedArticles.engaging_text),
+                selectinload(models.GeneratedArticles.perex),
+                selectinload(models.GeneratedArticles.body),
+                selectinload(models.GeneratedArticles.tags),
+            )
+            .where(models.GeneratedArticles.id == article_id)
+        )
+
+        article = result.scalars().first()
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+
+       
+        if update_data.heading and article.headings_id:
+            heading_obj = await db.get(models.Heading, article.headings_id)
+            if heading_obj:
+                heading_obj.heading_content = update_data.heading
+
+        if update_data.engaging_text and article.engaging_text_id:
+            engaging_obj = await db.get(models.EngagingText, article.engaging_text_id)
+            if engaging_obj:
+                engaging_obj.engaging_text_content = update_data.engaging_text
+
+        if update_data.perex and article.perex_id:
+            perex_obj = await db.get(models.Perex, article.perex_id)
+            if perex_obj:
+                perex_obj.perex_content = update_data.perex
+
+        if update_data.body and article.body_id:
+            body_obj = await db.get(models.Body, article.body_id)
+            if body_obj:
+                body_obj.body_content = update_data.body
+
+
+        if update_data.tags is not None:
+            await db.refresh(article, attribute_names=["tags"])  
+
+            existing_tag_contents = {tag.tags_content for tag in article.tags}
+
+
+            for tag_content in update_data.tags:
+                if tag_content not in existing_tag_contents:
+                    new_tag = models.Tags(tags_content=tag_content)
+                    db.add(new_tag)
+                    article.tags.append(new_tag)
+
+
+            for tag in list(article.tags):
+                if tag.tags_content not in update_data.tags:
+                    article.tags.remove(tag)
+
+        await db.commit()
+        return {"message": "Article updated successfully"}
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 
 
 if __name__ == "__main__":

@@ -84,12 +84,9 @@ class ArticleGenerator:
             language=language,
         )
 
-        topics = generated_topics.topics.split("\n")
-        corrected_topics = [
-            correct_text(topic, LANGUAGE_TO_TOOL_LANG[language]) for topic in topics
-        ]
+        topics = generated_topics.topics.topics
 
-        return TopicsResponse(topics=corrected_topics)
+        return TopicsResponse(topics=topics)
 
     async def generate_article(
         self,
@@ -189,12 +186,8 @@ class ArticleGenerator:
         generated_headlines = await generate_headlines_program(**kwargs)
 
         headlines = generated_headlines.headlines.headlines
-        corrected_headlines = [
-            correct_text(headline, LANGUAGE_TO_TOOL_LANG[language])
-            for headline in headlines
-        ]
 
-        return HeadlineResponse(headlines=corrected_headlines)
+        return HeadlineResponse(headlines=headlines)
 
     async def generate_engaging_text(
         self,

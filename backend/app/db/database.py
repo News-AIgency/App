@@ -13,8 +13,8 @@ database = os.environ.get("POSTGRES_DB")
 #print(password)p
 #print(database)
 
-#URL_DATABASE = f"postgresql+asyncpg://{user}:{password}@localhost:15432/{database}" #the actual database
-URL_DATABASE = "postgresql+asyncpg://postgres:kubko123@localhost/new_db" # local testing database
+URL_DATABASE = f"postgresql+asyncpg://{user}:{password}@localhost:15432/{database}" #the actual database
+#URL_DATABASE = "postgresql+asyncpg://postgres:kubko123@localhost/new_db" # local testing database
 engine = create_async_engine(URL_DATABASE)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 Base = declarative_base()

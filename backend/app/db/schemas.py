@@ -3,18 +3,21 @@ from typing import Annotated, Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from typing import Optional
 
-import models
+from backend.app.db import models
 import uvicorn
-from database import Base, SessionLocal, engine
+from backend.app.db.database import Base, SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
-app = FastAPI()
+# app = FastAPI()
+router = APIRouter()
 
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -42,7 +45,7 @@ class GeneratedArticle(BaseModel):
     perex: "Perex"
     engaging_text: "EngagingText"
     tags: list["Tags"]
-    graph_data: "GraphData"
+    graph_data: Optional["GraphData"] = None
     # images: Optional[list["Images"]] = []
 
     class Config:
@@ -124,6 +127,13 @@ class Test(BaseModel):
     class Config:
         arbitraty_types_allowed = True
 
+class UpdateArticleRequest(BaseModel):
+    heading: Optional[str] = None
+    engaging_text: Optional[str] = None
+    perex: Optional[str] = None
+    body: Optional[str] = None
+    tags: Optional[list[str]] = None
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as db:
@@ -136,7 +146,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 db_dependency = Annotated[AsyncSession, Depends(get_db)]
 
 
-@app.post("/save_article/")  # , status_code=status.HTTP_201_CREATED
+@router.post("/save_article/")  # , status_code=status.HTTP_201_CREATED
 async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
     try:
         url = models.Sources(url=article.url.url)
@@ -149,11 +159,23 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
         #graph_type = models.GraphData(graph_type=article.graph_type.graph_type)
         #graph_labels = models.GraphData(graph_labels=article.graph_labels.graph_labels)
         #graph_values = models.GraphData(graph_values=article.graph_values.graph_values)
+        graph_data = None
         if article.graph_data:
+            graph_labels = (
+                article.graph_data.graph_labels
+                if article.graph_data.graph_labels is not None
+                else article.graph_data.x_vals
+            )
+            graph_values = (
+                article.graph_data.graph_values
+                if article.graph_data.graph_values is not None
+                else article.graph_data.y_vals
+            )
+
             graph_data = models.GraphData(
                 graph_type=article.graph_data.graph_type,
-                graph_labels=article.graph_data.graph_labels,
-                graph_values=article.graph_data.graph_values
+                graph_labels=graph_labels,
+                graph_values=graph_values
             )
             db.add(graph_data)
 
@@ -200,7 +222,7 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-@app.get("/articles/{generated_article_id}")
+@router.get("/articles/{generated_article_id}")
 async def get_articles(generated_article_id: int, db: db_dependency):
     try:
         result = await db.execute(
@@ -231,15 +253,19 @@ async def get_articles(generated_article_id: int, db: db_dependency):
             "perex": article.perex.perex_content,
             "engaging_text": article.engaging_text.engaging_text_content,
             "tags": [tag.tags_content for tag in article.tags],
-            "graph_type": article.graph_data.graph_type,
-            "graph_labels": article.graph_data.graph_labels,
-            "graph_values": article.graph_data.graph_values,
+            "graph_type": article.graph_data.graph_type if article.graph_data else None,
+            "graph_labels": article.graph_data.graph_labels if article.graph_data else None,
+            "graph_values": article.graph_data.graph_values if article.graph_data else None,
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch article: {str(e)}")
 
+<<<<<<< Updated upstream:backend/app/db/main.py
 @app.patch("/articles/{article_id}")
+=======
+@router.patch("/articles/{article_id}")
+>>>>>>> Stashed changes:backend/app/db/schemas.py
 async def update_article(
     article_id: int,
     update_data: UpdateArticleRequest,
@@ -262,7 +288,11 @@ async def update_article(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
 
+<<<<<<< Updated upstream:backend/app/db/main.py
        
+=======
+        # Update fields if provided
+>>>>>>> Stashed changes:backend/app/db/schemas.py
         if update_data.heading and article.headings_id:
             heading_obj = await db.get(models.Heading, article.headings_id)
             if heading_obj:
@@ -285,7 +315,11 @@ async def update_article(
 
 
         if update_data.tags is not None:
+<<<<<<< Updated upstream:backend/app/db/main.py
             await db.refresh(article, attribute_names=["tags"])  
+=======
+            await db.refresh(article, attribute_names=["tags"])  # Ensures tags are eagerly loaded
+>>>>>>> Stashed changes:backend/app/db/schemas.py
 
             existing_tag_contents = {tag.tags_content for tag in article.tags}
 
@@ -308,7 +342,12 @@ async def update_article(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
+<<<<<<< Updated upstream:backend/app/db/main.py
+=======
+
+>>>>>>> Stashed changes:backend/app/db/schemas.py
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    pass
+ #   uvicorn.run(router, host="0.0.0.0", port=8001)

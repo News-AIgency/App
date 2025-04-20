@@ -1,7 +1,8 @@
 from sqlalchemy import Table, Column, Integer, String, Boolean, ForeignKey, Float, JSON
 from sqlalchemy.orm import relationship
 
-from database import Base
+# from database import Base
+from backend.app.db.database import Base
 
 
 article_tags = Table(

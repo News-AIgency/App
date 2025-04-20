@@ -261,11 +261,9 @@ async def get_articles(generated_article_id: int, db: db_dependency):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch article: {str(e)}")
 
-<<<<<<< Updated upstream:backend/app/db/main.py
-@app.patch("/articles/{article_id}")
-=======
+
 @router.patch("/articles/{article_id}")
->>>>>>> Stashed changes:backend/app/db/schemas.py
+
 async def update_article(
     article_id: int,
     update_data: UpdateArticleRequest,
@@ -288,11 +286,7 @@ async def update_article(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
 
-<<<<<<< Updated upstream:backend/app/db/main.py
-       
-=======
-        # Update fields if provided
->>>>>>> Stashed changes:backend/app/db/schemas.py
+
         if update_data.heading and article.headings_id:
             heading_obj = await db.get(models.Heading, article.headings_id)
             if heading_obj:
@@ -315,11 +309,8 @@ async def update_article(
 
 
         if update_data.tags is not None:
-<<<<<<< Updated upstream:backend/app/db/main.py
-            await db.refresh(article, attribute_names=["tags"])  
-=======
             await db.refresh(article, attribute_names=["tags"])  # Ensures tags are eagerly loaded
->>>>>>> Stashed changes:backend/app/db/schemas.py
+
 
             existing_tag_contents = {tag.tags_content for tag in article.tags}
 
@@ -342,10 +333,6 @@ async def update_article(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-<<<<<<< Updated upstream:backend/app/db/main.py
-=======
-
->>>>>>> Stashed changes:backend/app/db/schemas.py
 
 
 if __name__ == "__main__":

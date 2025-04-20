@@ -1,10 +1,11 @@
 import Api from '@/services/Api'
 
 export default {
-  article(url: string, selected_topic: string) {
+  article(url: string, selected_topic: string, storm: boolean) {
     return Api().post('article/generate', {
       url: url,
       selected_topic: selected_topic,
+      storm: storm,
     })
   },
   regenerateEngagingText(

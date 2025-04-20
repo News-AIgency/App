@@ -1,7 +1,7 @@
 <template>
   <div class="toggle-switch">
     <label class="switch">
-      <input type="checkbox" />
+      <input type="checkbox" v-model="articleStore.stormEnabled"/>
       <span class="slider round"></span>
     </label>
     <div class="label-container">
@@ -14,9 +14,19 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue'
+import { useArticleStore } from '@/stores/articleStore'
+
+export default defineComponent({
   name: 'ToggleSwitch',
-}
+  setup() {
+    const articleStore = useArticleStore()
+
+    return {
+      articleStore,
+    }
+  },
+})
 </script>
 
 <style scoped>

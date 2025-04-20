@@ -170,3 +170,8 @@ class GraphResponse(BaseResponse):
             "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
         ),
     )
+
+
+class ExtractArticleResponse(BaseModel):
+    id: int
+    article: ArticleResponse

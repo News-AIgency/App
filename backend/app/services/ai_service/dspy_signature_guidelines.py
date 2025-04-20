@@ -109,6 +109,8 @@ Guidelines for crafting the perex:
 - Accessibility: Use plain language.
 - Emotional Engagement: Judicious use of attention-grabbing terms like “WARNING”.
 - Engaging Conclusion: End with a question, e.g., “What drives these trends?”
+- Be written in the language specified by the language InputField.
+- No bullet point characters.
 
 Additional considerations:
 
@@ -125,7 +127,6 @@ GENERATE_PEREX_DOC = PEREX_GUIDELINES.strip()
 STORM_GENERATE_PEREX_DOC = f"""{PEREX_GUIDELINES.strip()}
 
 Use scraped_content primarily, and augment with storm_article. The perex will be part of the final news article.
-No bullet point characters. Output must be in the specified language.
 """
 
 REGENERATE_PEREX_DOC = f"""{PEREX_GUIDELINES.strip()}
@@ -136,7 +137,6 @@ The old perex is in the old_perex InputField. Do not repeat it, and it should no
 STORM_REGENERATE_PEREX_DOC = f"""{PEREX_GUIDELINES.strip()}
 
 Use scraped_content primarily, and augment with storm_article. The perex will be part of the final news article.
-No bullet point characters. Output must be in the specified language.
 The old perex is in the old_perex InputField. Do not repeat it, and it should not be similar.
 """
 

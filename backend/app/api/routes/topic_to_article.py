@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import Union
 
 import httpx
@@ -36,7 +37,7 @@ async def extract_article(
     url: str = default_article_url,
     selected_topic: str = default_topic,
     storm: bool = False,
-) -> dict[str, ArticleResponse]:
+) -> dict[str, Union[str, ArticleResponse]]:
     try:
         scraped_article = await cache_or_scrape(url, default_article_url)
 
@@ -447,7 +448,8 @@ async def regenerate_tags_post(
 async def health_check() -> dict[str, str]:
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://localhost:8001/health")
+            storm_host = os.getenv("STORM_HOST", "localhost")
+            response = await client.get(f"http://{storm_host}:8001/health")
             if response.status_code == 200:
                 return {"status": "healthy", "storm_status": response.json()}
             else:
@@ -459,7 +461,8 @@ async def health_check() -> dict[str, str]:
 async def call_storm_microservice_generate(
     selected_topic: str, article_url: str
 ) -> None:
-    url = f"http://localhost:8001/knowledge-storm/generate?selected_topic={selected_topic}&article_url={article_url}"
+    storm_host = os.getenv("STORM_HOST", "localhost")
+    url = f"http://{storm_host}:8001/knowledge-storm/generate?selected_topic={selected_topic}&article_url={article_url}"
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
         response = await client.post(url)

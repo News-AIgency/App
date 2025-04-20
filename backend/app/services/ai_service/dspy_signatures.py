@@ -1,8 +1,30 @@
-import dspy
+from typing import Any, Literal
 
+import dspy
+from dspy import InputField, OutputField, Signature
+
+from backend.app.services.ai_service.dspy_signature_guidelines import (
+    GENERATE_ARTICLE_DOC,
+    GENERATE_ENGAGING_TEXT_DOC,
+    GENERATE_HEADLINES_DOC,
+    GENERATE_PEREX_DOC,
+    GENERATE_TAGS_DOC,
+    GRAPHS_GUIDELINES_DOC,
+    REGENERATE_ARTICLE_DOC,
+    REGENERATE_ENGAGING_TEXT_DOC,
+    REGENERATE_HEADLINES_DOC,
+    REGENERATE_PEREX_DOC,
+    REGENERATE_TAGS_DOC,
+    STORM_GENERATE_ARTICLE_DOC,
+    STORM_GENERATE_ENGAGING_TEXT_DOC,
+    STORM_GENERATE_PEREX_DOC,
+    STORM_REGENERATE_ARTICLE_DOC,
+    STORM_REGENERATE_ENGAGING_TEXT_DOC,
+    STORM_REGENERATE_PEREX_DOC,
+    TOPICS_GUIDELINES_DOC,
+)
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
-    ArticleResponse,
     EngagingTextResponse,
     HeadlineResponse,
     PerexResponse,
@@ -12,935 +34,473 @@ from backend.app.services.ai_service.response_models import (
 from backend.app.utils.language_enum import Language
 
 
-class GenerateTopicsSignature(dspy.Signature):
-    """Generate list of topics based on the topics_count InputField and the scraped news article from scraped_content InputField. No numbering, no introductory text, just topics. The result should not have any characters representing bullet points. The topics should be in the language that the language InputField specifies. Each topic should start with capital letter. The news report should be factual as well as neutral. The output is a list of topics in the topics OutputField."""
-
-    topics_count = dspy.InputField(
-        desc="Number of topics to generate", type=int, default=5
-    )
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    topics = dspy.OutputField(desc="Generated topics", type=TopicsResponse)
-
-
-class GenerateTopics(dspy.Module):
-    def __init__(self) -> None:
+class BasePredictModule(dspy.Module):
+    def __init__(self, signature_cls: type) -> None:
         super().__init__()
-        self.generate_topics = dspy.Predict(GenerateTopicsSignature)
+        self._predictor = dspy.Predict(signature_cls)
 
-    def forward(
-        self, topics_count: int, scraped_content: str, language: Language
-    ) -> GenerateTopicsSignature:
-        generated_topics = self.generate_topics(
-            topics_count=topics_count,
-            scraped_content=scraped_content,
-            language=language,
-        )
-        return generated_topics
+    def forward(self, **kwargs) -> Any:  # noqa: ANN401
+        return self._predictor(**kwargs)
 
 
-class GenerateArticleSignature(dspy.Signature):
-    """Generate 5 sections based on this scraped news article from scraped_content InputField, and the selected topic from selected_topic InputField. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! The generated fields should not have any resemblance to a boulevard article.All generated text should be in the language that the language InputField specifies. Sections will follow these rules:
-    1. Headlines: As a headline generator, your task is to create engaging and insightful headlines from the provided news article content. Your goal is to interpret the news in a way that captures attention and conveys the essence of the story in a relatable, human-readable manner.
+def create_signature_class(name: str, config: dict) -> type:
+    """Programmatically construct the class using a configuration dictionary that specifies input and output fields,
+    including their types, descriptions, and optional default values"""
 
-    You are required to generate a number of headlines as specified by the headlines_count InputField, using the scraped news article from the scraped_content InputField and focusing on the selected_topic InputField. The language for the headlines is determined by the language InputField.
+    attrs: dict = {"__doc__": config.get("doc", "")}
+    annotations: dict = {}
+    # Input fields
+    for field_name, field_conf in config.get("inputs", {}).items():
+        field_type = field_conf["type"]
+        # Set default if provided, otherwise no default
+        if "default" in field_conf:
+            attrs[field_name] = InputField(
+                default=field_conf["default"], desc=field_conf.get("desc")
+            )
+        else:
+            attrs[field_name] = InputField(desc=field_conf.get("desc"))
+        annotations[field_name] = field_type
+    # Output fields
+    for field_name, field_conf in config.get("outputs", {}).items():
+        field_type = field_conf["type"]
+        if "default" in field_conf:
+            attrs[field_name] = OutputField(
+                default=field_conf["default"], desc=field_conf.get("desc")
+            )
+        else:
+            attrs[field_name] = OutputField(desc=field_conf.get("desc"))
+        annotations[field_name] = field_type
+    # Attach the __annotations__ to include type hints
+    attrs["__annotations__"] = annotations
 
-    Guidelines for crafting headlines:
-
-    Each headline must be between 70 and 110 characters, including spaces.
-
-    Avoid using numbers; instead, narrate and interpret the information.
-    Aim to surprise and confront to capture interest.
-    Highlight why the reader should care about the article.
-    Consider adding sentiment or questions to provoke curiosity.
-    Emphasize the impact on people to make it relatable.
-    Incorporate emotions when appropriate.
-    Be specific and concrete: e.g., "Tourism in Slovakia rises" becomes "Hotels and inns see more visitors."
-    Ensure clarity for the average reader, avoiding complex terms.
-    Include open-ended questions that the article answers, but do not overuse them.
-    Convey significant information with notable details.
-    What to include:
-
-    Interesting data, news, or information.
-    Slovak elements or symbols to evoke emotions.
-    Use general time references like "end of the year" instead of specific dates unless crucial.
-    Shorter headlines are preferable.
-    Avoid politics where it doesn't belong.
-    Use catchy phrases like "historic low," "warns," "strikes," "discover."
-    Use "Why" to provoke thought.
-    Ensure readability with shorter sentences.
-    Avoid complicated words; the average person should understand.
-    Consider adding a label like "Weekly Analysis" for context.
-    Positive or negative sentiment is better than none.
-    Be specific and concrete in your descriptions.
-    2. Engaging text: Generate an engaging text that will hook the reader. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it.
-    3. Perex: You are responsible for creating a concise and engaging perex for a news article. The perex should be 140-160 characters long, designed to complement the headline and capture reader interest. The first sentence must be intriguing yet brief to prevent truncation. The perex should be based on the content of the scraped news article, the selected topic, and the current headline, with the language specified in the language input field.
-
-    Guidelines for Crafting the Perex:
-
-    Brevity and Focus: Ensure the perex is short and focused, addressing only one or two main topics to avoid overwhelming the reader.
-    Clarity Over Complexity: Avoid using complex terms like "nuclear inflation" that might confuse the average reader; use simple, everyday language.
-    Specificity in Numbers: Prefer specific numbers over percentages to enhance clarity and relatability.
-    Avoid Political Jargon: Steer clear of vague political statements such as "the situation requires attention."
-    Interpret and Engage: Explain the article's significance in a way that resonates with the reader, highlighting why it matters or what impact it has.
-    Real-Life Examples: Incorporate real-life examples to illustrate points effectively.
-    Numerical Indicators: Include relevant numerical indicators or examples to provide context.
-    Appropriate Length: Ensure the perex is neither too long nor too short, maintaining reader engagement.
-    Accessibility: Keep the language clear and accessible, avoiding complex terminology.
-    Emotional Engagement: Use emotionally engaging words judiciously, such as "WARNING," to draw attention.
-    Engaging Conclusion: Conclude with an engaging question to prompt further interest, such as "Discover what has become more expensive? What drives these trends?"
-    Additional Considerations:
-
-    Simplified Content: The perex should be straightforward and devoid of unnecessary political content.
-    Explain Numbers Relatably: Describe numbers in relatable terms (e.g., a lot, a little, more, less, struggling, succeeding).
-    Limit Repetition: Avoid excessive repetition of the headline within the perex.
-    Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
-    Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
-    Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
-    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
-    4. Article: Write a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into at least 3 paragraphs with '\n' symbols.
-    5. Tags: Generate a number of tags specified by the tag_count InputField, starting with a '#'. Tags should relate to the article so readers can find it easily and should be all capital letters.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    headlines_count = dspy.InputField(
-        desc="Number of headlines to generate", type=int, default=3
-    )
-    tag_count = dspy.InputField(desc="Number of tags to generate", type=int, default=4)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
-    headlines = dspy.OutputField(desc="Generated headlines", type=HeadlineResponse)
-    perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
-    engaging_text = dspy.OutputField(
-        desc="Generated Engaging text", type=EngagingTextResponse
-    )
-    tags = dspy.OutputField(desc="Generated Tags", type=TagsResponse)
+    return type(name, (Signature,), attrs)
 
 
-class GenerateArticle(dspy.Module):
+SIGNATURE_CONFIG = {
+    "GenerateTopicsSignature": {
+        "doc": TOPICS_GUIDELINES_DOC,
+        "inputs": {
+            "topics_count": {
+                "type": int,
+                "default": 5,
+                "desc": "Number of topics to generate.",
+            },
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {"topics": {"type": TopicsResponse, "desc": "Generated topics."}},
+    },
+    "GenerateHeadlinesSignature": {
+        "doc": GENERATE_HEADLINES_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected news article topic."},
+            "headlines_count": {
+                "type": int,
+                "default": 3,
+                "desc": "Number of headlines to generate.",
+            },
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {
+            "headlines": {"type": HeadlineResponse, "desc": "Generated headlines."}
+        },
+    },
+    "RegenerateHeadlinesSignature": {
+        "doc": REGENERATE_HEADLINES_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected news article topic."},
+            "old_headlines": {"type": str, "desc": "Old headlines."},
+            "headlines_count": {
+                "type": int,
+                "default": 3,
+                "desc": "Number of headlines to generate.",
+            },
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {
+            "headlines": {"type": HeadlineResponse, "desc": "Generated headlines."}
+        },
+    },
+    "GenerateEngagingTextSignature": {
+        "doc": GENERATE_ENGAGING_TEXT_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected topic."},
+            "current_headline": {"type": str, "desc": "Current headline."},
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {
+            "engaging_text": {
+                "type": EngagingTextResponse,
+                "desc": "Generated engaging text.",
+            }
+        },
+    },
+    "StormGenerateEngagingTextSignature": {
+        "doc": STORM_GENERATE_ENGAGING_TEXT_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article"},
+            "storm_article": {"type": str, "desc": "Storm-generated article"},
+            "selected_topic": {"type": str, "desc": "Selected topic"},
+            "current_headline": {"type": str, "desc": "Headline for context"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "engaging_text": {
+                "type": EngagingTextResponse,
+                "desc": "Generated engaging text",
+            }
+        },
+    },
+    "RegenerateEngagingTextSignature": {
+        "doc": REGENERATE_ENGAGING_TEXT_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article"},
+            "selected_topic": {"type": str, "desc": "Selected topic"},
+            "old_engaging_text": {"type": str, "desc": "Previous engaging text"},
+            "current_headline": {"type": str, "desc": "Headline for context"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "engaging_text": {
+                "type": EngagingTextResponse,
+                "desc": "Regenerated engaging text",
+            }
+        },
+    },
+    "StormRegenerateEngagingTextSignature": {
+        "doc": STORM_REGENERATE_ENGAGING_TEXT_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article"},
+            "storm_article": {"type": str, "desc": "Storm-generated article"},
+            "selected_topic": {"type": str, "desc": "Selected topic"},
+            "old_engaging_text": {"type": str, "desc": "Old engaging text"},
+            "current_headline": {"type": str, "desc": "Headline for context"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "engaging_text": {
+                "type": EngagingTextResponse,
+                "desc": "Regenerated engaging text",
+            }
+        },
+    },
+    "GeneratePerexSignature": {
+        "doc": GENERATE_PEREX_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected news article topic."},
+            "current_headline": {"type": str, "desc": "Current headline."},
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {"perex": {"type": PerexResponse, "desc": "Generated perex."}},
+    },
+    "StormGeneratePerexSignature": {
+        "doc": STORM_GENERATE_PEREX_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article"},
+            "storm_article": {"type": str, "desc": "Storm-generated article content"},
+            "selected_topic": {"type": str, "desc": "Selected topic of the article"},
+            "current_headline": {
+                "type": str,
+                "desc": "Current headline to align the perex with",
+            },
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {"perex": {"type": PerexResponse, "desc": "Generated perex text"}},
+    },
+    "RegeneratePerexSignature": {
+        "doc": REGENERATE_PEREX_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article"},
+            "selected_topic": {"type": str, "desc": "Topic of the news article"},
+            "old_perex": {"type": str, "desc": "Previous perex text"},
+            "current_headline": {"type": str, "desc": "Headline the perex refers to"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {"perex": {"type": PerexResponse, "desc": "Regenerated perex text"}},
+    },
+    "StormRegeneratePerexSignature": {
+        "doc": STORM_REGENERATE_PEREX_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article"},
+            "storm_article": {"type": str, "desc": "Storm article"},
+            "selected_topic": {"type": str, "desc": "Selected topic"},
+            "old_perex": {"type": str, "desc": "Old perex"},
+            "current_headline": {"type": str, "desc": "Headline context"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {"perex": {"type": PerexResponse, "desc": "Regenerated perex"}},
+    },
+    "GenerateArticleBodySignature": {
+        "doc": GENERATE_ARTICLE_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected news article topic."},
+            "current_headline": {"type": str, "desc": "Current headline."},
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {
+            "article": {"type": ArticleBodyResponse, "desc": "Generated article body."}
+        },
+    },
+    "StormGenerateArticleBodySignature": {
+        "doc": STORM_GENERATE_ARTICLE_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article"},
+            "storm_article": {
+                "type": str,
+                "desc": "Storm-generated article to enrich output",
+            },
+            "selected_topic": {"type": str, "desc": "Selected topic of the article"},
+            "current_headline": {"type": str, "desc": "Current headline for context"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "article": {"type": ArticleBodyResponse, "desc": "Generated article body"}
+        },
+    },
+    "RegenerateArticleBodySignature": {
+        "doc": REGENERATE_ARTICLE_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article source"},
+            "selected_topic": {"type": str, "desc": "Topic of the article"},
+            "old_article": {"type": str, "desc": "Old article body to avoid repeating"},
+            "current_headline": {"type": str, "desc": "Current headline"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "article": {"type": ArticleBodyResponse, "desc": "Regenerated article body"}
+        },
+    },
+    "StormRegenerateArticleBodySignature": {
+        "doc": STORM_REGENERATE_ARTICLE_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped article"},
+            "storm_article": {"type": str, "desc": "Storm article"},
+            "selected_topic": {"type": str, "desc": "Topic"},
+            "old_article": {"type": str, "desc": "Old article"},
+            "current_headline": {"type": str, "desc": "Headline"},
+            "language": {
+                "type": Language,
+                "desc": Language.SLOVAK,
+                "default": "Language.SLOVAK",
+            },
+        },
+        "outputs": {
+            "article": {"type": ArticleBodyResponse, "desc": "Regenerated article body"}
+        },
+    },
+    "GenerateTagsSignature": {
+        "doc": GENERATE_TAGS_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article."},
+            "selected_topic": {"type": str, "desc": "Selected news article topic."},
+            "current_headline": {"type": str, "desc": "Current headline."},
+            "current_article": {"type": str, "desc": "Current article body."},
+            "tag_count": {
+                "type": int,
+                "default": 4,
+                "desc": "Number of tags to generate.",
+            },
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {"tags": {"type": TagsResponse, "desc": "Generated tags."}},
+    },
+    "RegenerateTagsSignature": {
+        "doc": REGENERATE_TAGS_DOC,
+        "inputs": {
+            "article_text": {
+                "type": str,
+                "desc": "The article content to extract tags from.",
+            },
+            "count": {"type": int, "default": 5, "desc": "Number of tags to generate."},
+        },
+        "outputs": {
+            "tags": {"type": list[str], "desc": "List of regenerated tags or keywords."}
+        },
+    },
+    "GenerateGraphsSignature": {
+        "doc": GRAPHS_GUIDELINES_DOC,
+        "inputs": {
+            "scraped_content": {"type": str, "desc": "Scraped news article content."},
+            "language": {
+                "type": Language,
+                "default": Language.SLOVAK,
+                "desc": "Language of the news article.",
+            },
+        },
+        "outputs": {
+            "gen_graph": {"type": bool, "desc": "Whether a graph should be generated."},
+            "graph_type": {
+                "type": Literal["pie", "line", "bar", "histogram", "scatter"],
+                "desc": "Type of graph best suited for the article.",
+            },
+            "graph_data": {
+                "type": dict,
+                "desc": (
+                    "Graph data structure. Depends on graph_type:\n"
+                    "- Pie, bar, line, histogram: {{labels: [...], values: [...]}}\n"
+                    "- Histogram: labels can be None\n"
+                    "- Scatter: {{x_vals: [...], y_vals: [...]}}"
+                ),
+            },
+        },
+    },
+}
+
+SIGNATURE_CLASSES = {
+    name: create_signature_class(name, conf) for name, conf in SIGNATURE_CONFIG.items()
+}
+
+
+class GenerateTopics(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_article = dspy.Predict(GenerateArticleSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        headlines_count: int,
-        tag_count: int,
-        language: Language,
-    ) -> GenerateArticleSignature:
-        generated_article = self.generate_article(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            headlines_count=headlines_count,
-            tag_count=tag_count,
-            language=language,
-        )
-        return generated_article
+        super().__init__(SIGNATURE_CLASSES["GenerateTopicsSignature"])
 
 
-class StormGenerateArticleSignature(dspy.Signature):
-    """Generate 5 sections based on the scraped news article from scraped_content InputField, the Storm generated article from storm_article InputField, and the selected topic from selected_topic InputField. Focus more on the information from scraped_content and use storm_article to augment the generated text. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! The generated fields should not have any resemblance to a boulevard article.All generated text should be in the language that the language InputField specifies. Sections will follow these rules:
-    1. Headlines: As a headline generator, your task is to create engaging and insightful headlines from the provided news article content. Your goal is to interpret the news in a way that captures attention and conveys the essence of the story in a relatable, human-readable manner.
-
-    You are required to generate a number of headlines as specified by the headlines_count InputField, using the scraped news article from the scraped_content InputField and focusing on the selected_topic InputField. The language for the headlines is determined by the language InputField.
-
-    Guidelines for crafting headlines:
-
-    Each headline must be between 70 and 110 characters, including spaces.
-
-    Avoid using numbers; instead, narrate and interpret the information.
-    Aim to surprise and confront to capture interest.
-    Highlight why the reader should care about the article.
-    Consider adding sentiment or questions to provoke curiosity.
-    Emphasize the impact on people to make it relatable.
-    Incorporate emotions when appropriate.
-    Be specific and concrete: e.g., "Tourism in Slovakia rises" becomes "Hotels and inns see more visitors."
-    Ensure clarity for the average reader, avoiding complex terms.
-    Include open-ended questions that the article answers, but do not overuse them.
-    Convey significant information with notable details.
-    What to include:
-
-    Interesting data, news, or information.
-    Slovak elements or symbols to evoke emotions.
-    Use general time references like "end of the year" instead of specific dates unless crucial.
-    Shorter headlines are preferable.
-    Avoid politics where it doesn't belong.
-    Use catchy phrases like "historic low," "warns," "strikes," "discover."
-    Use "Why" to provoke thought.
-    Ensure readability with shorter sentences.
-    Avoid complicated words; the average person should understand.
-    Consider adding a label like "Weekly Analysis" for context.
-    Positive or negative sentiment is better than none.
-    Be specific and concrete in your descriptions.
-    2. Engaging text: Generate an engaging text that will hook the reader. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it.
-    3. Perex: You are responsible for creating a concise and engaging perex for a news article. The perex should be 140-160 characters long, designed to complement the headline and capture reader interest. The first sentence must be intriguing yet brief to prevent truncation. The perex should be based on the content of the scraped news article, the selected topic, and the current headline, with the language specified in the language input field.
-
-    Guidelines for Crafting the Perex:
-
-    Brevity and Focus: Ensure the perex is short and focused, addressing only one or two main topics to avoid overwhelming the reader.
-    Clarity Over Complexity: Avoid using complex terms like "nuclear inflation" that might confuse the average reader; use simple, everyday language.
-    Specificity in Numbers: Prefer specific numbers over percentages to enhance clarity and relatability.
-    Avoid Political Jargon: Steer clear of vague political statements such as "the situation requires attention."
-    Interpret and Engage: Explain the article's significance in a way that resonates with the reader, highlighting why it matters or what impact it has.
-    Real-Life Examples: Incorporate real-life examples to illustrate points effectively.
-    Numerical Indicators: Include relevant numerical indicators or examples to provide context.
-    Appropriate Length: Ensure the perex is neither too long nor too short, maintaining reader engagement.
-    Accessibility: Keep the language clear and accessible, avoiding complex terminology.
-    Emotional Engagement: Use emotionally engaging words judiciously, such as "WARNING," to draw attention.
-    Engaging Conclusion: Conclude with an engaging question to prompt further interest, such as "Discover what has become more expensive? What drives these trends?"
-    Additional Considerations:
-
-    Simplified Content: The perex should be straightforward and devoid of unnecessary political content.
-    Explain Numbers Relatably: Describe numbers in relatable terms (e.g., a lot, a little, more, less, struggling, succeeding).
-    Limit Repetition: Avoid excessive repetition of the headline within the perex.
-    Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
-    Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
-    Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
-    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
-    4. Article: Write a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into at least 3 paragraphs with '\n' symbols.
-    5. Tags: Generate a number of tags specified by the tag_count InputField, starting with a '#'. Tags should relate to the article so readers can find it easily and should be all capital letters.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    storm_article = dspy.InputField(
-        desc="Article generated with Storm from the scraped source article", type=str
-    )
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    headlines_count = dspy.InputField(
-        desc="Number of headlines to generate", type=int, default=3
-    )
-    tag_count = dspy.InputField(desc="Number of tags to generate", type=int, default=4)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    article = dspy.OutputField(desc="Generated article", type=ArticleResponse)
-    print(article)
-
-
-class StormGenerateArticle(dspy.Module):
+class GenerateHeadlines(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_article = dspy.Predict(StormGenerateArticleSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        storm_article: str,
-        selected_topic: str,
-        headlines_count: int,
-        tag_count: int,
-        language: Language,
-    ) -> StormGenerateArticleSignature:
-        generated_article = self.generate_article(
-            scraped_content=scraped_content,
-            storm_article=storm_article,
-            selected_topic=selected_topic,
-            headlines_count=headlines_count,
-            tag_count=tag_count,
-            language=language,
-        )
-        return generated_article
+        super().__init__(SIGNATURE_CLASSES["GenerateHeadlinesSignature"])
 
 
-class GenerateHeadlinesSignature(dspy.Signature):
-    """As a headline generator, your task is to create engaging and insightful headlines from the provided news article content. Your goal is to interpret the news in a way that captures attention and conveys the essence of the story in a relatable, human-readable manner.
-
-    You are required to generate a number of headlines as specified by the headlines_count InputField, using the scraped news article from the scraped_content InputField and focusing on the selected_topic InputField. The language for the headlines is determined by the language InputField.
-
-    Guidelines for crafting headlines:
-
-    Each headline must be between 70 and 110 characters, including spaces.
-
-    NEVER number the headlines, just write them.
-    NEVER use bullet points or any other characters representing bullet points.
-    NEVER use any introductory text or phrases like "Here are the headlines:" or "The following headlines are generated:".
-    NEVER use text splitting characters like '\n' or any other characters that would split the text into multiple lines.
-
-    Avoid using numbers; instead, narrate and interpret the information.
-    Aim to surprise and confront to capture interest.
-    Highlight why the reader should care about the article.
-    Consider adding sentiment or questions to provoke curiosity.
-    Emphasize the impact on people to make it relatable.
-    Incorporate emotions when appropriate.
-    Be specific and concrete: e.g., "Tourism in Slovakia rises" becomes "Hotels and inns see more visitors."
-    Ensure clarity for the average reader, avoiding complex terms.
-    Include open-ended questions that the article answers, but do not overuse them.
-    Convey significant information with notable details.
-    What to include:
-
-    Interesting data, news, or information.
-    Slovak elements or symbols to evoke emotions.
-    Use general time references like "end of the year" instead of specific dates unless crucial.
-    Shorter headlines are preferable.
-    Avoid politics where it doesn't belong.
-    Use catchy phrases like "historic low," "warns," "strikes," "discover."
-    Use "Why" to provoke thought.
-    Ensure readability with shorter sentences.
-    Avoid complicated words; the average person should understand.
-    Consider adding a label like "Weekly Analysis" for context.
-    Positive or negative sentiment is better than none.
-    Be specific and concrete in your descriptions."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    headlines_count = dspy.InputField(
-        desc="Number of headlines to generate", type=int, default=3
-    )
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    headlines = dspy.OutputField(desc="Generated headlines", type=HeadlineResponse)
-
-
-class GenerateHeadlines(dspy.Module):
+class RegenerateHeadlines(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_headlines = dspy.Predict(GenerateHeadlinesSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        headlines_count: int,
-        language: Language,
-    ) -> GenerateHeadlinesSignature:
-        generated_headlines = self.generate_headlines(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            headlines_count=headlines_count,
-            language=language,
-        )
-        return generated_headlines
+        super().__init__(SIGNATURE_CLASSES["RegenerateHeadlinesSignature"])
 
 
-class RegenerateHeadlinesSignature(dspy.Signature):
-    """As a headline generator, your task is to create engaging and insightful headlines from the provided news article content. Your goal is to interpret the news in a way that captures attention and conveys the essence of the story in a relatable, human-readable manner.
-
-    You are required to generate a number of headlines as specified by the headlines_count InputField, using the scraped news article from the scraped_content InputField and focusing on the selected_topic InputField. The language for the headlines is determined by the language InputField.
-
-    Guidelines for crafting headlines:
-
-    Each headline must be between 70 and 110 characters, including spaces.
-
-    Avoid using numbers; instead, narrate and interpret the information.
-    Aim to surprise and confront to capture interest.
-    Highlight why the reader should care about the article.
-    Consider adding sentiment or questions to provoke curiosity.
-    Emphasize the impact on people to make it relatable.
-    Incorporate emotions when appropriate.
-    Be specific and concrete: e.g., "Tourism in Slovakia rises" becomes "Hotels and inns see more visitors."
-    Ensure clarity for the average reader, avoiding complex terms.
-    Include open-ended questions that the article answers, but do not overuse them.
-    Convey significant information with notable details.
-    What to include:
-
-    Interesting data, news, or information.
-    Slovak elements or symbols to evoke emotions.
-    Use general time references like "end of the year" instead of specific dates unless crucial.
-    Shorter headlines are preferable.
-    Avoid politics where it doesn't belong.
-    Use catchy phrases like "historic low," "warns," "strikes," "discover."
-    Use "Why" to provoke thought.
-    Ensure readability with shorter sentences.
-    Avoid complicated words; the average person should understand.
-    Consider adding a label like "Weekly Analysis" for context.
-    Positive or negative sentiment is better than none.
-    Be specific and concrete in your descriptions.
-    The old headlines are in the old_headlines InputField. Do not repeat them, and the new headlines should not be similiar.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    old_headlines = dspy.InputField(desc="Old headlines", type=str)
-    headlines_count = dspy.InputField(
-        desc="Number of headlines to generate", type=int, default=3
-    )
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    headlines = dspy.OutputField(desc="Generated headlines", type=HeadlineResponse)
-
-
-class RegenerateHeadlines(dspy.Module):
+class GenerateEngagingText(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.regenerate_headlines = dspy.Predict(RegenerateHeadlinesSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        old_headlines: str,
-        headlines_count: int,
-        language: Language,
-    ) -> RegenerateHeadlinesSignature:
-        generated_headlines = self.regenerate_headlines(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            old_headlines=old_headlines,
-            headlines_count=headlines_count,
-            language=language,
-        )
-        return generated_headlines
+        super().__init__(SIGNATURE_CLASSES["GenerateEngagingTextSignature"])
 
 
-class GenerateEngagingTextSignature(dspy.Signature):
-    """Generate an engaging text that will hook the reader, based on the scraped_content InputField and the selected_topic InputField and the current_headline InputField Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the engaging text field, the other fields should remain null."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    engaging_text = dspy.OutputField(
-        desc="Generated engaging text", type=EngagingTextResponse
-    )
-
-
-class GenerateEngagingText(dspy.Module):
+class StormGenerateEngagingText(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_engaging_text = dspy.Predict(GenerateEngagingTextSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> GenerateEngagingTextSignature:
-        generated_engaging_text = self.generate_engaging_text(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_engaging_text
+        super().__init__(SIGNATURE_CLASSES["StormGenerateEngagingTextSignature"])
 
 
-class StormGenerateEngagingTextSignature(dspy.Signature):
-    """Generate an engaging text that will hook the reader, based on the scraped_content InputField, the selected_topic InputField, the current_headline InputField and the storm_article InputField. Mainly use the scraped_content for information and augment it with the Storm article. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the engaging text field, the other fields should remain null."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    storm_article = dspy.InputField(
-        desc="Article generated with Storm from the scraped source article", type=str
-    )
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    engaging_text = dspy.OutputField(
-        desc="Generated engaging text", type=EngagingTextResponse
-    )
-
-
-class StormGenerateEngagingText(dspy.Module):
+class RegenerateEngagingText(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_engaging_text = dspy.Predict(StormGenerateEngagingTextSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        storm_article: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> StormGenerateEngagingTextSignature:
-        generated_engaging_text = self.generate_engaging_text(
-            scraped_content=scraped_content,
-            storm_article=storm_article,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_engaging_text
+        super().__init__(SIGNATURE_CLASSES["RegenerateEngagingTextSignature"])
 
 
-class RegenerateEngagingTextSignature(dspy.Signature):
-    """Generate an engaging text that will hook the reader, based on the scraped_content InputField and the selected_topic InputField and the current_headline InputField. Engaging text should not be longer than 240 characters including spaces. Engaging text will not be a part of the actual news article, but still should relate to the headline and compliment it. The old engaging text is in the old_engaging_text InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField. Fill in only the engaging text field, the other fields should remain null."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    old_engaging_text = dspy.InputField(desc="Old engaging text", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    engaging_text = dspy.OutputField(
-        desc="Generated engaging text", type=EngagingTextResponse
-    )
-
-
-class RegenerateEngagingText(dspy.Module):
+class StormRegenerateEngagingText(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.regenerate_engaging_text = dspy.Predict(RegenerateEngagingTextSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        old_engaging_text: str,
-        current_headline: str,
-        language: Language,
-    ) -> RegenerateEngagingTextSignature:
-        generated_engaging_text = self.regenerate_engaging_text(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            old_engaging_text=old_engaging_text,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_engaging_text
+        super().__init__(SIGNATURE_CLASSES["StormRegenerateEngagingTextSignature"])
 
 
-class GeneratePerexSignature(dspy.Signature):
-    """You are responsible for creating a concise and engaging perex for a news article. The perex should be 140-160 characters long, designed to complement the headline and capture reader interest. The first sentence must be intriguing yet brief to prevent truncation. The perex should be based on the content of the scraped news article, the selected topic, and the current headline, with the language specified in the language input field.
-
-    Guidelines for Crafting the Perex:
-
-    Brevity and Focus: Ensure the perex is short and focused, addressing only one or two main topics to avoid overwhelming the reader.
-    Clarity Over Complexity: Avoid using complex terms like "nuclear inflation" that might confuse the average reader; use simple, everyday language.
-    Specificity in Numbers: Prefer specific numbers over percentages to enhance clarity and relatability.
-    Avoid Political Jargon: Steer clear of vague political statements such as "the situation requires attention."
-    Interpret and Engage: Explain the article's significance in a way that resonates with the reader, highlighting why it matters or what impact it has.
-    Real-Life Examples: Incorporate real-life examples to illustrate points effectively.
-    Numerical Indicators: Include relevant numerical indicators or examples to provide context.
-    Appropriate Length: Ensure the perex is neither too long nor too short, maintaining reader engagement.
-    Accessibility: Keep the language clear and accessible, avoiding complex terminology.
-    Emotional Engagement: Use emotionally engaging words judiciously, such as "WARNING," to draw attention.
-    Engaging Conclusion: Conclude with an engaging question to prompt further interest, such as "Discover what has become more expensive? What drives these trends?"
-    Additional Considerations:
-
-    Simplified Content: The perex should be straightforward and devoid of unnecessary political content.
-    Explain Numbers Relatably: Describe numbers in relatable terms (e.g., a lot, a little, more, less, struggling, succeeding).
-    Limit Repetition: Avoid excessive repetition of the headline within the perex.
-    Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
-    Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
-    Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
-    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
-
-
-class GeneratePerex(dspy.Module):
+class GeneratePerex(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_perex = dspy.Predict(GeneratePerexSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> GeneratePerexSignature:
-        generated_perex = self.generate_perex(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_perex
+        super().__init__(SIGNATURE_CLASSES["GeneratePerexSignature"])
 
 
-class StormGeneratePerexSignature(dspy.Signature):
-    """Generate a perex: a short, engaging text of 140-160 characters that complements the headlines and attracts readers. The first sentence should be interesting, but not too long to avoid truncation. Unlike 'Engaging text', perex will be part of the news article. Generate it based on this: scraped news article from scraped_content InputField, the selected topic from selected_topic InputField, the current headline from current_headline InputField and the Storm generated article from storm_article. Mainly use the scraped_content for information and augment it with the storm_article. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    storm_article = dspy.InputField(
-        desc="Article generated with Storm from the scraped source article", type=str
-    )
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
-
-
-class StormGeneratePerex(dspy.Module):
+class StormGeneratePerex(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_perex = dspy.Predict(StormGeneratePerexSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        storm_article: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> StormGeneratePerexSignature:
-        generated_perex = self.generate_perex(
-            scraped_content=scraped_content,
-            storm_article=storm_article,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_perex
+        super().__init__(SIGNATURE_CLASSES["StormGeneratePerexSignature"])
 
 
-class RegeneratePerexSignature(dspy.Signature):
-    """You are responsible for creating a concise and engaging perex for a news article. The perex should be 140-160 characters long, designed to complement the headline and capture reader interest. The first sentence must be intriguing yet brief to prevent truncation. The perex should be based on the content of the scraped news article, the selected topic, and the current headline, with the language specified in the language input field.
-
-    Guidelines for Crafting the Perex:
-
-    Brevity and Focus: Ensure the perex is short and focused, addressing only one or two main topics to avoid overwhelming the reader.
-    Clarity Over Complexity: Avoid using complex terms like "nuclear inflation" that might confuse the average reader; use simple, everyday language.
-    Specificity in Numbers: Prefer specific numbers over percentages to enhance clarity and relatability.
-    Avoid Political Jargon: Steer clear of vague political statements such as "the situation requires attention."
-    Interpret and Engage: Explain the article's significance in a way that resonates with the reader, highlighting why it matters or what impact it has.
-    Real-Life Examples: Incorporate real-life examples to illustrate points effectively.
-    Numerical Indicators: Include relevant numerical indicators or examples to provide context.
-    Appropriate Length: Ensure the perex is neither too long nor too short, maintaining reader engagement.
-    Accessibility: Keep the language clear and accessible, avoiding complex terminology.
-    Emotional Engagement: Use emotionally engaging words judiciously, such as "WARNING," to draw attention.
-    Engaging Conclusion: Conclude with an engaging question to prompt further interest, such as "Discover what has become more expensive? What drives these trends?"
-    Additional Considerations:
-
-    Simplified Content: The perex should be straightforward and devoid of unnecessary political content.
-    Explain Numbers Relatably: Describe numbers in relatable terms (e.g., a lot, a little, more, less, struggling, succeeding).
-    Limit Repetition: Avoid excessive repetition of the headline within the perex.
-    Relatable Explanations: Use idioms or analogies to explain concepts in a relatable manner.
-    Specificity and Detail: Provide specific examples, numbers, and entities to enrich the content.
-    Avoid Prolongation: Eliminate unnecessary prolongation with dull or redundant sentences.
-    Open-Ended Engagement: End with an open-ended question to stimulate reader curiosity and engagement.
-    The old perex is in the old_perex InputField. Do not repeat it, and it should not be similiar.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    old_perex = dspy.InputField(desc="Old perex", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    perex = dspy.OutputField(desc="Generated perex", type=PerexResponse)
-
-
-class RegeneratePerex(dspy.Module):
+class RegeneratePerex(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.regenerate_perex = dspy.Predict(RegeneratePerexSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        old_perex: str,
-        current_headline: str,
-        language: Language,
-    ) -> RegeneratePerexSignature:
-        generated_perex = self.regenerate_perex(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            old_perex=old_perex,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_perex
+        super().__init__(SIGNATURE_CLASSES["RegeneratePerexSignature"])
 
 
-class GenerateArticleBodySignature(dspy.Signature):
-    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols.
-
-    NEVER use different text splitters.
-    NEVER number the paragraphs, just write them.
-    NEVER underline or seperate the paragraphs with any other characters.
-    DO NOT create a title for the article body.
-
-    Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
-
-
-class GenerateArticleBody(dspy.Module):
+class StormRegeneratePerex(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_article_body = dspy.Predict(GenerateArticleBodySignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> GenerateArticleBodySignature:
-        generated_article = self.generate_article_body(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_article
+        super().__init__(SIGNATURE_CLASSES["StormRegeneratePerexSignature"])
 
 
-class StormGenerateArticleBodySignature(dspy.Signature):
-    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField, the current headline from the current_headline InputField and the Storm generated article from storm_article. Mainly use the scraped_content for information and augment it with the storm_article. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    storm_article = dspy.InputField(
-        desc="Article generated with Storm from the scraped source article", type=str
-    )
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
-
-
-class StormGenerateArticleBody(dspy.Module):
+class GenerateArticleBody(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_article_body = dspy.Predict(StormGenerateArticleBodySignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        storm_article: str,
-        selected_topic: str,
-        current_headline: str,
-        language: Language,
-    ) -> StormGenerateArticleBodySignature:
-        generated_article = self.generate_article_body(
-            scraped_content=scraped_content,
-            storm_article=storm_article,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_article
+        super().__init__(SIGNATURE_CLASSES["GenerateArticleBodySignature"])
 
 
-class RegenerateArticleBodySignature(dspy.Signature):
-    """Generate an article: a detailed news story that includes as much information as possible found in the given article, covering the following key questions: Who? What? Where? When? Why (most important)? How (most important)? How much? Include quotes if they are available, specifying who said it, what was said, where and when it was said, and for whom. Use numbers that are available in the given article - do not make up numbers. It is extremely important that you adhere to the facts and numbers given in the article. Stick to factual reporting without adding commentary or opinions. The generated article should not have any resemblance to a boulevard article. The article should be split into atleast 3 paragraphs with '\n' symbols. Generate it based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField and the current headline from the current_headline InputField. The old article is in the old_article InputField. Do not repeat it, and it should not be similiar. The result should not have any characters representing bullet points. Do not create any new information and do not use any information that is not present in the given news article. Do not exaggerate! All generated text should be in the language specified by the language InputField."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    old_article = dspy.InputField(desc="Old article", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    article = dspy.OutputField(desc="Generated article", type=ArticleBodyResponse)
-
-
-class RegenerateArticleBody(dspy.Module):
+class StormGenerateArticleBody(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.regenerate_article_body = dspy.Predict(RegenerateArticleBodySignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        old_article: str,
-        current_headline: str,
-        language: Language,
-    ) -> RegenerateArticleBodySignature:
-        generated_article = self.regenerate_article_body(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            old_article=old_article,
-            current_headline=current_headline,
-            language=language,
-        )
-        return generated_article
+        super().__init__(SIGNATURE_CLASSES["StormGenerateArticleBodySignature"])
 
 
-class GenerateTagsSignature(dspy.Signature):
-    """Generate a number of tags specified by the tag_count InputField, starting with a '#' without any spaces. Tags should relate to the article so readers can find it easily and should be all capital letters. Generate them based on this: scraped news article from the scraped_content InputField, the selected topic from the selected_topic InputField, the current headline from the current_headline InputField and the article from the current_article InputField. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    current_article = dspy.InputField(desc="Current article", type=str)
-    tag_count = dspy.InputField(desc="Number of tags to generate", type=int, default=4)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    tags = dspy.OutputField(desc="Generated tags", type=TagsResponse)
-
-
-class GenerateTags(dspy.Module):
+class RegenerateArticleBody(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_tags = dspy.Predict(GenerateTagsSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        current_headline: str,
-        current_article: str,
-        tag_count: int,
-        language: Language,
-    ) -> GenerateTagsSignature:
-        generated_tags = self.generate_tags(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            current_headline=current_headline,
-            current_article=current_article,
-            tag_count=tag_count,
-            language=language,
-        )
-        return generated_tags
+        super().__init__(SIGNATURE_CLASSES["RegenerateArticleBodySignature"])
 
 
-class RegenerateTagsSignature(dspy.Signature):
-    """Generate a number of tags specified by the tag_count InputField, starting with a '#' without any spaces. Tags should relate to the article so readers can find it easily and should be all capital letters. Generate them based on this: scraped news article from the  scraped_content InputField, the selected topic from the selected_topic InputField, the current headline from the current_headline InputField and the article from the current_article InputField. The old tags are in the old_tags InputField. Do not repeat them, and they should not be similiar. The result should not have any characters representing bullet points. All generated text should be in the language specified by the language InputField."""
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    selected_topic = dspy.InputField(desc="Selected news article topic", type=str)
-    old_tags = dspy.InputField(desc="Old tags", type=list[str])
-    current_headline = dspy.InputField(desc="Current headline", type=str)
-    current_article = dspy.InputField(desc="Current article", type=str)
-    tag_count = dspy.InputField(desc="Number of tags to generate", type=int, default=4)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    tags = dspy.OutputField(desc="Generated tags", type=TagsResponse)
-
-
-class RegenerateTags(dspy.Module):
+class StormRegenerateArticleBody(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.regenerate_tags = dspy.Predict(RegenerateTagsSignature)
-
-    def forward(
-        self,
-        scraped_content: str,
-        selected_topic: str,
-        old_tags: list[str],
-        current_headline: str,
-        current_article: str,
-        tag_count: int,
-        language: Language,
-    ) -> RegenerateTagsSignature:
-        generated_tags = self.regenerate_tags(
-            scraped_content=scraped_content,
-            selected_topic=selected_topic,
-            old_tags=old_tags,
-            current_headline=current_headline,
-            current_article=current_article,
-            tag_count=tag_count,
-            language=language,
-        )
-        return generated_tags
+        super().__init__(SIGNATURE_CLASSES["StormRegenerateArticleBodySignature"])
 
 
-class GenerateGrahphsSignature(dspy.Signature):
-    """Decide, if generating an interpretable graph from the given article is possible. If a graph cannot be generated or doesn't make sense to be generated for the given article, the gen_graph OutputField should be False else it will be True. If a graph should be generated, choose one of the following graph types in the graph_type OutputField: ["pie", "line", "bar", "histogram", "scatter"], that makes the most sense to visualize the data from the article:
-
-        1. Pie Chart
-        - You want to show parts of a whole (percentages or proportions).
-        - You're comparing a few categories (ideally <6) to each other.
-        Pie chart data example:
-            labels = ['Apple', 'Samsung', 'Xiaomi', 'Others']         # Categories
-            values = [30, 40, 20, 10]                                 # Percentages or proportions
-
-        2. Line Graph
-        - You're showing trends over time (like days, months, years).
-        - Your data is continuous and you want to observe changes.
-        Line graph data example:
-            labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May']              # Time points
-            values = [1000, 1500, 1300, 1700, 2000]                   # Values over time
-
-        3. Bar Graph
-        - You're comparing different categories.
-        - Your data is discrete (e.g., types of products, countries).
-        Bar graph data example:
-            labels = ['Electronics', 'Clothing', 'Books', 'Toys']     # Categories
-            values = [500, 700, 300, 400]                             # Discrete values per category
-
-        4. Histogram
-        - You want to show the distribution of a dataset.
-        - You're dealing with numerical data grouped into intervals.
-        Histogram graph data example:
-            labels = None  # You don't need labels — bins will be created automatically
-            values = [21, 22, 22, 23, 25, 25, 26, 27, 30, 31, 32, 33, 35, 36, 40, 42]  # Raw numerical data
-
-        5. Scatter Plot
-        - You want to see if there's a relationship or correlation between two variables.
-        - You're analyzing pairs of continuous data.
-        Scatter graph data example:
-            x_vals = [1, 2, 3, 4, 5, 6, 7]                       # X-axis variable
-            y_vals = [55, 60, 65, 70, 75, 85, 90]                # Y-axis variable
-
-    Make sure to check if the data is suitable for the chosen graph type.
-    If the data is not suitable for the chosen graph type, set the gen_graph OutputField to False.
-    Generate a data representation of the chosen graph type according to the example data for the chosen graph type. Make sure to uphold the variable names in the graph data examples:
-        pie chart, line chart, bar graph, histogram - labels, values
-        scatter plot - x_vals, y_vals
-
-    The data reresentation should be created solely from the numbers from the given article located in the scraped_content InputField. All generated text should be in the language specified by the language InputField.
-    """
-
-    scraped_content = dspy.InputField(desc="Scraped news article", type=str)
-    language = dspy.InputField(
-        desc="Language of the news article", type=Language, default=Language.SLOVAK
-    )
-    gen_graph = dspy.OutputField(
-        desc="Boolean value if graph should be generated", type=bool
-    )
-    graph_type = dspy.OutputField(
-        desc="The type of the graph to generate from data",
-        type=["pie", "line", "bar", "histogram", "scatter"],
-    )
-    graph_data = dspy.OutputField(
-        desc=(
-            "Graph data in dict format. "
-            "Structure depends on `graph_type`: \n"
-            "- For 'pie', 'line', 'bar', 'histogram': include `labels` (None for histogram) and `values`\n"
-            "- For 'scatter': include `x_vals` and `y_vals`\n"
-            "Examples:\n"
-            "- Pie: {'labels': [...], 'values': [...]} \n"
-            "- Histogram: {'labels': None, 'values': [...]} \n"
-            "- Scatter: {'x_vals': [...], 'y_vals': [...]} "
-        ),
-        type=dict,
-    )
-
-
-class GenerateGraphs(dspy.Module):
+class GenerateTags(BasePredictModule):
     def __init__(self) -> None:
-        super().__init__()
-        self.generate_graphs = dspy.Predict(GenerateGrahphsSignature)
+        super().__init__(SIGNATURE_CLASSES["GenerateTagsSignature"])
 
-    def forward(
-        self,
-        scraped_content: str,
-        language: Language,
-    ) -> GenerateGrahphsSignature:
-        graph_response = self.generate_graphs(
-            scraped_content=scraped_content,
-            language=language,
-        )
-        return graph_response
+
+class RegenerateTags(BasePredictModule):
+    def __init__(self) -> None:
+        super().__init__(SIGNATURE_CLASSES["RegenerateTagsSignature"])
+
+
+class GenerateGraphs(BasePredictModule):
+    def __init__(self) -> None:
+        super().__init__(SIGNATURE_CLASSES["GenerateGraphsSignature"])

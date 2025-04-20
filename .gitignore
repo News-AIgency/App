@@ -29,3 +29,4 @@ backend/app/services/ai_service/storm_agent/__pycache__/__init__.cpython-310.pyc
 backend/app/services/ai_service/storm_agent/__pycache__/STORM_service.cpython-310.pyc
 /backend/app/services/ai_service/storm_agent/__pycache__
 /backend/app/iitsrc/__pycache__
+*.pyc

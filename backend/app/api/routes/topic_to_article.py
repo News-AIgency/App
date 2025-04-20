@@ -52,16 +52,35 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        # Zakomentovane lebo DB tu je este zle spravena
-        """article_data = {
-            "url": {"url": url},
-            "heading": {"heading_content": article.headlines[0]},
-            "topic": {"topic_content": selected_topic},
-            "perex": {"perex_content": article.perex},
-            "body": {"body_content": article.article},
-            "text": {"text_content": article.engaging_text},
-            "tags": [{"tag_content": tag} for tag in article.tags],
-        }
+
+        if article.graph_type == "scatter":
+            article_data = {
+                "url": {"url": url},
+                "heading": {"heading_content": article.headlines[0]},
+                "topic": {"topic_content": selected_topic},
+                "perex": {"perex_content": article.perex},
+                "body": {"body_content": article.article},
+                "text": {"text_content": article.engaging_text},
+                "tags": [{"tag_content": tag} for tag in article.tags],
+                "graph_data": {"graph_type": article.graph_type,
+                               "graph_labels": article.graph_data.x_vals,
+                               "graph_values": article.graph_data.y_vals},
+            }
+        else:
+            article_data = {
+                "url": {"url": url},
+                "heading": {"heading_content": article.headlines[0]},
+                "topic": {"topic_content": selected_topic},
+                "perex": {"perex_content": article.perex},
+                "body": {"body_content": article.article},
+                "text": {"text_content": article.engaging_text},
+                "tags": [{"tag_content": tag} for tag in article.tags],
+                "graph_data": {"graph_type": article.graph_type,
+                               "graph_labels": article.graph_data.labels,
+                               "graph_values": article.graph_data.values},
+            }
+
+        # print(article_data)
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -69,11 +88,11 @@ async def extract_article(
             )
 
         if response.status_code != 201:
-            raise HTTPException(status_code=response.status_code, detail=response.text)"""
+            raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        # return {"id": response.id, "article": article}
+        return {"id": response.id, "article": article}
 
-        return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
+        #return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

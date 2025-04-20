@@ -37,6 +37,14 @@
       <div class="textarea-container" v-show="!articleStore.loading">
         <ArticleBlock v-model:text="body" type="Body"></ArticleBlock>
       </div>
+      <div class="graph-container" v-if="articleStore.hasGraph">
+      <h1 class="graph-title">Plots and Charts</h1>
+      <GraphChart class="graph-box"
+        :type="articleStore.graphType"
+        :labels="articleStore.graphLabels"
+        :data="articleStore.graphData"
+      />
+    </div>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
@@ -72,6 +80,10 @@
     <section class="sidebar-section" v-if="!isMobileDevice">
       <Buttons />
       <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" />
+      <div>
+
+
+  </div>
     </section>
     <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
@@ -88,6 +100,7 @@ import ArticleService from '@/services/ArticleService';
 import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 import Buttons from './Buttons.vue';
 import Suggestions from './Suggestions.vue';
+import GraphChart from '@/components/GraphChart.vue';
 
 const MOBILE_WIDTH_THRESHOLD = 1024
 
@@ -104,7 +117,8 @@ export default {
     SrcUrlBlock,
     SaveChangesPopup,
     Buttons,
-    Suggestions
+    Suggestions,
+    GraphChart,
   },
   data() {
     return {
@@ -372,6 +386,21 @@ main {
   width: 75%;
   padding-left: 22px;
   padding-bottom: 20px;
+}
+
+.graph-container {
+  width: 96%;
+  margin: auto;
+}
+
+.graph-title {
+  padding: 3%;
+}
+
+.graph-box {
+  padding: 6px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px var(--color-shadow);
 }
 
 

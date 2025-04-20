@@ -1,6 +1,6 @@
 import asyncio
 import os
-from typing import Union
+import traceback
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
@@ -11,8 +11,8 @@ from backend.app.core.config import settings
 from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
-    ArticleResponse,
     EngagingTextResponse,
+    ExtractArticleResponse,
     HeadlineResponse,
     PerexResponse,
     TagsResponse,
@@ -37,7 +37,7 @@ async def extract_article(
     url: str = default_article_url,
     selected_topic: str = default_topic,
     storm: bool = False,
-) -> dict[str, Union[str, ArticleResponse]]:
+) -> ExtractArticleResponse:
     try:
         scraped_article = await cache_or_scrape(url, default_article_url)
 
@@ -61,8 +61,8 @@ async def extract_article(
             "topic": {"topic_content": selected_topic},
             "perex": {"perex_content": article.perex},
             "body": {"body_content": article.article},
-            "text": {"text_content": article.engaging_text},
-            "tags": [{"tag_content": tag} for tag in article.tags],
+            "engaging_text": {"engaging_text_content": article.engaging_text},
+            "tags": [{"tags_content": tag} for tag in article.tags],
             "graph_data": {
                 "graph_type": article.graph_type,
                 "graph_labels": article.graph_data[graph_labels_key],
@@ -76,41 +76,39 @@ async def extract_article(
                 "https://api.wraite.news/save_article/", json=article_data
             )
 
-        if response.status_code != 201:
+        if not response.is_success:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        return {"id": response.id, "article": article}
-
-        # return {"id": "DUMMY_STRING(DB ACCESS OFF)", "article": article}
+        response_data = response.json()
+        return ExtractArticleResponse(id=response_data.get("id"), article=article)
 
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
 if settings.ENVIRONMENT == "development":
 
-    @router.get(
-        "/article/generate", response_model=dict[str, Union[str, ArticleResponse]]
-    )
+    @router.get("/article/generate", response_model=ExtractArticleResponse)
     async def extract_article_get(
         url: str = default_article_url,
         selected_topic: str = default_topic,
         storm: bool = False,
-    ) -> dict[str, Union[str, ArticleResponse]]:
-        print()
+    ) -> ExtractArticleResponse:
         return await extract_article(url, selected_topic, storm)
 
 
-@router.post("/article/generate", response_model=dict[str, Union[str, ArticleResponse]])
+@router.post("/article/generate", response_model=ExtractArticleResponse)
 async def extract_article_post(
     request: Request,
-) -> dict[str, Union[str, ArticleResponse]]:
+) -> ExtractArticleResponse:
     try:
         request_body = await request.json()
         url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         storm = request_body.get("storm", False)
         return await extract_article(url, selected_topic, storm)
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

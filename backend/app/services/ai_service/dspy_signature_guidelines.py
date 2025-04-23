@@ -191,11 +191,13 @@ The old article is in the old_article InputField. Do not repeat it, and it shoul
 TAGS_GUIDELINES = """
 Generate a number of tags as specified by the tag_count InputField. Tags must:
 
-- Start with a `#` and contain no spaces.
+- Start with a `#`.
 - Be ALL CAPITAL LETTERS.
 - Be relevant to the article so readers can find it easily.
 - Contain no bullet points or formatting characters.
 - Be written in the language specified by the language InputField.
+- Words SHOULD HAVE SPACES inbetween them. 
+- Do not lose punctuation in the language specified by the language InputField.
 
 Context for generation:
 Use the following inputs to determine tag relevance: scraped_content, selected_topic, current_headline,

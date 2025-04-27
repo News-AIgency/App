@@ -262,5 +262,10 @@ True. If a graph should be generated, choose one of the following graph types in
 
     The data reresentation should be created solely from the numbers from the given article located in the
     scraped_content InputField. All generated text should be in the language specified by the language InputField.
+
+    IMPORTANT: If a label or a value is missing (None) in the generated graph data, both the label and the value must
+    be excluded. For example, if a value is missing for a label, remove that label as well. Only pairs of valid
+    (non-null) labels and values (or x and y values for scatter plots) should be included in the final output.
+    If after filtering there is not enough valid data to form a meaningful graph, set gen_graph to False.
 """
 # endregion

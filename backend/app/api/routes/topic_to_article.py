@@ -52,29 +52,28 @@ async def extract_article(
             selected_topic=selected_topic,
             storm_article=storm_article,
         )
-        
+
         storm_urls = None
         if storm_article:
             storm_urls = extract_reference_urls(storm_article)
 
-        article_data = None
+        article_data = {
+            "url": {"url": url},
+            "heading": {"heading_content": article.headlines[0]},
+            "topic": {"topic_content": selected_topic},
+            "perex": {"perex_content": article.perex},
+            "body": {"body_content": article.article},
+            "engaging_text": {"engaging_text_content": article.engaging_text},
+            "tags": [{"tags_content": tag} for tag in article.tags],
+        }
+        # Add graph_data only if it exists
         if article.gen_graph:
             graph_labels_key = "x_vals" if article.graph_type == "scatter" else "labels"
             graph_values_key = "y_vals" if article.graph_type == "scatter" else "values"
-
-            article_data = {
-                "url": {"url": url},
-                "heading": {"heading_content": article.headlines[0]},
-                "topic": {"topic_content": selected_topic},
-                "perex": {"perex_content": article.perex},
-                "body": {"body_content": article.article},
-                "engaging_text": {"engaging_text_content": article.engaging_text},
-                "tags": [{"tags_content": tag} for tag in article.tags],
-                "graph_data": {
-                    "graph_type": article.graph_type,
-                    "graph_labels": article.graph_data[graph_labels_key],
-                    "graph_values": article.graph_data[graph_values_key],
-                },
+            article_data["graph_data"] = {
+                "graph_type": article.graph_type,
+                "graph_labels": article.graph_data[graph_labels_key],
+                "graph_values": article.graph_data[graph_values_key],
             }
 
         verify_ssl = settings.ENVIRONMENT != "development"
@@ -87,7 +86,9 @@ async def extract_article(
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         response_data = response.json()
-        return ExtractArticleResponse(id=response_data.get("id"), article=article, storm_urls = storm_urls)
+        return ExtractArticleResponse(
+            id=response_data.get("id"), article=article, storm_urls=storm_urls
+        )
 
     except Exception as e:
         traceback.print_exc()
@@ -474,10 +475,13 @@ async def storm_cache_retrieve(selected_topic: str, url: str) -> str:
 
     if not cached_content:
         storm_article = await call_storm_microservice_generate(selected_topic, url)
-        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
+        parsed_storm_article = storm_article["result"]
+        await FastAPICache.get_backend().set(
+            cache_key, parsed_storm_article, expire=3600
+        )
     else:
-        storm_article = cached_content
-    return storm_article
+        parsed_storm_article = cached_content
+    return parsed_storm_article
 
 
 # endregion

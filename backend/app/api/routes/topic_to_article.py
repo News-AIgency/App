@@ -28,6 +28,7 @@ from backend.app.utils.default_article import (
     default_topic,
 )
 from backend.app.utils.scraping_cache_functions import cache_or_scrape
+from backend.app.utils.url_getter import extract_reference_urls
 
 router = APIRouter()
 
@@ -51,24 +52,30 @@ async def extract_article(
             selected_topic=selected_topic,
             storm_article=storm_article,
         )
+        
+        storm_urls = None
+        if storm_article:
+            storm_urls = extract_reference_urls(storm_article)
 
-        graph_labels_key = "x_vals" if article.graph_type == "scatter" else "labels"
-        graph_values_key = "y_vals" if article.graph_type == "scatter" else "values"
+        article_data = None
+        if article.gen_graph:
+            graph_labels_key = "x_vals" if article.graph_type == "scatter" else "labels"
+            graph_values_key = "y_vals" if article.graph_type == "scatter" else "values"
 
-        article_data = {
-            "url": {"url": url},
-            "heading": {"heading_content": article.headlines[0]},
-            "topic": {"topic_content": selected_topic},
-            "perex": {"perex_content": article.perex},
-            "body": {"body_content": article.article},
-            "engaging_text": {"engaging_text_content": article.engaging_text},
-            "tags": [{"tags_content": tag} for tag in article.tags],
-            "graph_data": {
-                "graph_type": article.graph_type,
-                "graph_labels": article.graph_data[graph_labels_key],
-                "graph_values": article.graph_data[graph_values_key],
-            },
-        }
+            article_data = {
+                "url": {"url": url},
+                "heading": {"heading_content": article.headlines[0]},
+                "topic": {"topic_content": selected_topic},
+                "perex": {"perex_content": article.perex},
+                "body": {"body_content": article.article},
+                "engaging_text": {"engaging_text_content": article.engaging_text},
+                "tags": [{"tags_content": tag} for tag in article.tags],
+                "graph_data": {
+                    "graph_type": article.graph_type,
+                    "graph_labels": article.graph_data[graph_labels_key],
+                    "graph_values": article.graph_data[graph_values_key],
+                },
+            }
 
         verify_ssl = settings.ENVIRONMENT != "development"
         async with httpx.AsyncClient(verify=verify_ssl) as client:
@@ -80,7 +87,7 @@ async def extract_article(
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         response_data = response.json()
-        return ExtractArticleResponse(id=response_data.get("id"), article=article)
+        return ExtractArticleResponse(id=response_data.get("id"), article=article, storm_urls = storm_urls)
 
     except Exception as e:
         traceback.print_exc()

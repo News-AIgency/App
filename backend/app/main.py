@@ -2,6 +2,8 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
+from backend.app.db.database import db_manager
+
 # Add the 'App' directory (parent of 'backend') to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
@@ -24,7 +26,9 @@ from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     FastAPICache.init(InMemoryBackend())
+    db_manager.start()
     yield
+    await db_manager.stop()
 
 
 app = FastAPI(

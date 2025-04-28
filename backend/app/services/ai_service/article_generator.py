@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 
 from backend.app.api.routes.grammar_checker import correct_text
@@ -340,7 +341,16 @@ class ArticleGenerator:
 
         generated_tags = await generate_tags_program(**kwargs)
 
-        return TagsResponse(tags=generated_tags.tags.tags)
+        slovak_chars = "áäčďéíĺľňóôŕšťúýž"
+        pattern = re.compile(rf"^[a-z{slovak_chars}# ]+$")
+        cleaned_tags: list[str] = []
+
+        for t in generated_tags.tags.tags:
+            if not pattern.fullmatch(t):
+                t = t.lower().replace("_", " ")
+            cleaned_tags.append(t)
+
+        return TagsResponse(tags=cleaned_tags)
 
     async def generate_graph(
         self,

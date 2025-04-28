@@ -175,3 +175,4 @@ class GraphResponse(BaseResponse):
 class ExtractArticleResponse(BaseModel):
     id: int
     article: ArticleResponse
+    storm_urls: Optional[list[str]]

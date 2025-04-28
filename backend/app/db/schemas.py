@@ -1,4 +1,3 @@
-from collections.abc import AsyncGenerator
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,15 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from backend.app.db import models
-from backend.app.db.database import Base, SessionLocal, engine
+from backend.app.db.database import Base, db_manager
 
 # app = FastAPI()
 router = APIRouter()
 
 
 @router.on_event("startup")
-async def startup() -> None:
-    async with engine.begin() as conn:
+async def startup_event() -> None:
+    async with db_manager.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
@@ -136,15 +135,7 @@ class UpdateArticleRequest(BaseModel):
     tags: Optional[list[str]] = None
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as db:
-        try:
-            yield db
-        finally:
-            await db.close()
-
-
-db_dependency = Annotated[AsyncSession, Depends(get_db)]
+db_dependency = Annotated[AsyncSession, Depends(db_manager.get_db)]
 
 
 @router.post("/save_article/")  # , status_code=status.HTTP_201_CREATED

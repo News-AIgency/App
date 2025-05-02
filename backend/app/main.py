@@ -2,8 +2,6 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-from backend.app.db.database import db_manager
-
 # Add the 'App' directory (parent of 'backend') to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
@@ -19,6 +17,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
+from backend.app.db.database import db_manager
 from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 

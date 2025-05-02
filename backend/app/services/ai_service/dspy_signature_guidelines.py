@@ -196,7 +196,7 @@ Generate a number of tags as specified by the tag_count InputField. Tags must:
 - Be relevant to the article so readers can find it easily.
 - Contain no bullet points or formatting characters.
 - Be written in the language specified by the language InputField.
-- Words SHOULD HAVE SPACES inbetween them. 
+- Words SHOULD HAVE SPACES inbetween them.
 - Do not lose punctuation in the language specified by the language InputField.
 
 Context for generation:

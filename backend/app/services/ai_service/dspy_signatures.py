@@ -43,6 +43,15 @@ class BasePredictModule(dspy.Module):
         return self._predictor(**kwargs)
 
 
+class BaseCOTModule(dspy.Module):
+    def __init__(self, signature_cls: type) -> None:
+        super().__init__()
+        self._predictor = dspy.ChainOfThought(signature_cls)
+
+    def forward(self, **kwargs) -> Any:  # noqa: ANN401
+        return self._predictor(**kwargs)
+
+
 def create_signature_class(name: str, config: dict) -> type:
     """Programmatically construct the class using a configuration dictionary that specifies input and output fields,
     including their types, descriptions, and optional default values"""
@@ -510,6 +519,6 @@ class RegenerateTags(BasePredictModule):
         super().__init__(SIGNATURE_CLASSES["RegenerateTagsSignature"])
 
 
-class GenerateGraphs(BasePredictModule):
+class GenerateGraphs(BaseCOTModule):
     def __init__(self) -> None:
         super().__init__(SIGNATURE_CLASSES["GenerateGraphsSignature"])

@@ -217,7 +217,9 @@ The old tags are in the old_tags InputField. Do not repeat them, and they should
 GRAPHS_GUIDELINES_DOC = """
 Decide, if generating an interpretable graph from the given article is possible. If a graph cannot be generated or
 doesn't make sense to be generated for the given article, the gen_graph OutputField should be False else it will be
-True. If a graph should be generated, choose one of the following graph types in the graph_type OutputField:
+True.
+Important: Graphs must focus on one data type (e.g. either only deficit or only debt), and one unit (e.g. either % or €), never mixed.
+If a graph should be generated, choose one of the following graph types in the graph_type OutputField:
 ["pie", "line", "bar", "histogram", "scatter"], that makes the most sense to visualize the data from the article:
 
         1. Pie Chart
@@ -270,10 +272,11 @@ True. If a graph should be generated, choose one of the following graph types in
             x_axis = "Hours Studied"
             y_axis = "Exam Score"
 
-    Graph data generation:
+    GRAPH DATA GENERATION:
     - Generate a data representation of the chosen graph type according to the example data for the chosen graph type.
     - The data reresentation should be created solely from the numbers from the given article located in the
       scraped_content InputField.
+    - Make sure to logically sort the data in the graph data representation, e.g if there is year or time data have them in a logical order like 2020, 2021 then 2022 etc.
     - Focus on singular type of information in the graph data, e.g. if you have percentages as values of the graph, do not mix them with number values like costs/prices and only focus on one type in the data (either the percentages or cost/prices) etc.
     - Do not mix various value types in the graph data, e.g. if you have percentages as values of the graph, do not mix them with number values    like costs/prices and only focus on one type in the data (either the percentages or cost/prices) etc.
     - Do not mix apples and oranges (figuratively speaking) in the graph data, e.g. do not mix deficit and debt, do not mix percentage and absolute values, etc.
@@ -286,12 +289,27 @@ True. If a graph should be generated, choose one of the following graph types in
     - If there are any None values or missing values in the data, make them None, but as an individual element in the list like this:
       [24, 25, None, None, 27, 30]. NEVER EVER DO SOMETHING LIKE THIS: [24, 'None, None', 27, 30].
 
-    Graph title generation:
+    IMPORTANT GRAPH DATA GENERATION RULES:
+    - Graphs must focus on a single concept, like only deficit in euros, or only debt as % of GDP
+    - Only include data of one type in the graph.
+    - Do not mix different metrics (e.g. deficit and debt)
+    - Do not mix different units (e.g. percentages and euros)
+
+    Example of good and bad graph data:
+    Bad graph (mixes values and percentages, and mixes deficit and debt - mixes concepts):
+    labels = ['Deficit 2023 (mld. eur)', 'Deficit 2023 (% HDP)', 'Dlh 2024 (mld. eur)']
+    values = [6.43, 5.19, 77.65]
+
+    Good graph (only one type of data or concept - deficit in mld. eur):
+    labels = ['Deficit 2023 (mld. eur)', 'Deficit 2024 (mld. eur)']
+    values = [6.43, 6.91]
+
+    GRAPH TITLE GENERATION:
     - Generate a title for the graph in the graph_title OutputField.
     - The title should be in the language specified by the Language Field and it should be relevant to the data in the graph.
     - It should be a short and descriptive title that summarizes the content of the graph.
 
-    Graph axis labels generation:
+    GRAPH AXIS LABELS GENERATION:
     - Generate axis labels for the graph in the graph_axis_labels OutputField.
     - The axis labels should be in the language specified by the Language Field and they should
       be relevant to the data in the graph.

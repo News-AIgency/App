@@ -224,49 +224,81 @@ True. If a graph should be generated, choose one of the following graph types in
         - You want to show parts of a whole (percentages or proportions).
         - You're comparing a few categories (ideally <6) to each other.
         Pie chart data example:
+            title = "Market Share of Smartphone Brands"
             labels = ['Apple', 'Samsung', 'Xiaomi', 'Others']         # Categories
             values = [30, 40, 20, 10]                                 # Percentages or proportions
+            x_axis = None                                             # Pie charts do not use axis labels
+            y_axis = None
 
         2. Line Graph
         - You're showing trends over time (like days, months, years).
         - Your data is continuous and you want to observe changes.
         Line graph data example:
+            title = "Monthly Revenue Trend"
             labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May']              # Time points
             values = [1000, 1500, 1300, 1700, 2000]                   # Values over time
+            x_axis = "Month"
+            y_axis = "Revenue (in USD)"
 
         3. Bar Graph
         - You're comparing different categories.
         - Your data is discrete (e.g., types of products, countries).
         Bar graph data example:
+            title = "Sales by Product Category"
             labels = ['Electronics', 'Clothing', 'Books', 'Toys']     # Categories
             values = [500, 700, 300, 400]                             # Discrete values per category
+            x_axis = "Product Category"
+            y_axis = "Units Sold"
 
         4. Histogram
         - You want to show the distribution of a dataset.
         - You're dealing with numerical data grouped into intervals.
         Histogram graph data example:
+            title = "Age Distribution of Survey Respondents"
             labels = None  # You don't need labels — bins will be created automatically
             values = [21, 22, 22, 23, 25, 25, 26, 27, 30, 31, 32, 33, 35, 36, 40, 42]  # Raw numerical data
+            x_axis = "Age"
+            y_axis = "Number of Respondents"
 
         5. Scatter Plot
         - You want to see if there's a relationship or correlation between two variables.
         - You're analyzing pairs of continuous data.
         Scatter graph data example:
+            title = "Study Time vs Exam Scores"
             x_vals = [1, 2, 3, 4, 5, 6, 7]                       # X-axis variable
             y_vals = [55, 60, 65, 70, 75, 85, 90]                # Y-axis variable
+            x_axis = "Hours Studied"
+            y_axis = "Exam Score"
 
-    Make sure to check if the data is suitable for the chosen graph type.
-    If the data is not suitable for the chosen graph type, set the gen_graph OutputField to False.
-    Generate a data representation of the chosen graph type according to the example data for the chosen graph type.
-    Make sure to uphold the variable names in the graph data examples:
-        pie chart, line chart, bar graph, histogram - labels, values
-        scatter plot - x_vals, y_vals
+    Graph data generation:
+    - Generate a data representation of the chosen graph type according to the example data for the chosen graph type.
+    - The data reresentation should be created solely from the numbers from the given article located in the
+      scraped_content InputField.
+    - Focus on singular type of information in the graph data, e.g. if you have percentages as values of the graph, do not mix them with number values like costs/prices and only focus on one type in the data (either the percentages or cost/prices) etc.
+    - Do not mix various value types in the graph data, e.g. if you have percentages as values of the graph, do not mix them with number values    like costs/prices and only focus on one type in the data (either the percentages or cost/prices) etc.
+    - Do not mix apples and oranges (figuratively speaking) in the graph data, e.g. do not mix deficit and debt, do not mix percentage and absolute values, etc.
+    - All generated text should be in the language specified by the language InputField.
+    - Make sure to uphold the variable names in the graph data examples:
+      pie chart, line chart, bar graph, histogram - labels, values
+      scatter plot - x_vals, y_vals
+    - Make sure to check if the data is suitable for the chosen graph type.
+    - If the data is not suitable for the chosen graph type, set the gen_graph OutputField to False.
+    - If there are any None values or missing values in the data, make them None, but as an individual element in the list like this:
+      [24, 25, None, None, 27, 30]. NEVER EVER DO SOMETHING LIKE THIS: [24, 'None, None', 27, 30].
 
-    The data reresentation should be created solely from the numbers from the given article located in the
-    scraped_content InputField. All generated text should be in the language specified by the language InputField.
+    Graph title generation:
+    - Generate a title for the graph in the graph_title OutputField.
+    - The title should be in the language specified by the Language Field and it should be relevant to the data in the graph.
+    - It should be a short and descriptive title that summarizes the content of the graph.
+
+    Graph axis labels generation:
+    - Generate axis labels for the graph in the graph_axis_labels OutputField.
+    - The axis labels should be in the language specified by the Language Field and they should
+      be relevant to the data in the graph.
+    - The labels should be short and descriptive, summarizing the content of the axes
 
     IMPORTANT: If a label or a value is missing (None) in the generated graph data, both the label and the value must
-    be excluded. For example, if a value is missing for a label, remove that label as well. Only pairs of valid
+    be excluded. THIS DOES NOT APPLY TO "histogram" GRAPH, BECAUSE A HISTOGRAM DOESN'T HAVE LABELS. For example, if a value is missing for a label, remove that label as well. Only pairs of valid
     (non-null) labels and values (or x and y values for scatter plots) should be included in the final output.
     If after filtering there is not enough valid data to form a meaningful graph, set gen_graph to False.
 """

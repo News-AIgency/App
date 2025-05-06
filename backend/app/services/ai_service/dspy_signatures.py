@@ -394,9 +394,18 @@ SIGNATURE_CONFIG = {
         },
         "outputs": {
             "gen_graph": {"type": bool, "desc": "Whether a graph should be generated."},
+            "graph_title": {"type": str, "desc": "Title for the graph."},
             "graph_type": {
                 "type": Literal["pie", "line", "bar", "histogram", "scatter"],
                 "desc": "Type of graph best suited for the article.",
+            },
+            "graph_axis_labels": {
+                "type": dict,
+                "desc": (
+                    "Axis labels for the graph. Depends on graph_type:\n"
+                    "- Bar, line, histogram, scatter: {{x_axis: str, y_axis: str}}\n"
+                    "- Pie: A Pie chart does not have axes -> {{x_axis: None, y_axis: None}}."
+                ),
             },
             "graph_data": {
                 "type": dict,

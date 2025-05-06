@@ -159,7 +159,9 @@ class ArticleGenerator:
             article=article[0].article,
             tags=tags[0].tags,
             gen_graph=graph_metadata[0].gen_graph,
+            graph_title=graph_metadata[0].graph_title,
             graph_type=graph_metadata[0].graph_type,
+            graph_axis_labels=graph_metadata[0].graph_axis_labels,
             graph_data=graph_metadata[0].graph_data,
         )
 
@@ -373,9 +375,15 @@ class ArticleGenerator:
         if isinstance(graph_data, str):
             graph_data = json.loads(graph_data)
 
+        graph_axis_labels = graph_response.graph_axis_labels
+        if isinstance(graph_axis_labels, str):
+            graph_axis_labels = json.loads(graph_axis_labels)
+
         return GraphResponse(
             gen_graph=graph_response.gen_graph,
+            graph_title=graph_response.graph_title,
             graph_type=graph_response.graph_type,
+            graph_axis_labels=graph_axis_labels,
             graph_data=graph_data,
         )
 

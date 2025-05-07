@@ -49,9 +49,11 @@ export const useArticleStore = defineStore('article', {
         
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE
         console.log("Graph Metadata:");
-        console.log("  gen_graph:", response.data.article.gen_graph);
-        console.log("  graph_type:", response.data.article.graph_type);
-        console.log("  graph_data:", response.data.article.graph_data);
+        console.log("gen_graph:", response.data.article.gen_graph);
+        console.log("graph_title:", response.data.article.graph_title);
+        console.log("graph_type:", response.data.article.graph_type);
+        console.log("graph_axis_labels:", response.data.article.graph_axis_labels);
+        console.log("graph_data:", response.data.article.graph_data);
         
       } catch (error) {
         console.error(error)

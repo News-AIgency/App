@@ -8,7 +8,7 @@
       <span class="label">STORM</span
       ><span class="material-icons icon-info"
         >info</span>
-      <div class="tooltip">Enable STORM to generate better articles (to be edited).</div>
+      <div class="tooltip">Enable STORM to search for similar articles to improve the result.</div>
     </div>
   </div>
 </template>

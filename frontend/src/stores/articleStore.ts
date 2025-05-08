@@ -11,6 +11,7 @@ export const useArticleStore = defineStore('article', {
     perex: "" as string,
     body: "" as string,
     url: "" as string,
+    stormSources: [] as string[],
     articleId: 0,
     stormEnabled: false,
     loading: false,
@@ -47,6 +48,7 @@ export const useArticleStore = defineStore('article', {
         this.body = response.data.article.article;
         this.tags = response.data.article.tags;
         this.articleId = response.data.id;
+        this.stormSources = response.data.storm_urls;
 
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE
         console.log("Graph Metadata:");

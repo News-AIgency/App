@@ -63,7 +63,41 @@
             </div>
           </div>
         </div>
-        <SrcUrlBlock :url="originalUrl" v-show="!articleStore.loading"></SrcUrlBlock>
+        <SrcUrlBlock :url="originalUrl" source_type="Main source" v-show="!articleStore.loading"></SrcUrlBlock>
+        <div v-for="(stormSource, index) in visibleStormSources" :key="index">
+
+        <SrcUrlBlock :url="stormSource" source_type="STORM source" />
+      </div>
+
+      <!-- Show hidden sources if storm sources are enabled -->
+
+  <div
+    v-for="(stormSource, index) in (showAllSources ? hiddenStormSources : [])"
+    :key="'hidden-' + index"
+    class="storm-source"
+  >
+    <SrcUrlBlock :url="stormSource" source_type="STORM source" />
+  </div>
+
+
+      <div v-if="hiddenStormSources.length >= 0" class="sources-button-container">
+        <button
+          v-if="!showAllSources"
+          @click="showAllSources = true"
+          class="show-more-btn"
+        >
+          Show more ({{ hiddenStormSources.length }})
+        </button>
+        <button
+          v-if="showAllSources"
+          @click="showAllSources = false"
+          class="show-less-btn"
+        >
+          Show less
+        </button>
+      </div>
+
+
 
         <Buttons v-if="isMobileDevice" />
     </section>
@@ -78,6 +112,7 @@
 </template>
 
 <script lang="ts">
+import { ref, computed } from 'vue';
 import { useArticleStore } from '@/stores/articleStore'
 import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
@@ -94,7 +129,24 @@ const MOBILE_WIDTH_THRESHOLD = 1024
 export default {
   setup() {
     const articleStore = useArticleStore()
-    return { articleStore }
+
+    const showAllSources = ref(false);
+
+
+    const visibleStormSources = computed(() =>
+      showAllSources.value ? articleStore.stormSources : articleStore.stormSources.slice(0, 4)
+    );
+
+    const hiddenStormSources = computed(() =>
+      showAllSources.value ? [] : articleStore.stormSources.slice(4)
+    );
+
+
+    return { articleStore, showAllSources,
+      visibleStormSources,
+      hiddenStormSources,}
+
+
   },
   components: {
     ProgressBar,
@@ -383,6 +435,29 @@ main {
   height: 90vh;
   overflow-y: auto;
 }
+
+.show-more-btn, .show-less-btn  {
+  background-color: var(--color-block);
+  color: var(--color-text);
+  border-radius: 5px;
+  border: none;
+  padding: 8px 16px;
+  margin: auto;
+  cursor: pointer;
+  font-size: 12px;
+  margin: 4px 20px;
+  float: right;
+
+}
+
+.show-more-btn:hover, .show-less-btn:hover {
+  background-color: var(--color-block-hover);
+}
+
+.sources-button-container {
+  margin-bottom: 60px;
+}
+
 
 .article-section::-webkit-scrollbar {
   width: 8px;

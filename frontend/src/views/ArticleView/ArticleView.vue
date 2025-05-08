@@ -80,7 +80,6 @@
   </div>
 
 
-      <div v-if="hiddenStormSources.length >= 0" class="sources-button-container">
         <button
           v-if="!showAllSources"
           @click="showAllSources = true"
@@ -89,13 +88,12 @@
           Show more ({{ hiddenStormSources.length }})
         </button>
         <button
-          v-if="showAllSources"
+          v-if="showAllSources || visibleStormSources.length > 4"
           @click="showAllSources = false"
           class="show-less-btn"
         >
           Show less
         </button>
-      </div>
 
 
 
@@ -287,6 +285,13 @@ export default {
 
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || ''
       this.originalUrl = localStorage.getItem('originalUrl') || ''
+
+      if (localStorage.getItem('stormSources') != null) {
+        const savedStormSources = localStorage.getItem('stormSources');
+        this.articleStore.stormSources = savedStormSources
+          ? JSON.parse(savedStormSources)
+          : [];
+      }
     },
     exportText() {
       const tagsText = this.tags.length > 0 ? this.tags.join(', ') : 'No tags'
@@ -362,6 +367,13 @@ export default {
     }
   },
   watch: {
+    'articleStore.stormSources': {
+      handler(newValue) {
+        localStorage.setItem('stormSources', JSON.stringify(newValue));
+      },
+      deep: true,
+    },
+
     engagingText(newValue) {
       localStorage.setItem('engagingText', newValue)
       this.showSaveChangesPopup()

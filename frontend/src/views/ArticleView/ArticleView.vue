@@ -40,9 +40,12 @@
       <div class="graph-container" v-if="articleStore.hasGraph">
       <h1 class="graph-title">Plots and Charts</h1>
       <GraphChart class="graph-box"
-        :type="articleStore.graphType"
+        :plotType="articleStore.graphType"
         :labels="articleStore.graphLabels"
         :data="articleStore.graphData"
+        :title="articleStore.graphTitle"
+        :xAxisLabel="articleStore.graphAxisLabels[0]"
+        :yAxisLabel="articleStore.graphAxisLabels[1]"
       />
     </div>
       <div class="tags-container" v-show="!articleStore.loading">

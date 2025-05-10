@@ -15,7 +15,7 @@ Chart.register(...registerables);
 export default defineComponent({
   name: 'GraphChart',
   props: {
-    type: {
+    plotType: {
       type: String as () => ChartType,
       required: true,
     },
@@ -26,6 +26,21 @@ export default defineComponent({
     data: {
       type: Array as () => number[],
       required: true,
+    },
+    title: {
+      type: String,
+      required: false,
+      default: 'Data visualization',
+    },
+    xAxisLabel: {
+      type: String,
+      required: false,
+      default: 'X Axis',
+    },
+    yAxisLabel: {
+      type: String,
+      required: false,
+      default: 'Y Axis',
     },
   },
   setup(props) {
@@ -39,12 +54,11 @@ export default defineComponent({
 
       if (chartCanvas.value) {
         chartInstance = new Chart(chartCanvas.value, {
-          type: props.type,
+          type: props.plotType,
           data: {
             labels: props.labels,
             datasets: [
               {
-                label: 'Graph Data',
                 data: props.data,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
@@ -55,6 +69,39 @@ export default defineComponent({
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: props.title, // Plot title
+                font: {
+                  size: 18,
+                },
+              },
+              legend: {
+              display: false,
+            }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: props.xAxisLabel, // X-axis label
+                  font: {
+                    size: 14,
+                  },
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: props.yAxisLabel, // Y-axis label
+                  font: {
+                    size: 14,
+                  },
+                },
+              },
+            },
+
           },
         });
       }
@@ -70,7 +117,7 @@ export default defineComponent({
     };
 
     onMounted(renderChart);
-    watch(() => [props.type, props.labels, props.data], renderChart);
+    watch(() => [props.plotType, props.labels, props.data], renderChart);
 
     return {
       chartCanvas,

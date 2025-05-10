@@ -13,10 +13,12 @@ export const useArticleStore = defineStore('article', {
     url: "" as string,
     articleId: 0,
     loading: false,
-    hasGraph: false,
-    graphType: "",
+    hasGraph: true,
+    graphType: "" as string,
     graphLabels: [] as string[],
     graphData: [] as number[],
+    graphTitle: "" as string,
+    graphAxisLabels: [] as string[],
   }),
   getters: {
     getTitleSuggestions(): string[] {
@@ -58,6 +60,8 @@ export const useArticleStore = defineStore('article', {
         this.graphType = response.data.article.graph_type;
         this.graphLabels = response.data.article.graph_data.labels;
         this.graphData = response.data.article.graph_data.values;
+        this.graphTitle = response.data.article.graph_title;
+        this.graphAxisLabels = response.data.article.graph_axis_labels;
         }
 
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE

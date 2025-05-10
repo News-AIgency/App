@@ -79,22 +79,21 @@
     <SrcUrlBlock :url="stormSource" source_type="STORM source" />
   </div>
 
-
+      <div v-if="articleStore.stormSources.length > 4">
         <button
           v-if="!showAllSources"
           @click="showAllSources = true"
           class="show-more-btn"
         >
-          Show more ({{ hiddenStormSources.length }})
+          Show more ({{ hiddenStormSources.length }})<span class="material-icons arrow_downward icon-arrow"></span>
         </button>
         <button
           v-if="showAllSources || visibleStormSources.length > 4"
           @click="showAllSources = false"
-          class="show-less-btn"
-        >
-          Show less
+          class="show-less-btn "
+        >Show less<span class="material-icons arrow_upward icon-arrow"></span>
         </button>
-
+      </div>
 
 
         <Buttons v-if="isMobileDevice" />
@@ -457,9 +456,16 @@ main {
   margin: auto;
   cursor: pointer;
   font-size: 12px;
-  margin: 4px 20px;
+  margin: 2px 20px;
   float: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
+}
+
+.icon-arrow {
+  font-size: 16px;
 }
 
 .show-more-btn:hover, .show-less-btn:hover {

@@ -15,6 +15,12 @@ export const useArticleStore = defineStore('article', {
     articleId: 0,
     stormEnabled: false,
     loading: false,
+    hasGraph: true,
+    graphType: "" as string,
+    graphLabels: [] as string[],
+    graphData: [] as number[],
+    graphTitle: "" as string,
+    graphAxisLabels: [] as string[],
   }),
   getters: {
     getTitleSuggestions(): string[] {
@@ -48,6 +54,18 @@ export const useArticleStore = defineStore('article', {
         this.body = response.data.article.article;
         this.tags = response.data.article.tags;
         this.articleId = response.data.id;
+
+        // graf
+        this.hasGraph = response.data.article.gen_graph;
+
+        if(this.hasGraph) {
+        this.graphType = response.data.article.graph_type;
+        this.graphLabels = response.data.article.graph_data.labels;
+        this.graphData = response.data.article.graph_data.values;
+        this.graphTitle = response.data.article.graph_title;
+        this.graphAxisLabels = response.data.article.graph_axis_labels;
+        }
+        
         this.stormSources = response.data.storm_urls;
 
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE

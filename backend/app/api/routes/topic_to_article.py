@@ -1,4 +1,6 @@
 import asyncio
+import os
+import traceback
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
@@ -9,8 +11,8 @@ from backend.app.core.config import settings
 from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import (
     ArticleBodyResponse,
-    ArticleResponse,
     EngagingTextResponse,
+    ExtractArticleResponse,
     HeadlineResponse,
     PerexResponse,
     TagsResponse,
@@ -25,7 +27,9 @@ from backend.app.utils.default_article import (
     default_tags,
     default_topic,
 )
+from backend.app.utils.graph_helper import clean_graph_data, generate_article_data
 from backend.app.utils.scraping_cache_functions import cache_or_scrape
+from backend.app.utils.url_getter import extract_reference_urls
 
 router = APIRouter()
 
@@ -35,7 +39,7 @@ async def extract_article(
     url: str = default_article_url,
     selected_topic: str = default_topic,
     storm: bool = False,
-) -> ArticleResponse:
+) -> ExtractArticleResponse:
     try:
         scraped_article = await cache_or_scrape(url, default_article_url)
 
@@ -50,51 +54,56 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        article_data = {
-            "url": {"url": url},
-            "heading": {"heading_content": article.headlines[0]},
-            "topic": {"topic_content": selected_topic},
-            "perex": {"perex_content": article.perex},
-            "body": {"body_content": article.article},
-            "text": {"text_content": article.engaging_text},
-            "tags": [{"tag_content": tag} for tag in article.tags],
-        }
+        # Get list of storm article reference url to send to frontend
+        storm_urls = extract_reference_urls(storm_article) if storm_article else None
 
-        async with httpx.AsyncClient() as client:
+        # Clean graph data early
+        article = clean_graph_data(article)
+
+        # Construct article_data entity to save on db
+        article_data = generate_article_data(url, article, selected_topic)
+
+        verify_ssl = settings.ENVIRONMENT != "development"
+        async with httpx.AsyncClient(verify=verify_ssl) as client:
             response = await client.post(
                 "https://api.wraite.news/save_article/", json=article_data
             )
 
-        if response.status_code != 201:
+        if not response.is_success:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        return {"id": response.id, "article": article}
+        response_data = response.json()
+        return ExtractArticleResponse(
+            id=response_data.get("id"), article=article, storm_urls=storm_urls
+        )
+
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
 if settings.ENVIRONMENT == "development":
 
-    @router.get("/article/generate", response_model=ArticleResponse)
+    @router.get("/article/generate", response_model=ExtractArticleResponse)
     async def extract_article_get(
         url: str = default_article_url,
         selected_topic: str = default_topic,
         storm: bool = False,
-    ) -> ArticleResponse:
-        print()
+    ) -> ExtractArticleResponse:
         return await extract_article(url, selected_topic, storm)
 
 
-@router.post("/article/generate", response_model=ArticleResponse)
+@router.post("/article/generate", response_model=ExtractArticleResponse)
 async def extract_article_post(
     request: Request,
-) -> ArticleResponse:
+) -> ExtractArticleResponse:
     try:
         request_body = await request.json()
         url = request_body.get("url", default_article_url)
         selected_topic = request_body.get("selected_topic", default_topic)
         storm = request_body.get("storm", False)
         return await extract_article(url, selected_topic, storm)
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -421,7 +430,8 @@ async def regenerate_tags_post(
 async def health_check() -> dict[str, str]:
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://localhost:8001/health")
+            storm_host = os.getenv("STORM_HOST", "localhost")
+            response = await client.get(f"http://{storm_host}:8001/health")
             if response.status_code == 200:
                 return {"status": "healthy", "storm_status": response.json()}
             else:
@@ -433,7 +443,8 @@ async def health_check() -> dict[str, str]:
 async def call_storm_microservice_generate(
     selected_topic: str, article_url: str
 ) -> None:
-    url = f"http://localhost:8001/knowledge-storm/generate?selected_topic={selected_topic}&article_url={article_url}"
+    storm_host = os.getenv("STORM_HOST", "localhost")
+    url = f"http://{storm_host}:8001/knowledge-storm/generate?selected_topic={selected_topic}&article_url={article_url}"
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
         response = await client.post(url)
@@ -451,10 +462,13 @@ async def storm_cache_retrieve(selected_topic: str, url: str) -> str:
 
     if not cached_content:
         storm_article = await call_storm_microservice_generate(selected_topic, url)
-        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
+        parsed_storm_article = storm_article["result"]
+        await FastAPICache.get_backend().set(
+            cache_key, parsed_storm_article, expire=3600
+        )
     else:
-        storm_article = cached_content
-    return storm_article
+        parsed_storm_article = cached_content
+    return parsed_storm_article
 
 
 # endregion

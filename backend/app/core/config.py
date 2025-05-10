@@ -17,7 +17,11 @@ class Settings(BaseSettings):
         env_file=os.path.join(os.path.dirname(__file__), ".env"), extra="allow"
     )
 
-    # Qdrant DB settings
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_HOST: str = "localhost"
+    POSTGRES_PORT: str = "15432"
 
 
 settings = Settings()

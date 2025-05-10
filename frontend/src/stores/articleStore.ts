@@ -11,7 +11,9 @@ export const useArticleStore = defineStore('article', {
     perex: "" as string,
     body: "" as string,
     url: "" as string,
+    stormSources: [] as string[],
     articleId: 0,
+    stormEnabled: false,
     loading: false,
     hasGraph: true,
     graphType: "" as string,
@@ -44,7 +46,7 @@ export const useArticleStore = defineStore('article', {
     async fetchArticle() {
       try {
         this.loading = true;
-        const response = await ArticleService.article(this.url, this.selectedTopic)
+        const response = await ArticleService.article(this.url, this.selectedTopic, this.stormEnabled)
         this.titleSuggestions = response.data.article.headlines;
         this.title = response.data.article.headlines[0];
         this.engagingText = response.data.article.engaging_text;
@@ -63,12 +65,16 @@ export const useArticleStore = defineStore('article', {
         this.graphTitle = response.data.article.graph_title;
         this.graphAxisLabels = response.data.article.graph_axis_labels;
         }
+        
+        this.stormSources = response.data.storm_urls;
 
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE
         console.log("Graph Metadata:");
-        console.log("  gen_graph:", response.data.article.gen_graph);
-        console.log("  graph_type:", response.data.article.graph_type);
-        console.log("  graph_data:", response.data.article.graph_data);
+        console.log("gen_graph:", response.data.article.gen_graph);
+        console.log("graph_title:", response.data.article.graph_title);
+        console.log("graph_type:", response.data.article.graph_type);
+        console.log("graph_axis_labels:", response.data.article.graph_axis_labels);
+        console.log("graph_data:", response.data.article.graph_data);
 
       } catch (error) {
         console.error(error)

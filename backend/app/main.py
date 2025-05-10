@@ -17,6 +17,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from backend.app.api.main import api_router
 from backend.app.core.config import Settings, settings
+from backend.app.db.database import db_manager
 from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 
@@ -24,7 +25,9 @@ from backend.app.services.ai_service.response_models import TestLiteLLMPoem
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     FastAPICache.init(InMemoryBackend())
+    db_manager.start()
     yield
+    await db_manager.stop()
 
 
 app = FastAPI(

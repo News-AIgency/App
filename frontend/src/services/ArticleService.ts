@@ -1,10 +1,11 @@
 import Api from '@/services/Api'
 
 export default {
-  article(url: string, selected_topic: string) {
+  article(url: string, selected_topic: string, storm: boolean) {
     return Api().post('article/generate', {
       url: url,
       selected_topic: selected_topic,
+      storm: storm,
     })
   },
   regenerateEngagingText(
@@ -13,6 +14,7 @@ export default {
     selected_topic?: string,
     old_engaging_text?: string,
     current_headline?: string,
+    storm?: boolean,
   ) {
     return Api().post('regenerate/engaging_text', {
       url: url,
@@ -20,6 +22,7 @@ export default {
       selected_topic: selected_topic,
       old_engaging_text: old_engaging_text,
       current_headline: current_headline,
+      storm: storm,
     })
   },
   regeneratePerex(
@@ -28,6 +31,7 @@ export default {
     selected_topic?: string,
     old_perex?: string,
     current_headline?: string,
+    storm?: boolean,
   ) {
     return Api().post('regenerate/perex', {
       url: url,
@@ -35,6 +39,7 @@ export default {
       selected_topic: selected_topic,
       old_perex: old_perex,
       current_headline: current_headline,
+      storm: storm,
     })
   },
   regenerateBody(
@@ -43,6 +48,7 @@ export default {
     selected_topic?: string,
     old_article_body?: string,
     current_headline?: string,
+    storm?: boolean,
   ) {
     return Api().post('regenerate/articlebody', {
       url: url,
@@ -50,6 +56,7 @@ export default {
       selected_topic: selected_topic,
       old_article_body: old_article_body,
       current_headline: current_headline,
+      storm: storm,
     })
   },
   regenerateSuggestions(

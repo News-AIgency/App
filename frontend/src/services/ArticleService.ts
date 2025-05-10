@@ -65,5 +65,10 @@ export default {
       old_headlines: old_headlines,
     })
   },
-
+  updateDbArticle(
+    id: number,
+    data: any,
+  ) {
+    return Api().patch(`/articles/${id}`, data)
+  },
 }

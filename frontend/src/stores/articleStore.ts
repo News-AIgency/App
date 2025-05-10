@@ -32,6 +32,9 @@ export const useArticleStore = defineStore('article', {
     },
     getTags(): string[] {
       return this.tags;
+    },
+    getArticleId(): number {
+      return this.articleId
     }
   },
   actions: {

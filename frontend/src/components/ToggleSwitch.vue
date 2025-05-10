@@ -1,22 +1,32 @@
 <template>
   <div class="toggle-switch">
     <label class="switch">
-      <input type="checkbox" />
+      <input type="checkbox" v-model="articleStore.stormEnabled"/>
       <span class="slider round"></span>
     </label>
     <div class="label-container">
       <span class="label">STORM</span
       ><span class="material-icons icon-info"
         >info</span>
-      <div class="tooltip">Enable STORM to generate better articles (to be edited).</div>
+      <div class="tooltip">Enable STORM to search for similar articles to improve the result.</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue'
+import { useArticleStore } from '@/stores/articleStore'
+
+export default defineComponent({
   name: 'ToggleSwitch',
-}
+  setup() {
+    const articleStore = useArticleStore()
+
+    return {
+      articleStore,
+    }
+  },
+})
 </script>
 
 <style scoped>

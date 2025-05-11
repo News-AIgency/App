@@ -7,9 +7,9 @@ class Settings(BaseSettings):
     # General Settings
     PROJECT_NAME: str = "News AIgency"
     API_VERSION: str = "v1"
-    LITE_LLM_KEY: str = "sk-N1jVtvznr2qdAI64pcr2MA"
+    LITE_LLM_KEY: str
     # Can be "development" or "release"
-    ENVIRONMENT: str = "development"
+    ENVIRONMENT: str 
 
     SCRAPER: str = "jina"  # can be "playwright" or "jina"
 

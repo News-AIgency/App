@@ -6,9 +6,8 @@ import pandas as pd
 
 from backend.app.iitsrc.article_response_converter import check_origin_url
 from backend.app.iitsrc.dspy_llm_judge import llm_compare_strings
-from backend.app.services.ai_service.litellm_service import LiteLLMService
+from backend.app.services.ai_service.article_generator import ArticleGenerator
 from backend.app.services.scraping_service.jina_scraper import jina_scrape
-
 
 def generate_original_article_csv() -> None:
     file_path = "articles.xlsx"
@@ -42,12 +41,23 @@ def generate_original_article_csv() -> None:
                 # Write to CSV
                 writer.writerow([sheet_name, headline, perex, article, tags])
 
+async def retry_api_call(api_func, *args, retries=3, delay=2, **kwargs):
+    for attempt in range(retries):
+        try:
+            return await api_func(*args, **kwargs)
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed with error: {e}")
+            if attempt < retries - 1:
+                await asyncio.sleep(delay)
+            else:
+                raise
+
 
 async def generate_generated_article_csv() -> None:
     file_path = "articles.xlsx"
     output_csv = "generated_articles.csv"
 
-    llm_service = LiteLLMService()
+    llm_service = ArticleGenerator()
     xls = pd.ExcelFile(file_path)
 
     with open(output_csv, mode="w", newline="", encoding="utf-8") as file:
@@ -55,57 +65,65 @@ async def generate_generated_article_csv() -> None:
         writer.writerow(["News Site", "Headline", "Perex", "Article", "Tags"])
 
         for sheet_name in xls.sheet_names:
-            df = pd.read_excel(
-                xls, sheet_name=sheet_name, usecols=[1]
-            )  # Read only the second column - SUSR
+            df = pd.read_excel(xls, sheet_name=sheet_name, usecols=[1])
 
             for url in df.iloc[:, 0].tolist():
+                try:
+                    print(f"Processing: {url}")
 
-                scraped_content = await jina_scrape(url)
-                print(url)
-                topics_response = await llm_service.generate_topics(
-                    scraped_content=scraped_content
-                )
-                selected_topic = random.choice(topics_response.topics)
+                    scraped_content = await retry_api_call(jina_scrape, url)
 
-                # Generate components separately
-                headline_response = await llm_service.generate_headlines(
-                    scraped_content=scraped_content, selected_topic=selected_topic
-                )
-                print("headline complete")
+                    topics_response = await retry_api_call(
+                        llm_service.generate_topics,
+                        scraped_content=scraped_content,
+                    )
+                    selected_topic = random.choice(topics_response.topics)
 
-                perex_response = await llm_service.generate_perex(
-                    scraped_content=scraped_content,
-                    selected_topic=selected_topic,
-                    current_headline=headline_response.headlines[0],
-                )
-                print("perex complete")
-                article_response = await llm_service.generate_article_body(
-                    scraped_content=scraped_content,
-                    selected_topic=selected_topic,
-                    current_headline=headline_response.headlines[0],
-                )
-                print("article complete")
+                    headline_response = await retry_api_call(
+                        llm_service.generate_headlines,
+                        scraped_content=scraped_content,
+                        selected_topic=selected_topic,
+                    )
+                    print("Headline complete")
 
-                tags_response = await llm_service.generate_tags(
-                    scraped_content=scraped_content,
-                    selected_topic=selected_topic,
-                    current_headline=headline_response.headlines[0],
-                    current_article=article_response.article,
-                )
-                print("tags complete")
+                    perex_response = await retry_api_call(
+                        llm_service.generate_perex,
+                        scraped_content=scraped_content,
+                        selected_topic=selected_topic,
+                        current_headline=headline_response.headlines[0],
+                    )
+                    print("Perex complete")
 
-                # Extract fields
-                headline = random.choice(headline_response.headlines)
-                perex = perex_response.perex
-                article = article_response.article
-                tags = tags_response.tags[0].lower()
+                    article_response = await retry_api_call(
+                        llm_service.generate_article_body,
+                        scraped_content=scraped_content,
+                        selected_topic=selected_topic,
+                        current_headline=headline_response.headlines[0],
+                    )
+                    print("Article complete")
 
-                # Write to CSV
-                writer.writerow([sheet_name, headline, perex, article, tags])
+                    tags_response = await retry_api_call(
+                        llm_service.generate_tags,
+                        scraped_content=scraped_content,
+                        selected_topic=selected_topic,
+                        current_headline=headline_response.headlines[0],
+                        current_article=article_response.article,
+                    )
+                    print("Tags complete")
 
-                print("Done")
+                    headline = random.choice(headline_response.headlines)
+                    perex = perex_response.perex
+                    article = article_response.article
+                    tags = tags_response.tags[0].lower()
 
+                    writer.writerow([sheet_name, headline, perex, article, tags])
+                    print("VIBAVENE OK ")
+
+                    await asyncio.sleep(1.5)  # delay to reduce rate-limiting risk
+
+                except Exception as e:
+                    print(f"Failed to process {url}: {e}")
+                    continue
 
 async def generate_llm_as_judge_csv() -> None:
     original_articles = pd.read_csv("original_articles.csv", delimiter=";")
@@ -146,9 +164,10 @@ async def generate_llm_as_judge_csv() -> None:
 
     scores_df = pd.DataFrame(scores, columns=["Headline", "Perex", "Article"])
     scores_df.to_csv("llm_as_judge_scores.csv", index=False)
+    await asyncio.sleep(1.5)  # delay to reduce rate-limiting risk
 
 
 if __name__ == "__main__":
-    # generate_original_article_csv()
+    generate_original_article_csv()
     # asyncio.run(generate_generated_article_csv())
-    asyncio.run(generate_llm_as_judge_csv())
+    # asyncio.run(generate_llm_as_judge_csv())

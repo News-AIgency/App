@@ -140,14 +140,18 @@ class Perex(Base):
 class GraphData(Base):
     __tablename__ = "graph_data"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    # does_graph_exist = Column(Boolean, index=True, nullable=False)
-    graph_type = Column(String, index=True, nullable=False)
+    graph_type = Column(String, index=True, nullable=False)  # pie, line, etc.
     graph_labels = Column(JSON, nullable=False)
     graph_values = Column(JSON, nullable=False)
+    gen_graph = Column(Boolean, nullable=False) #whether graph exists
+    graph_title = Column(String, nullable=True)
+    graph_axis_labels = Column(JSON, nullable=True)  # e.g., {"x_axis": "Time", "y_axis": "Value"}
 
     article = relationship(
         "GeneratedArticles", back_populates="graph_data", uselist=False
     )
+
+
 
 
 """class Images(Base):

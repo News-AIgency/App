@@ -145,7 +145,9 @@ class GraphData(Base):
     graph_values = Column(JSON, nullable=False)
     gen_graph = Column(Boolean, nullable=False) #whether graph exists
     graph_title = Column(String, nullable=True)
-    graph_axis_labels = Column(JSON, nullable=True)  # e.g., {"x_axis": "Time", "y_axis": "Value"}
+    x_axis = Column(String, nullable=True)
+    y_axis = Column(String, nullable=True)
+    #graph_axis_labels = Column(JSON, nullable=True)  # e.g., {"x_axis": "Time", "y_axis": "Value"}
 
     article = relationship(
         "GeneratedArticles", back_populates="graph_data", uselist=False

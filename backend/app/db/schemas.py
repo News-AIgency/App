@@ -253,7 +253,6 @@ async def get_articles(generated_article_id: int, db: db_dependency) -> dict[str
             raise HTTPException(status_code=404, detail="Article not found")
 
         graph_data = article.graph_data
-        print (graph_data)
         return {
             "id": article.id,
             "url": article.sources.url,

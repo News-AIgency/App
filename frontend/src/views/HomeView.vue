@@ -84,6 +84,7 @@ export default {
         topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
       } catch (error) {
+        topicsStore.error = true;
         console.error("Failed to fetch topics: ", error);
       }
     },

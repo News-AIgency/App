@@ -15,6 +15,7 @@ export const useArticleStore = defineStore('article', {
     articleId: 0,
     stormEnabled: false,
     loading: false,
+    error: false,
     hasGraph: true,
     graphType: "" as string,
     graphLabels: [] as string[],
@@ -77,6 +78,7 @@ export const useArticleStore = defineStore('article', {
         console.log("graph_data:", response.data.article.graph_data);
 
       } catch (error) {
+        this.error = true;
         console.error(error)
       } finally {
         this.loading = false;

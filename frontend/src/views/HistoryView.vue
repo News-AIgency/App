@@ -1,7 +1,6 @@
 <template>
-  <div class="container"> History View
-  <br>
-  To be added</div>
+  <div class="container"><h2> History is not available yet. 🤕</h2>
+  </div>
 
 </template>
 
@@ -18,7 +17,7 @@ export default {
   margin: auto;
   padding: 20px;
   text-align: center;
-  height: 100vh;
+  height: 85vh;
   display: flex;
   justify-content: center;
   align-items: center;

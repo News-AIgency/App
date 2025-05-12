@@ -6,9 +6,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from 'vue';
+import { defineComponent, onMounted, ref, watch  } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import type { ChartType } from 'chart.js';
+import type { PropType } from 'vue';
 
 Chart.register(...registerables);
 
@@ -16,7 +17,7 @@ export default defineComponent({
   name: 'GraphChart',
   props: {
     plotType: {
-      type: String as () => ChartType,
+      type: String as PropType<ChartType>,
       required: true,
     },
     labels: {

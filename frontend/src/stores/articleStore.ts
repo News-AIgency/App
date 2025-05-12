@@ -16,7 +16,7 @@ export const useArticleStore = defineStore('article', {
     stormEnabled: false,
     loading: false,
     error: false,
-    hasGraph: true,
+    hasGraph: false,
     graphType: "" as string,
     graphLabels: [] as string[],
     graphData: [] as number[],
@@ -66,7 +66,7 @@ export const useArticleStore = defineStore('article', {
         this.graphTitle = response.data.article.graph_title;
         this.graphAxisLabels = response.data.article.graph_axis_labels;
         }
-        
+
         this.stormSources = response.data.storm_urls;
 
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE

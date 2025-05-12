@@ -42,7 +42,7 @@
       <div class="graph-container" v-if="articleStore.hasGraph">
       <h1 class="graph-title">Plots and Charts</h1>
       <GraphChart class="graph-box"
-        :plotType="articleStore.graphType"
+        :plotType="chartType"
         :labels="articleStore.graphLabels"
         :data="articleStore.graphData"
         :title="articleStore.graphTitle"
@@ -128,6 +128,7 @@
 <script lang="ts">
 import { ref, computed } from 'vue';
 import { useArticleStore } from '@/stores/articleStore'
+import type { ChartType } from 'chart.js';
 import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
@@ -146,6 +147,7 @@ const MOBILE_WIDTH_THRESHOLD = 1024
 export default {
   setup() {
     const articleStore = useArticleStore()
+    const chartType = computed(() => articleStore.graphType as ChartType);
 
     const showAllSources = ref(false);
 
@@ -161,7 +163,7 @@ export default {
 
     return { articleStore, showAllSources,
       visibleStormSources,
-      hiddenStormSources,}
+      hiddenStormSources, chartType}
 
 
   },

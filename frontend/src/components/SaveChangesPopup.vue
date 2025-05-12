@@ -1,5 +1,5 @@
 <template>
-  <transition name="popup" v-if="F">
+  <transition name="popup">
   <div class="popup-container" v-if="visible">
     <p class="text">You have unsaved changes</p>
     <div class="buttons-container">

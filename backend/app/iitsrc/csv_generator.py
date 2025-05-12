@@ -114,7 +114,7 @@ async def generate_generated_article_csv() -> None:
                     headline = random.choice(headline_response.headlines)
                     perex = perex_response.perex
                     article = article_response.article
-                    tags = tags_response.tags[0].lower()
+                    tags = tags_response.tags.lower()
 
                     writer.writerow([sheet_name, headline, perex, article, tags])
                     print("VIBAVENE OK ")

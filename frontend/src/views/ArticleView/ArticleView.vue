@@ -1,11 +1,13 @@
 <template>
   <main>
-    <section class="article-section">
+    <ErrorMessage class="error-message" v-if="articleStore.error" />
+    <section class="article-section" v-if="!articleStore.error">
       <ProgressBar :currentStep="currentStep"></ProgressBar>
       <div class="loading-container" v-show="articleStore.loading">
         <LoadingSpinner></LoadingSpinner>
         Generating article...
       </div>
+
 
       <div class="intro-box">
         <div class="back-button" v-show="!articleStore.loading" @click="goBack"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
@@ -73,7 +75,7 @@
       <Buttons />
       <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" />
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading" v-if="!articleStore.error"/>
   </main>
 </template>
 
@@ -88,6 +90,7 @@ import ArticleService from '@/services/ArticleService';
 import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 import Buttons from './Buttons.vue';
 import Suggestions from './Suggestions.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 const MOBILE_WIDTH_THRESHOLD = 1024
 
@@ -104,7 +107,8 @@ export default {
     SrcUrlBlock,
     SaveChangesPopup,
     Buttons,
-    Suggestions
+    Suggestions,
+    ErrorMessage,
   },
   data() {
     return {
@@ -374,6 +378,16 @@ main {
   padding-bottom: 20px;
 }
 
+.error-message {
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
 .sidebar-section {
   border-left: 1px solid var(--color-border);

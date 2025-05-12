@@ -16,7 +16,7 @@
             @click="goToStart"
             alt="WrAIte XMAS logo <3"
             /> -->
-            <a href="" class="navbar-item">
+            <a href="" class="navbar-item" @click="goToStart">
                 <svg
                     class="icon"
                     xmlns="http://www.w3.org/2000/svg"

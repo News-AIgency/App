@@ -13,6 +13,7 @@ export const useArticleStore = defineStore('article', {
     url: "" as string,
     articleId: 0,
     loading: false,
+    error: false,
   }),
   getters: {
     getTitleSuggestions(): string[] {
@@ -46,14 +47,15 @@ export const useArticleStore = defineStore('article', {
         this.body = response.data.article.article;
         this.tags = response.data.article.tags;
         this.articleId = response.data.id;
-        
+
         //TEST CI DOBRE RETURNUJEM DATA OHLADOM GRAFU NA FE
         console.log("Graph Metadata:");
         console.log("  gen_graph:", response.data.article.gen_graph);
         console.log("  graph_type:", response.data.article.graph_type);
         console.log("  graph_data:", response.data.article.graph_data);
-        
+        this.error = false;
       } catch (error) {
+        this.error = true;
         console.error(error)
       } finally {
         this.loading = false;

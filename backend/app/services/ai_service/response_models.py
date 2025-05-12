@@ -71,9 +71,19 @@ class ArticleResponse(BaseResponse):
         None,
         description="Boolean value representing if a graph should be generated or not",
     )
+    graph_title: str = Field(None, description="Title for the graph")
     graph_type: Literal["pie", "line", "bar", "histogram", "scatter"] = Field(
         None,
         description="The type of the graph to generate from data in: pie, line, bar, histogram, scatter",
+    )
+    graph_axis_labels: dict[str, Any] = Field(
+        None,
+        description=(
+            "Graph labels in dict format. "
+            "Structure depends on `graph_type`: \n"
+            "- For 'bar', 'line', 'histogram', 'scatter': {'x_axis': str, 'y_axis': str}\n"
+            "- For 'pie': A 'pie' chart does not have axes - {'x_axis': None, 'y_axis': None}."
+        ),
     )
     graph_data: dict[str, Any] = Field(
         None,
@@ -153,9 +163,19 @@ class GraphResponse(BaseResponse):
         None,
         description="Boolean value representing if a graph should be generated or not",
     )
+    graph_title: str = Field(None, description="Title for the graph")
     graph_type: Literal["pie", "line", "bar", "histogram", "scatter"] = Field(
         None,
         description="The type of the graph to generate from data in: pie, line, bar, histogram, scatter",
+    )
+    graph_axis_labels: dict[str, Any] = Field(
+        None,
+        description=(
+            "Graph labels in dict format. "
+            "Structure depends on `graph_type`: \n"
+            "- For 'bar', 'line', 'histogram', 'scatter': {'x_axis': str, 'y_axis': str}\n"
+            "- For 'pie': A 'pie' chart does not have axes - {'x_axis': None, 'y_axis': None}."
+        ),
     )
     graph_data: dict[str, Any] = Field(
         None,
@@ -175,3 +195,4 @@ class GraphResponse(BaseResponse):
 class ExtractArticleResponse(BaseModel):
     id: int
     article: ArticleResponse
+    storm_urls: Optional[list[str]]

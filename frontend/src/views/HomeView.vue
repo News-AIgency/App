@@ -38,6 +38,8 @@ export default {
   },
   mounted() {
     localStorage.clear();
+    const articleStore = useArticleStore();
+    articleStore.$reset();
 
     // paste article url from query params (for presentation purposes)
     if (this.$route.query.article_url) {

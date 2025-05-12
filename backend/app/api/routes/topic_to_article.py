@@ -27,7 +27,9 @@ from backend.app.utils.default_article import (
     default_tags,
     default_topic,
 )
+from backend.app.utils.graph_helper import clean_graph_data, generate_article_data
 from backend.app.utils.scraping_cache_functions import cache_or_scrape
+from backend.app.utils.url_getter import extract_reference_urls
 
 router = APIRouter()
 
@@ -52,23 +54,14 @@ async def extract_article(
             storm_article=storm_article,
         )
 
-        graph_labels_key = "x_vals" if article.graph_type == "scatter" else "labels"
-        graph_values_key = "y_vals" if article.graph_type == "scatter" else "values"
+        # Get list of storm article reference url to send to frontend
+        storm_urls = extract_reference_urls(storm_article) if storm_article else None
 
-        article_data = {
-            "url": {"url": url},
-            "heading": {"heading_content": article.headlines[0]},
-            "topic": {"topic_content": selected_topic},
-            "perex": {"perex_content": article.perex},
-            "body": {"body_content": article.article},
-            "engaging_text": {"engaging_text_content": article.engaging_text},
-            "tags": [{"tags_content": tag} for tag in article.tags],
-            "graph_data": {
-                "graph_type": article.graph_type,
-                "graph_labels": article.graph_data[graph_labels_key],
-                "graph_values": article.graph_data[graph_values_key],
-            },
-        }
+        # Clean graph data early
+        article = clean_graph_data(article)
+
+        # Construct article_data entity to save on db
+        article_data = generate_article_data(url, article, selected_topic)
 
         verify_ssl = settings.ENVIRONMENT != "development"
         async with httpx.AsyncClient(verify=verify_ssl) as client:
@@ -80,7 +73,9 @@ async def extract_article(
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         response_data = response.json()
-        return ExtractArticleResponse(id=response_data.get("id"), article=article)
+        return ExtractArticleResponse(
+            id=response_data.get("id"), article=article, storm_urls=storm_urls
+        )
 
     except Exception as e:
         traceback.print_exc()
@@ -467,10 +462,13 @@ async def storm_cache_retrieve(selected_topic: str, url: str) -> str:
 
     if not cached_content:
         storm_article = await call_storm_microservice_generate(selected_topic, url)
-        await FastAPICache.get_backend().set(cache_key, storm_article, expire=3600)
+        parsed_storm_article = storm_article["result"]
+        await FastAPICache.get_backend().set(
+            cache_key, parsed_storm_article, expire=3600
+        )
     else:
-        storm_article = cached_content
-    return storm_article
+        parsed_storm_article = cached_content
+    return parsed_storm_article
 
 
 # endregion

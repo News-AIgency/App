@@ -49,12 +49,21 @@ def correct_text(
     for match in matches:
         word = text[match.offset : match.offset + match.errorLength]
 
-        # If word contains a capital letter, don't fix it, likely a proper noun
+        # Skip corrections for words with capitals (likely names, will fix these incorrectly)
         if not word.islower():
             continue
 
         if match.replacements:
             replacement = match.replacements[0]
+
+            # Skip if the correction only changes commas
+            original_clean = word.replace(",", "").strip()
+            replacement_clean = replacement.replace(",", "").strip()
+
+            # If the only difference is commas, skip
+            if original_clean == replacement_clean:
+                continue
+
             text = (
                 text[: match.offset]
                 + replacement

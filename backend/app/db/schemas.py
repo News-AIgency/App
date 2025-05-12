@@ -103,6 +103,9 @@ class Tags(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+class GraphAxisLabels(BaseModel):
+    x_axis: Optional[str] = None
+    y_axis: Optional[str] = None
 
 class GraphData(BaseModel):
     graph_type: Optional[str] = None
@@ -110,9 +113,10 @@ class GraphData(BaseModel):
     graph_values: Optional[list[float]] = None
     gen_graph: Optional[bool] = None
     graph_title: Optional[str] = None
-    x_axis: Optional[str] = None
-    y_axis: Optional[str] = None
+    #x_axis: Optional[str] = None
+    #y_axis: Optional[str] = None
     #graph_axis_labels: Optional[dict[str, Optional[str]]] = None  # e.g., {'x_axis': 'Time', 'y_axis': 'Value'}
+    graph_axis_labels: Optional[GraphAxisLabels] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -155,8 +159,8 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
 
         graph_data = None
         if article.graph_data:
-
             graph_fields = {}
+
             if article.graph_data.gen_graph is not None:
                 graph_fields["gen_graph"] = article.graph_data.gen_graph
             if article.graph_data.graph_title is not None:
@@ -167,19 +171,14 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
                 graph_fields["graph_labels"] = article.graph_data.graph_labels
             if article.graph_data.graph_values is not None:
                 graph_fields["graph_values"] = article.graph_data.graph_values
-            if article.graph_data.x_axis is not None:
-                graph_fields["x_axis"] = article.graph_data.x_axis
-            if article.graph_data.y_axis is not None:
-                graph_fields["y_axis"] = article.graph_data.y_axis
-            #if article.graph_data.graph_axis_labels is not None:
-             #   graph_fields["graph_axis_labels"] = article.graph_data.graph_axis_labels
 
-            # Only add if there's at least something to store
+            if article.graph_data.graph_axis_labels:
+                graph_fields["x_axis"] = article.graph_data.graph_axis_labels.x_axis
+                graph_fields["y_axis"] = article.graph_data.graph_axis_labels.y_axis
+
             if graph_fields:
                 graph_data = models.GraphData(**graph_fields)
                 db.add(graph_data)
-
-
 
         db.add(url)
         db.add(heading)
@@ -268,8 +267,10 @@ async def get_articles(generated_article_id: int, db: db_dependency) -> dict[str
                 "graph_values": graph_data.graph_values,
                 "gen_graph": graph_data.gen_graph,
                 "graph_title": graph_data.graph_title,
-                "x_axis": graph_data.x_axis,
-                "y_axis": graph_data.y_axis,
+                "graph_axis_labels": {
+                     "x_axis": graph_data.x_axis,
+                    "y_axis": graph_data.y_axis
+                }
             } if graph_data else None
         }
 

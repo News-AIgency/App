@@ -168,6 +168,6 @@ async def generate_llm_as_judge_csv() -> None:
 
 
 if __name__ == "__main__":
-    generate_original_article_csv()
+    # generate_original_article_csv()
     # asyncio.run(generate_generated_article_csv())
-    # asyncio.run(generate_llm_as_judge_csv())
+    asyncio.run(generate_llm_as_judge_csv())

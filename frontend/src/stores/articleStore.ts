@@ -21,7 +21,8 @@ export const useArticleStore = defineStore('article', {
     graphLabels: [] as string[],
     graphData: [] as number[],
     graphTitle: "" as string,
-    graphAxisLabels: [] as string[],
+    graphXAxisLabel: "" as string,
+    graphYAxisLabel: "" as string,
   }),
   getters: {
     getTitleSuggestions(): string[] {
@@ -67,7 +68,8 @@ export const useArticleStore = defineStore('article', {
         this.graphLabels = response.data.article.graph_data.labels;
         this.graphData = response.data.article.graph_data.values;
         this.graphTitle = response.data.article.graph_title;
-        this.graphAxisLabels = response.data.article.graph_axis_labels;
+        this.graphXAxisLabel = response.data.article.graph_axis_labels.x_axis;
+        this.graphYAxisLabel = response.data.article.graph_axis_labels.y_axis;
         }
 
         this.stormSources = response.data.storm_urls;

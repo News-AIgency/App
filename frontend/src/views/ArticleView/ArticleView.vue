@@ -46,10 +46,11 @@
         :labels="articleStore.graphLabels"
         :data="articleStore.graphData"
         :title="articleStore.graphTitle"
-        :xAxisLabel="articleStore.graphAxisLabels[0]"
-        :yAxisLabel="articleStore.graphAxisLabels[1]"
+        :xAxisLabel="articleStore.graphXAxisLabel"
+        :yAxisLabel="articleStore.graphYAxisLabel"
       />
     </div>
+    <h1 class="graph-title">Tags</h1>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
@@ -76,6 +77,7 @@
             </div>
           </div>
         </div>
+        <h1 class="graph-title">Sources</h1>
         <SrcUrlBlock :url="originalUrl" source_type="Main source" v-show="!articleStore.loading"></SrcUrlBlock>
         <div v-for="(stormSource, index) in visibleStormSources" :key="index">
 
@@ -92,7 +94,7 @@
     <SrcUrlBlock :url="stormSource" source_type="STORM source" />
   </div>
 
-      <div v-if="articleStore.stormSources.length > 4">
+      <div v-if="articleStore.stormEnabled && articleStore.stormSources.length > 4">
         <button
           v-if="!showAllSources"
           @click="showAllSources = true"
@@ -152,14 +154,21 @@ export default {
     const showAllSources = ref(false);
 
 
-    const visibleStormSources = computed(() =>
-      showAllSources.value ? articleStore.stormSources : articleStore.stormSources.slice(0, 4)
-    );
+    const visibleStormSources = computed(() => {
+    if (!articleStore.stormSources || articleStore.stormSources.length === 0) {
+      return [];
+    }
+    return showAllSources.value
+      ? articleStore.stormSources
+      : articleStore.stormSources.slice(0, 4);
+  });
 
-    const hiddenStormSources = computed(() =>
-      showAllSources.value ? [] : articleStore.stormSources.slice(4)
-    );
-
+  const hiddenStormSources = computed(() => {
+    if (!articleStore.stormSources || articleStore.stormSources.length === 0) {
+      return [];
+    }
+    return articleStore.stormSources.slice(4);
+  });
 
     return { articleStore, showAllSources,
       visibleStormSources,
@@ -477,7 +486,7 @@ main {
 }
 
 .graph-title {
-  padding: 3%;
+  padding: 12px 0px 4px 20px;
 }
 
 .graph-box {
@@ -573,11 +582,13 @@ textarea {
 textarea:focus,
 textarea:hover {
   background-color: var(--color-block);
+  transition: background-color 0.4s ease;
 }
 
 .headline {
   font-size: 1.75rem;
   font-weight: 900;
+  margin-bottom: 2px;
 }
 
 .topic-box {

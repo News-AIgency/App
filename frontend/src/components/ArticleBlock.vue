@@ -132,6 +132,7 @@ export default {
 .article-block:focus,
 .article-block:hover {
   background-color: var(--color-block);
+  transition: background-color 0.4s ease;
 }
 .block-actions {
   display: flex;

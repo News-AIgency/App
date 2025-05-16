@@ -41,6 +41,8 @@ export default defineComponent({
         articleStore.getArticleId,
         data,
       )
+
+      this.$emit('save');
     }
   },
 })

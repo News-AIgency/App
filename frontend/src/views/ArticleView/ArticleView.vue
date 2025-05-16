@@ -73,7 +73,7 @@
       <Buttons />
       <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" />
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" @save="hideSaveChangesPopup" v-show="!articleStore.loading"/>
   </main>
 </template>
 

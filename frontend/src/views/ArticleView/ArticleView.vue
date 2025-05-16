@@ -1,11 +1,13 @@
 <template>
   <main>
-    <section class="article-section">
+    <ErrorMessage class="error-message" v-if="articleStore.error" />
+    <section class="article-section" v-if="!articleStore.error">
       <ProgressBar :currentStep="currentStep"></ProgressBar>
       <div class="loading-container" v-show="articleStore.loading">
         <LoadingSpinner></LoadingSpinner>
         Generating article...
       </div>
+
 
       <div class="intro-box">
         <div class="back-button" v-show="!articleStore.loading" @click="goBack"><div class="material-icons keyboard_backspace back-icon"></div>Back to topic selection</div>
@@ -37,6 +39,17 @@
       <div class="textarea-container" v-show="!articleStore.loading">
         <ArticleBlock v-model:text="body" type="Body"></ArticleBlock>
       </div>
+      <div class="graph-container" v-if="articleStore.hasGraph">
+      <h1 class="graph-title">Plots and Charts</h1>
+      <GraphChart class="graph-box"
+        :plotType="chartType"
+        :labels="articleStore.graphLabels"
+        :data="articleStore.graphData"
+        :title="articleStore.graphTitle"
+        :xAxisLabel="articleStore.graphAxisLabels[0]"
+        :yAxisLabel="articleStore.graphAxisLabels[1]"
+      />
+    </div>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
@@ -63,7 +76,38 @@
             </div>
           </div>
         </div>
-        <SrcUrlBlock :url="originalUrl" v-show="!articleStore.loading"></SrcUrlBlock>
+        <SrcUrlBlock :url="originalUrl" source_type="Main source" v-show="!articleStore.loading"></SrcUrlBlock>
+        <div v-for="(stormSource, index) in visibleStormSources" :key="index">
+
+        <SrcUrlBlock :url="stormSource" source_type="STORM source" />
+      </div>
+
+      <!-- Show hidden sources if storm sources are enabled -->
+
+  <div
+    v-for="(stormSource, index) in (showAllSources ? hiddenStormSources : [])"
+    :key="'hidden-' + index"
+    class="storm-source"
+  >
+    <SrcUrlBlock :url="stormSource" source_type="STORM source" />
+  </div>
+
+      <div v-if="articleStore.stormSources.length > 4">
+        <button
+          v-if="!showAllSources"
+          @click="showAllSources = true"
+          class="show-more-btn"
+        >
+          Show more ({{ hiddenStormSources.length }})<span class="material-icons arrow_downward icon-arrow"></span>
+        </button>
+        <button
+          v-if="showAllSources || visibleStormSources.length > 4"
+          @click="showAllSources = false"
+          class="show-less-btn "
+        >Show less<span class="material-icons arrow_upward icon-arrow"></span>
+        </button>
+      </div>
+
 
         <Buttons v-if="isMobileDevice" />
     </section>
@@ -72,13 +116,19 @@
     <section class="sidebar-section" v-if="!isMobileDevice">
       <Buttons />
       <Suggestions :copyTitle="copyTitle" :titleSuggestions="titleSuggestions" :regenerateSuggestions="regenerateSuggestions" />
+      <div>
+
+
+  </div>
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" @save="hideSaveChangesPopup" v-show="!articleStore.loading"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" @save="hideSaveChangesPopup" v-show="!articleStore.loading" v-if="!articleStore.error"/>
   </main>
 </template>
 
 <script lang="ts">
+import { ref, computed } from 'vue';
 import { useArticleStore } from '@/stores/articleStore'
+import type { ChartType } from 'chart.js';
 import ProgressBar from '@/components/ProgressBar.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import AiContent from '@/components/AiContent.vue'
@@ -88,13 +138,34 @@ import ArticleService from '@/services/ArticleService';
 import SaveChangesPopup from '@/components/SaveChangesPopup.vue';
 import Buttons from './Buttons.vue';
 import Suggestions from './Suggestions.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
+import GraphChart from '@/components/GraphChart.vue';
+
 
 const MOBILE_WIDTH_THRESHOLD = 1024
 
 export default {
   setup() {
     const articleStore = useArticleStore()
-    return { articleStore }
+    const chartType = computed(() => articleStore.graphType as ChartType);
+
+    const showAllSources = ref(false);
+
+
+    const visibleStormSources = computed(() =>
+      showAllSources.value ? articleStore.stormSources : articleStore.stormSources.slice(0, 4)
+    );
+
+    const hiddenStormSources = computed(() =>
+      showAllSources.value ? [] : articleStore.stormSources.slice(4)
+    );
+
+
+    return { articleStore, showAllSources,
+      visibleStormSources,
+      hiddenStormSources, chartType}
+
+
   },
   components: {
     ProgressBar,
@@ -104,7 +175,9 @@ export default {
     SrcUrlBlock,
     SaveChangesPopup,
     Buttons,
-    Suggestions
+    Suggestions,
+    ErrorMessage,
+    GraphChart,
   },
   data() {
     return {
@@ -235,6 +308,13 @@ export default {
 
       this.articleStore.selectedTopic = localStorage.getItem('selectedTopic') || ''
       this.originalUrl = localStorage.getItem('originalUrl') || ''
+
+      if (localStorage.getItem('stormSources') != null) {
+        const savedStormSources = localStorage.getItem('stormSources');
+        this.articleStore.stormSources = savedStormSources
+          ? JSON.parse(savedStormSources)
+          : [];
+      }
     },
     exportText() {
       const tagsText = this.tags.length > 0 ? this.tags.join(', ') : 'No tags'
@@ -310,6 +390,13 @@ export default {
     }
   },
   watch: {
+    'articleStore.stormSources': {
+      handler(newValue) {
+        localStorage.setItem('stormSources', JSON.stringify(newValue));
+      },
+      deep: true,
+    },
+
     engagingText(newValue) {
       localStorage.setItem('engagingText', newValue)
       this.showSaveChangesPopup()
@@ -374,6 +461,31 @@ main {
   padding-bottom: 20px;
 }
 
+.error-message {
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.graph-container {
+  width: 96%;
+  margin: auto;
+}
+
+.graph-title {
+  padding: 3%;
+}
+
+.graph-box {
+  padding: 6px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px var(--color-shadow);
+}
+
 
 .sidebar-section {
   border-left: 1px solid var(--color-border);
@@ -383,6 +495,36 @@ main {
   height: 90vh;
   overflow-y: auto;
 }
+
+.show-more-btn, .show-less-btn  {
+  background-color: var(--color-block);
+  color: var(--color-text);
+  border-radius: 5px;
+  border: none;
+  padding: 8px 16px;
+  margin: auto;
+  cursor: pointer;
+  font-size: 12px;
+  margin: 2px 20px;
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+}
+
+.icon-arrow {
+  font-size: 16px;
+}
+
+.show-more-btn:hover, .show-less-btn:hover {
+  background-color: var(--color-block-hover);
+}
+
+.sources-button-container {
+  margin-bottom: 60px;
+}
+
 
 .article-section::-webkit-scrollbar {
   width: 8px;

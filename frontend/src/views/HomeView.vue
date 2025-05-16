@@ -38,6 +38,8 @@ export default {
   },
   mounted() {
     localStorage.clear();
+    const articleStore = useArticleStore();
+    articleStore.$reset();
 
     // paste article url from query params (for presentation purposes)
     if (this.$route.query.article_url) {
@@ -82,6 +84,7 @@ export default {
         topicsStore.fetchTopics(this.inputURL);
         this.$router.push('/topics');
       } catch (error) {
+        topicsStore.error = true;
         console.error("Failed to fetch topics: ", error);
       }
     },

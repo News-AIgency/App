@@ -1,8 +1,9 @@
 <template>
   <main>
     <ProgressBar :currentStep="currentStep"></ProgressBar>
-    <div class="topic-selection">
-      <h2 class="title">Custom topic</h2>
+    <ErrorMessage class="error-message" v-if="topicsStore.error" />
+    <div class="topic-selection" v-if="!topicsStore.error">
+      <h2 class="title" >Custom topic</h2>
       <div class="custom-topic-container">
         <input
           type="text"
@@ -40,6 +41,7 @@
           <LoadingSpinner></LoadingSpinner>
           Generating topics...
         </div>
+
       </form>
     </div>
   </main>
@@ -51,6 +53,7 @@ import { useTopicsStore } from '../stores/topicsStore'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import AiContent from '@/components/AiContent.vue'
+import ErrorMessage from '@/components/ErrorMessage.vue'
 
 export default {
   setup() {
@@ -62,6 +65,7 @@ export default {
     LoadingSpinner,
     ProgressBar,
     AiContent,
+    ErrorMessage
   },
   data() {
     return {
@@ -80,7 +84,6 @@ export default {
   },
   methods: {
     async selectTopic(topic: string) {
-      console.log('TOPIC: ', topic)
       this.selectedTopic = topic
       const articleStore = useArticleStore()
       articleStore.selectedTopic = topic
@@ -90,6 +93,7 @@ export default {
         this.$router.push('/article')
       } catch (error) {
         console.error('Failed to fetch article: ', error)
+        articleStore.error = true
       }
     },
     loadFromLocalStorage() {
@@ -134,6 +138,17 @@ export default {
   .topics .forward-arrow {
     display: none;
   }
+}
+
+.error-message {
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .ai-gen-content {

@@ -13,6 +13,7 @@
   --color-green-hover: rgb(71, 154, 82);
 
   --color-border: #00000010;
+  --color-shadow: #c3c7d450;
 
   --color-heading: var(--text-black);
   --color-text: var(--text-black);

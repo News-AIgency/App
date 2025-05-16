@@ -45,7 +45,7 @@ class GeneratedArticle(BaseModel):
     # images: Optional[list["Images"]] = []
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Sources(BaseModel):
@@ -59,14 +59,14 @@ class Heading(BaseModel):
     heading_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Topic(BaseModel):
     topic_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 # class Text(BaseModel):
@@ -80,51 +80,60 @@ class Body(BaseModel):
     body_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Perex(BaseModel):
     perex_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class EngagingText(BaseModel):
     engaging_text_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Tags(BaseModel):
     tags_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
+class GraphAxisLabels(BaseModel):
+    x_axis: Optional[str] = None
+    y_axis: Optional[str] = None
 
 class GraphData(BaseModel):
     graph_type: Optional[str] = None
     graph_labels: Optional[list[str]] = None
     graph_values: Optional[list[float]] = None
+    gen_graph: Optional[bool] = None
+    graph_title: Optional[str] = None
+    #x_axis: Optional[str] = None
+    #y_axis: Optional[str] = None
+    #graph_axis_labels: Optional[dict[str, Optional[str]]] = None  # e.g., {'x_axis': 'Time', 'y_axis': 'Value'}
+    graph_axis_labels: Optional[GraphAxisLabels] = None
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Images(BaseModel):
     images_content: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class Test(BaseModel):
     test: str
 
     class Config:
-        arbitraty_types_allowed = True
+        arbitrary_types_allowed = True
 
 
 class UpdateArticleRequest(BaseModel):
@@ -138,7 +147,7 @@ class UpdateArticleRequest(BaseModel):
 db_dependency = Annotated[AsyncSession, Depends(db_manager.get_db)]
 
 
-@router.post("/save_article/")  # , status_code=status.HTTP_201_CREATED
+@router.post("/save_article/")
 async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
     try:
         url = models.Sources(url=article.url.url)
@@ -146,34 +155,31 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
         topic = models.Topic(topic_content=article.topic.topic_content)
         perex = models.Perex(perex_content=article.perex.perex_content)
         body = models.Body(body_content=article.body.body_content)
-        engaging_text = models.EngagingText(
-            engaging_text_content=article.engaging_text.engaging_text_content
-        )
-        # tags are handled lower, dont add them here
-        # graph_type = models.GraphData(graph_type=article.graph_type.graph_type)
-        # graph_labels = models.GraphData(graph_labels=article.graph_labels.graph_labels)
-        # graph_values = models.GraphData(graph_values=article.graph_values.graph_values)
+        engaging_text = models.EngagingText(engaging_text_content=article.engaging_text.engaging_text_content)
+
         graph_data = None
         if article.graph_data:
-            graph_labels = (
-                article.graph_data.graph_labels
-                if article.graph_data.graph_labels is not None
-                else article.graph_data.x_vals
-            )
-            graph_values = (
-                article.graph_data.graph_values
-                if article.graph_data.graph_values is not None
-                else article.graph_data.y_vals
-            )
+            graph_fields = {}
 
-            graph_data = models.GraphData(
-                graph_type=article.graph_data.graph_type,
-                graph_labels=graph_labels,
-                graph_values=graph_values,
-            )
-            db.add(graph_data)
+            if article.graph_data.gen_graph is not None:
+                graph_fields["gen_graph"] = article.graph_data.gen_graph
+            if article.graph_data.graph_title is not None:
+                graph_fields["graph_title"] = article.graph_data.graph_title
+            if article.graph_data.graph_type is not None:
+                graph_fields["graph_type"] = article.graph_data.graph_type
+            if article.graph_data.graph_labels is not None:
+                graph_fields["graph_labels"] = article.graph_data.graph_labels
+            if article.graph_data.graph_values is not None:
+                graph_fields["graph_values"] = article.graph_data.graph_values
 
-        # print(type(heading), type(topic), type(perex), type(body), type(text))
+            if article.graph_data.graph_axis_labels:
+                graph_fields["x_axis"] = article.graph_data.graph_axis_labels.x_axis
+                graph_fields["y_axis"] = article.graph_data.graph_axis_labels.y_axis
+
+            if graph_fields:
+                graph_data = models.GraphData(**graph_fields)
+                db.add(graph_data)
+
         db.add(url)
         db.add(heading)
         db.add(topic)
@@ -181,11 +187,15 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
         db.add(body)
         db.add(engaging_text)
         await db.commit()
+
         await db.refresh(url)
         await db.refresh(heading)
         await db.refresh(topic)
         await db.refresh(perex)
         await db.refresh(body)
+        if graph_data:
+            await db.refresh(graph_data)
+        await db.refresh(engaging_text)
 
         tag_ids = []
         for tag_data in article.tags:
@@ -194,6 +204,7 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
             await db.commit()
             await db.refresh(tag)
             tag_ids.append(tag)
+
 
         new_article = models.GeneratedArticles(
             heading=heading,
@@ -215,6 +226,7 @@ async def save_article(article: GeneratedArticle, db: db_dependency) -> dict:
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 
 
 @router.get("/articles/{generated_article_id}")
@@ -239,6 +251,7 @@ async def get_articles(generated_article_id: int, db: db_dependency) -> dict[str
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
 
+        graph_data = article.graph_data
         return {
             "id": article.id,
             "url": article.sources.url,
@@ -248,19 +261,25 @@ async def get_articles(generated_article_id: int, db: db_dependency) -> dict[str
             "perex": article.perex.perex_content,
             "engaging_text": article.engaging_text.engaging_text_content,
             "tags": [tag.tags_content for tag in article.tags],
-            "graph_type": article.graph_data.graph_type if article.graph_data else None,
-            "graph_labels": (
-                article.graph_data.graph_labels if article.graph_data else None
-            ),
-            "graph_values": (
-                article.graph_data.graph_values if article.graph_data else None
-            ),
+            "graph_data": {
+                "graph_type": graph_data.graph_type,
+                "graph_labels": graph_data.graph_labels,
+                "graph_values": graph_data.graph_values,
+                "gen_graph": graph_data.gen_graph,
+                "graph_title": graph_data.graph_title,
+                "graph_axis_labels": {
+                     "x_axis": graph_data.x_axis,
+                    "y_axis": graph_data.y_axis
+                }
+            } if graph_data else None
         }
+
 
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to fetch article: {str(e)}"
         )
+
 
 
 @router.patch("/articles/{article_id}")

@@ -121,7 +121,7 @@
 
   </div>
     </section>
-    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" v-show="!articleStore.loading" v-if="!articleStore.error"/>
+    <SaveChangesPopup :visible="showSavePopup" @discard="hideSaveChangesPopup" @save="hideSaveChangesPopup" v-show="!articleStore.loading" v-if="!articleStore.error"/>
   </main>
 </template>
 

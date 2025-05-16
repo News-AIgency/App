@@ -4,14 +4,16 @@
     <p class="text">You have unsaved changes</p>
     <div class="buttons-container">
       <button class="discard-btn" @click="discardChanges">Discard</button
-      ><button class="save-btn">Save changes</button>
+      ><button class="save-btn" @click="saveChanges">Save changes</button>
     </div>
   </div>
 </transition>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
+import { useArticleStore } from '@/stores/articleStore';
+import ArticleService from '@/services/ArticleService';
 
 export default defineComponent({
   name: 'SaveChangePopup',
@@ -25,6 +27,23 @@ export default defineComponent({
     discardChanges() {
       this.$emit('discard')
     },
+    async saveChanges() {
+      const articleStore = useArticleStore()
+      const data = {
+        heading: localStorage.getItem('title') || null,
+        engaging_text: localStorage.getItem('engagingText') || null,
+        perex: localStorage.getItem('perex') || null,
+        body: localStorage.getItem('body') || null,
+        tags: JSON.parse(localStorage.getItem('tags') || '[]') || null,
+      };
+
+      await ArticleService.updateDbArticle(
+        articleStore.getArticleId,
+        data,
+      )
+
+      this.$emit('save');
+    }
   },
 })
 </script>

@@ -135,6 +135,10 @@ div {
   width: 100%;
 }
 
+canvas {
+  padding-bottom: 40px;
+}
+
 .download-btn {
   font-size: 16px;
   float: right;

@@ -50,7 +50,7 @@
         :yAxisLabel="articleStore.graphYAxisLabel"
       />
     </div>
-    <h1 class="graph-title">Tags</h1>
+    <h1 class="graph-title" v-show="!articleStore.loading">Tags</h1>
       <div class="tags-container" v-show="!articleStore.loading">
           <div class="tags">
             <div v-for="(tag, index) in tags" :key="index">
@@ -77,7 +77,7 @@
             </div>
           </div>
         </div>
-        <h1 class="graph-title">Sources</h1>
+        <h1 class="graph-title" v-show="!articleStore.loading">Sources</h1>
         <SrcUrlBlock :url="originalUrl" source_type="Main source" v-show="!articleStore.loading"></SrcUrlBlock>
         <div v-for="(stormSource, index) in visibleStormSources" :key="index">
 
